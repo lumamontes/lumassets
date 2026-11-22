@@ -20,6 +20,8 @@ There’s also a [composer][compose] where you can pick drawings, play with effe
 
 Open a post to copy its link or choose **Remix** to bring it into the composer and make your own version.
 
+[![Two compositions on the Lumassets Wall with Share and Remix controls.](docs/wall-screenshot.png)][wall]
+
 ## Technology
 
 - **Astro and TypeScript** for the static site.
