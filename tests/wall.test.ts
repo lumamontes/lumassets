@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { layerFor, newDoc, pngTextFor, withProvenance, type EditorAsset } from '../src/lib/composition.ts';
+import { serveWallEntry, wallEntryPath, wallEntrySlots as slots } from '../src/lib/wall-entry.ts';
 import { withPngText } from '../src/lib/png-meta.ts';
 import { LIMITS, checkComposerPng, cleanText, handle, type D1Like, type R2Like, type WallEnv } from '../src/lib/wall-api.ts';
 
@@ -198,4 +199,25 @@ test('concurrent shares cannot both take the last approval slot', async () => {
   ]);
   assert.deepEqual(shares.map(({ status }) => status).sort(), [201, 503]);
   assert.equal(e.WALL.keys().length, 1);
+});
+
+test('wall permalinks expose escaped social metadata only for approved posts', async () => {
+  const e = env();
+  const title = '<A drawing> & "friends"';
+  const { id } = await (await handle(share(composerPng(), { title, author: 'Luma' }), e, okTurnstile)).json() as { id: string };
+  const html = `<title>${slots.title}</title><meta property="og:url" content="${slots.canonical}"><meta property="og:image" content="${slots.image}"><p>${slots.byline}</p>`;
+  const assets = { fetch: async () => new Response(html, { headers: { 'content-type': 'text/html' } }) };
+  const entry = new Request(base + wallEntryPath(id));
+  assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
+  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'approve' }) }), e);
+  const response = await serveWallEntry(entry, e.DB, assets);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const page = await response.text();
+  assert.ok(page.includes('&lt;A drawing&gt; &amp; &quot;friends&quot;'));
+  assert.ok(page.includes(base + wallEntryPath(id)));
+  assert.ok(page.includes(`${base}/wall/image/${id}.png`));
+  assert.ok(page.includes('by Luma'));
+  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'hide' }) }), e);
+  assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
 });

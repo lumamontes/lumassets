@@ -8,6 +8,8 @@ import Base from '../../layouts/Base.astro';
     <p class="muted">Things people made in the <a href="/compose/">composer</a>. Remix any of them, or share yours from there.</p>
   </div>
   <p class="muted state" id="state" aria-live="polite">Loading…</p>
+  <p class="share-feedback muted" id="share-status" role="status"></p>
+  <input class="share-feedback" id="share-link" aria-label="Share link" type="url" readonly hidden />
   <ul class="wall" id="wall"></ul>
   <p class="more-wrap"><button type="button" class="btn" id="more" hidden>Load more</button></p>
 </Base>
@@ -22,14 +24,21 @@ import Base from '../../layouts/Base.astro';
   .wall :global(li) { break-inside: avoid; margin: 0 0 1rem; border: 1px solid var(--line); }
   .wall :global(img) { display: block; width: 100%; height: auto; background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
   .wall :global(.meta) { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.6rem; font-size: 0.8rem; align-items: baseline; }
-  .wall :global(.meta span) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .wall :global(.meta a) { font-family: var(--mono); font-size: 0.72rem; white-space: nowrap; color: var(--ink); }
+  .wall :global(.label) { overflow-wrap: anywhere; }
+  .wall :global(.actions) { display: flex; gap: 0.65rem; align-items: baseline; }
+  .wall :global(.actions > *) { font-family: var(--mono); font-size: 0.72rem; white-space: nowrap; color: var(--ink); }
+  .share-feedback { margin: 0 1.25rem 0.75rem; }
+  #share-status:empty, #share-link[hidden] { display: none; }
+  #share-link { width: min(32rem, calc(100% - 2.5rem)); }
   .wall :global(small) { color: var(--muted); }
   .more-wrap { text-align: center; }
   .more-wrap .btn[hidden] { display: none; }
 </style>
 
 <script>
+  import { wallEntryPath } from '../../lib/wall-entry';
+  import { shareWallEntry } from '../../scripts/wall-share';
+
   interface Post { id: string; title: string; author: string | null; createdAt: string; width: number; height: number; image: string }
   const $ = (id: string) => document.getElementById(id)!;
   const wall = $('wall');
@@ -48,8 +57,16 @@ import Base from '../../layouts/Base.astro';
     img.alt = p.title;
     const meta = document.createElement('div');
     meta.className = 'meta';
+    const details = wallEntryPath(p.id);
+    const artwork = document.createElement('a');
+    artwork.href = details;
+    artwork.append(img);
     const label = document.createElement('span');
-    label.textContent = p.title; // always as text, never as HTML
+    label.className = 'label';
+    const title = document.createElement('a');
+    title.href = details;
+    title.textContent = p.title;
+    label.append(title);
     if (p.author) {
       const by = document.createElement('small');
       by.textContent = ` by ${p.author}`;
@@ -58,8 +75,19 @@ import Base from '../../layouts/Base.astro';
     const remix = document.createElement('a');
     remix.href = `/compose/?wall=${encodeURIComponent(p.id)}`;
     remix.textContent = 'Remix';
-    meta.append(label, remix);
-    li.append(img, meta);
+    const share = document.createElement('button');
+    share.type = 'button';
+    share.className = 'link';
+    share.textContent = 'Share';
+    share.setAttribute('aria-label', `Share ${p.title}`);
+    share.addEventListener('click', () => {
+      void shareWallEntry(new URL(details, location.origin).href, p.title, $('share-status'), $('share-link') as HTMLInputElement);
+    });
+    const actions = document.createElement('span');
+    actions.className = 'actions';
+    actions.append(share, remix);
+    meta.append(label, actions);
+    li.append(artwork, meta);
     return li;
   }
 

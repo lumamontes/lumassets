@@ -8,7 +8,7 @@ preview_urls = false
 directory = "./dist"
 binding = "ASSETS"
 not_found_handling = "404-page"
-run_worker_first = ["/api", "/api/*"]
+run_worker_first = ["/api", "/api/*", "/wall/post/*", "/wall/image/*", "/wall/entry-template", "/wall/entry-template/*"]
 
 [observability]
 enabled = true

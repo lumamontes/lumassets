@@ -143,7 +143,11 @@ async function reserveShareAttempt(db: D1Like, ip: string, secret: string, now: 
   return reservation ? null : windowStart + SHARE_WINDOW_SECONDS - now;
 }
 
-const publicPost = (p: Post) => ({ id: p.id, title: p.title, author: p.author, createdAt: p.created_at, width: p.width, height: p.height, image: `/api/wall/${p.id}.png` });
+export const publicPost = (p: Post) => ({ id: p.id, title: p.title, author: p.author, createdAt: p.created_at, width: p.width, height: p.height, image: `/api/wall/${p.id}.png` });
+
+export function approvedPost(db: D1Like, id: string) {
+  return db.prepare("SELECT * FROM posts WHERE id = ?1 AND status = 'approved'").bind(id).first<Post>();
+}
 
 // ---------------------------------------------------------------- router
 
@@ -221,13 +225,13 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
 
   // an image
   const img = path.match(/^\/api\/wall\/([a-z0-9]{12})\.png$/);
-  if (img && req.method === 'GET') {
+  if (img && (req.method === 'GET' || req.method === 'HEAD')) {
     const post = await env.DB.prepare('SELECT * FROM posts WHERE id = ?1').bind(img[1]).first<Post>();
     const admin = isAdmin(req, env);
     if (!post || (post.status !== 'approved' && !admin)) return fail(404, 'Not found.');
     const obj = await env.WALL.get(`wall/${post.id}.png`);
     if (!obj) return fail(404, 'Not found.');
-    return new Response(obj.body ?? (await obj.arrayBuffer()), {
+    return new Response(req.method === 'HEAD' ? null : obj.body ?? (await obj.arrayBuffer()), {
       headers: {
         'content-type': 'image/png',
         // an hour, so a post you hide disappears from browsers soon after
