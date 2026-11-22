@@ -162,3 +162,16 @@ test('wall artwork opens in place, with navigation and focus restored on close',
   await expect(first).toBeFocused();
   await expect(page).toHaveURL(/\/wall\/$/);
 });
+
+test('touch Composer can add, size and export a drawing', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Touch coverage');
+  await page.goto('/compose/');
+  await page.getByRole('button', { name: 'Add fofolete', exact: true }).tap();
+  const layer = page.locator('#layers > li').getByRole('button', { name: /fofolete/ });
+  await expect(layer).toHaveAttribute('aria-pressed', 'true');
+  await page.getByText('Size & position', { exact: true }).tap();
+  await page.getByLabel('Size', { exact: true }).fill('0.5');
+  const [png] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PNG' }).tap()]);
+  expect(readFileSync((await png.path())!).subarray(1, 4).toString()).toBe('PNG');
+  await expect(layer).toHaveAttribute('aria-pressed', 'true');
+});

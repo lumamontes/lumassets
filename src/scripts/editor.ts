@@ -247,8 +247,7 @@ export function startEditor() {
       const obj = new FabricImage(el, { originX: 'center', originY: 'center' }) as LayerObject;
       obj.layerId = l.id;
       styleHandles(obj);
-      applyLayer(obj, l, el);
-      return obj;
+      return { obj, layer: l, source: el };
     }));
     if (token !== renderToken) return; // a newer render started
     endDragView();
@@ -257,7 +256,13 @@ export function startEditor() {
     try {
       canvas.clear();
       canvas.backgroundColor = doc.canvas.background ?? '';
-      for (const r of built) r.status === 'fulfilled' ? canvas.add(r.value) : failed++;
+      for (const result of built) {
+        if (result.status === 'rejected') { failed++; continue; }
+        const { obj, layer, source } = result.value;
+        // A different drawing may have been loading while this layer was edited.
+        applyLayer(obj, layer, source);
+        canvas.add(obj);
+      }
       fitStage();
       const sel = selectedId && objectFor(selectedId);
       if (sel) canvas.setActiveObject(sel);
@@ -779,45 +784,44 @@ export function startEditor() {
   async function compositionPng(maxSide = 0): Promise<Blob> {
     clearTimeout(renderTimer);
     await render();
+    const snapshot = structuredClone(finalDoc());
+    const { width, height, background } = snapshot.canvas;
     let blob: Blob;
     if (hasEverythingEffects()) {
       // background first, then the layers with the composition's effects, at full size
       say('Applying effects to everything…');
       const fx = await globalImage(1 / zoom);
       const out = document.createElement('canvas');
-      out.width = doc.canvas.width;
-      out.height = doc.canvas.height;
+      out.width = width;
+      out.height = height;
       const ctx = out.getContext('2d')!;
-      if (doc.canvas.background) { ctx.fillStyle = doc.canvas.background; ctx.fillRect(0, 0, out.width, out.height); }
+      if (background) { ctx.fillStyle = background; ctx.fillRect(0, 0, out.width, out.height); }
       if (fx) ctx.drawImage(fx, 0, 0, out.width, out.height);
       blob = await new Promise<Blob>((res, rej) => out.toBlob((b) => (b ? res(b) : rej(new Error('PNG failed'))), 'image/png'));
     } else {
-      canvas.discardActiveObject();
-      canvas.renderAll();
       const url = canvas.toDataURL({ format: 'png', multiplier: 1 / zoom });
       blob = await (await fetch(url)).blob();
     }
-    select(selectedId);
-    if (maxSide && Math.max(doc.canvas.width, doc.canvas.height) > maxSide) {
-      const k = maxSide / Math.max(doc.canvas.width, doc.canvas.height);
+    if (maxSide && Math.max(width, height) > maxSide) {
+      const k = maxSide / Math.max(width, height);
       const img = await createImageBitmap(blob);
       const small = document.createElement('canvas');
-      small.width = Math.round(doc.canvas.width * k);
-      small.height = Math.round(doc.canvas.height * k);
+      small.width = Math.round(width * k);
+      small.height = Math.round(height * k);
       const ctx = small.getContext('2d')!;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, small.width, small.height);
       blob = await new Promise<Blob>((res, rej) => small.toBlob((b) => (b ? res(b) : rej(new Error('PNG failed'))), 'image/png'));
     }
     // where it came from + the composition itself, so the PNG can be opened here again
-    const tagged = withPngText(new Uint8Array(await blob.arrayBuffer()), pngTextFor(finalDoc()));
+    const tagged = withPngText(new Uint8Array(await blob.arrayBuffer()), pngTextFor(snapshot));
     return new Blob([tagged], { type: 'image/png' });
   }
 
   async function exportPng() {
     if (!doc.layers.length) { say('Add an asset before exporting.'); return; }
     download(`${baseName()}.png`, await compositionPng());
-    say(`Exported ${doc.canvas.width}×${doc.canvas.height} PNG.`);
+    say('Exported PNG.');
   }
 
   // ---------- share to the wall (shown after Luma approves it)
@@ -901,20 +905,22 @@ export function startEditor() {
   async function exportSvg() {
     if (!doc.layers.length) { say('Add an asset before exporting.'); return; }
     say('Preparing SVG…');
-    const ids = [...new Set(doc.layers.map((l) => l.assetId))];
+    const snapshot = structuredClone(finalDoc());
+    const filename = baseName();
+    const ids = [...new Set(snapshot.layers.map((l) => l.assetId))];
     const embeds = new Map<string, string>();
     const fills = new Map<string, string>();
     try {
       await Promise.all([
         ...ids.map(async (id) => embeds.set(id, await embedUrl(assets.get(id)!))),
-        ...doc.layers.filter((layer) => layer.fill).map(async (layer) => fills.set(layer.id, (await fillFor(layer))!)),
+        ...snapshot.layers.filter((layer) => layer.fill).map(async (layer) => fills.set(layer.id, (await fillFor(layer))!)),
       ]);
     } catch (e) {
       say((e as Error).message);
       return;
     }
-    const svg = toSvg(finalDoc(), assets, embeds, fills);
-    download(`${baseName()}.svg`, new Blob([svg], { type: 'image/svg+xml' }));
+    const svg = toSvg(snapshot, assets, embeds, fills);
+    download(`${filename}.svg`, new Blob([svg], { type: 'image/svg+xml' }));
     const raster = ids.some((id) => !assets.get(id)!.vector);
     say(raster ? 'Exported SVG. The drawings inside stay scanned images, not vector paths.' : 'Exported SVG.');
   }

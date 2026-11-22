@@ -76,6 +76,7 @@ test('exports PNG and SVG', async ({ page }) => {
   await expect(layers(page)).toHaveCount(1);
 
   const [png] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PNG' }).click()]);
+  await expect(layers(page).first().getByRole('button')).toHaveAttribute('aria-pressed', 'true');
   expect(png.suggestedFilename()).toMatch(/^lumassets-\d{8}-\d{4}\.png$/);
   const pngBytes = readFileSync((await png.path())!);
   expect(pngBytes.subarray(1, 4).toString()).toBe('PNG');
@@ -516,4 +517,107 @@ test('a newly added layer stays selected if clicked while its image is loading',
   } finally {
     releaseImage();
   }
+});
+
+test('an SVG export stays tied to the artwork present when export starts', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  const embed = await page.locator('#boot').evaluate((el) => JSON.parse(el.textContent!).assets.find((asset: { id: string }) => asset.id === 'sq3-19').embed);
+  let finish!: () => void;
+  let started!: () => void;
+  const pending = new Promise<void>((resolve) => { finish = resolve; });
+  const fetching = new Promise<void>((resolve) => { started = resolve; });
+  await page.route(new URL(embed, page.url()).href, async (route) => {
+    started();
+    await pending;
+    await route.continue();
+  });
+  const downloaded = page.waitForEvent('download');
+  try {
+    await fromMore(page, 'Export SVG');
+    await fetching;
+    await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+    await expect(layers(page)).toHaveCount(2);
+  } finally {
+    finish();
+  }
+  const svg = readFileSync((await (await downloaded).path())!, 'utf8');
+  expect(svg).toContain('id="asset-sq3-19"');
+  expect(svg.includes('id="asset-av-02"')).toBe(false);
+  expect(svg.includes('href="undefined"')).toBe(false);
+});
+
+test('a slow drawing does not undo a size edit on a layer already on the canvas', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await openSection(page, 'Look');
+  await page.locator('#color').fill('#e9009d');
+
+  const countInk = () => page.locator('canvas.lower-canvas').evaluate((surface: HTMLCanvasElement) => {
+    const pixels = surface.getContext('2d')!.getImageData(0, 0, surface.width, surface.height).data;
+    let pink = 0;
+    let black = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i] > 190 && pixels[i + 1] < 40 && pixels[i + 2] > 110 && pixels[i + 2] < 190) pink++;
+      if (pixels[i] < 30 && pixels[i + 1] < 30 && pixels[i + 2] < 30 && pixels[i + 3] > 240) black++;
+    }
+    return { pink, black };
+  });
+  await expect.poll(async () => (await countInk()).pink).toBeGreaterThan(100);
+  const original = (await countInk()).pink;
+  const raster = await page.locator('#boot').evaluate((el) => JSON.parse(el.textContent!).assets.find((asset: { id: string }) => asset.id === 'av-02').raster);
+  let finish!: () => void;
+  let started!: () => void;
+  const pending = new Promise<void>((resolve) => { finish = resolve; });
+  const fetching = new Promise<void>((resolve) => { started = resolve; });
+  await page.route(new URL(raster, page.url()).href, async (route) => {
+    started();
+    await pending;
+    await route.continue();
+  });
+  let blackBefore = 0;
+  try {
+    await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+    await fetching;
+    await layers(page).first().getByRole('button').click();
+    await openSection(page, 'Size & position');
+    await page.locator('#scale').fill('0.55');
+    await expect.poll(async () => (await countInk()).pink).toBeGreaterThan(original * 1.5);
+    blackBefore = (await countInk()).black;
+  } finally {
+    finish();
+  }
+  await expect.poll(async () => (await countInk()).black).toBeGreaterThan(blackBefore + 150);
+  expect((await countInk()).pink).toBeGreaterThan(original * 1.5);
+  await expect(page.locator('#scale')).toHaveValue('0.55');
+});
+
+test('a PNG keeps its original layers while encoding even if Composer changes', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+  await expect(page.locator('.global-fx')).toBeVisible();
+
+  await page.evaluate(() => {
+    const toBlob = HTMLCanvasElement.prototype.toBlob;
+    HTMLCanvasElement.prototype.toBlob = function (callback, ...options) {
+      HTMLCanvasElement.prototype.toBlob = toBlob;
+      const target = this;
+      document.addEventListener('finish-test-encoding', () => toBlob.call(target, callback, ...options), { once: true });
+      document.body.dataset.encodingPaused = 'true';
+    };
+  });
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export PNG' }).click();
+  try {
+    await expect(page.locator('body')).toHaveAttribute('data-encoding-paused', 'true');
+    await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+    await expect(layers(page)).toHaveCount(2);
+  } finally {
+    await page.evaluate(() => document.dispatchEvent(new Event('finish-test-encoding')));
+  }
+  await page.locator('#open').setInputFiles((await (await downloaded).path())!);
+  await expect(page.locator('#status')).toHaveText('Opened the composition.');
+  await expect(layers(page)).toHaveCount(1);
 });
