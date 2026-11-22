@@ -9,6 +9,12 @@ export async function shareWallEntry(url: string, title: string, status: HTMLEle
       if (error instanceof DOMException && error.name === 'AbortError') return;
     }
   }
+  await copyWallEntryLink(url, status, fallback);
+}
+
+export async function copyWallEntryLink(url: string, status: HTMLElement, fallback: HTMLInputElement) {
+  fallback.hidden = true;
+  status.textContent = '';
   try {
     await navigator.clipboard.writeText(url);
     status.textContent = 'Link copied.';

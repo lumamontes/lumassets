@@ -13,7 +13,8 @@ import { wallEntrySlots as entry } from '../../lib/wall-entry.ts';
     </header>
     <img src={entry.image} width={entry.width} height={entry.height} alt={entry.title} />
     <div class="actions">
-      <button type="button" class="btn primary" id="share-entry">Share</button>
+      <button type="button" class="btn primary" id="copy-entry">Copy link</button>
+      <button type="button" class="btn" id="share-entry">Share</button>
       <a class="btn" href={entry.remix}>Remix</a>
     </div>
     <p class="muted" id="share-status" role="status"></p>
@@ -29,15 +30,20 @@ import { wallEntrySlots as entry } from '../../lib/wall-entry.ts';
   header p { margin: 0.25rem 0 0; }
   header p:empty, #share-status:empty { display: none; }
   img { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
-  .actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
   #share-link { width: 100%; }
 </style>
 
 <script>
-  import { shareWallEntry } from '../../scripts/wall-share';
+  import { copyWallEntryLink, shareWallEntry } from '../../scripts/wall-share';
   const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!;
   const title = document.querySelector('h1')!.textContent!;
+  const status = document.getElementById('share-status')!;
+  const fallback = document.querySelector<HTMLInputElement>('#share-link')!;
+  document.getElementById('copy-entry')!.addEventListener('click', () => {
+    void copyWallEntryLink(canonical.href, status, fallback);
+  });
   document.getElementById('share-entry')!.addEventListener('click', () => {
-    void shareWallEntry(canonical.href, title, document.getElementById('share-status')!, document.querySelector<HTMLInputElement>('#share-link')!);
+    void shareWallEntry(canonical.href, title, status, fallback);
   });
 </script>

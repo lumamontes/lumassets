@@ -134,7 +134,11 @@ test('the wall page explains itself when the API is not there (static preview)',
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
 });
 
-test('wall artwork opens in place, with navigation and focus restored on close', async ({ page }) => {
+test('wall artwork opens in place, copies its own link, and restores focus on close', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: async () => { document.body.dataset.shareOpened = 'true'; } });
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (url: string) => { document.body.dataset.copiedLink = url; } } });
+  });
   const makePost = (id: string, title: string, author: string | null) => ({
     id, title, author, createdAt: '2026-11-22T00:00:00Z', width: 1600, height: 1000, image: '/favicon.svg',
   });
@@ -152,6 +156,10 @@ test('wall artwork opens in place, with navigation and focus restored on close',
   await expect(viewer.getByText('by luma faz um teste')).toBeVisible();
   await expect(viewer.getByRole('button', { name: 'Close artwork' })).toBeFocused();
   await expect(viewer.getByRole('link', { name: 'Remix' })).toHaveAttribute('href', '/compose/?wall=adyspfn372ys');
+  await viewer.getByRole('button', { name: 'Copy link', exact: true }).click();
+  await expect(viewer.getByRole('status')).toHaveText('Link copied.');
+  await expect(page.locator('body')).toHaveAttribute('data-copied-link', new URL('/wall/post/adyspfn372ys/', page.url()).href);
+  await expect(page.locator('body')).not.toHaveAttribute('data-share-opened', 'true');
 
   await viewer.getByRole('button', { name: 'Next artwork' }).click();
   await expect(page.getByRole('dialog', { name: 'Another drawing' })).toBeVisible();

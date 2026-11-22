@@ -29,6 +29,7 @@ import { icon } from '../../lib/icons';
           <button class="icon" type="button" id="viewer-next" aria-label="Next artwork" set:html={icon('right')}></button>
         </div>
         <div class="viewer-links">
+          <button class="btn small" type="button" id="viewer-copy">Copy link</button>
           <button class="btn small" type="button" id="viewer-share">Share</button>
           <a class="btn small" id="viewer-remix">Remix</a>
         </div>
@@ -68,6 +69,7 @@ import { icon } from '../../lib/icons';
   .wall-viewer article { padding: clamp(0.75rem, 3vw, 1.25rem); }
   .viewer-header, .viewer-actions, .viewer-nav, .viewer-links { display: flex; gap: 0.5rem; align-items: center; }
   .viewer-header, .viewer-actions { justify-content: space-between; }
+  .viewer-actions, .viewer-links { flex-wrap: wrap; }
   .viewer-header { align-items: start; }
   .viewer-header h2 { margin: 0; font-size: 1.15rem; overflow-wrap: anywhere; }
   .viewer-header p { margin: 0.2rem 0 0; }
@@ -89,7 +91,7 @@ import { icon } from '../../lib/icons';
 
 <script>
   import { wallEntryPath } from '../../lib/wall-entry';
-  import { shareWallEntry } from '../../scripts/wall-share';
+  import { copyWallEntryLink, shareWallEntry } from '../../scripts/wall-share';
 
   interface Post { id: string; title: string; author: string | null; createdAt: string; width: number; height: number; image: string }
   const $ = (id: string) => document.getElementById(id)!;
@@ -143,6 +145,10 @@ import { icon } from '../../lib/icons';
   $('viewer-close').addEventListener('click', () => dialog.close());
   previous.addEventListener('click', () => showArtwork(displayed - 1));
   next.addEventListener('click', () => showArtwork(displayed + 1));
+  $('viewer-copy').addEventListener('click', () => {
+    const post = postsOnWall[displayed];
+    if (post) void copyWallEntryLink(shareUrl(post), viewerStatus, viewerShareLink);
+  });
   $('viewer-share').addEventListener('click', () => {
     const post = postsOnWall[displayed];
     if (post) void shareWallEntry(shareUrl(post), post.title, viewerStatus, viewerShareLink);
