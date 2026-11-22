@@ -240,4 +240,8 @@ test('Google Analytics waits for opt-in and records generated downloads once', a
   expect(events).toEqual([['event', 'file_download', {
     file_name: 'library-drawing.svg', file_extension: 'svg', download_type: 'library-svg',
   }]]);
+  await page.locator('#p-compose').click();
+  await expect(page).toHaveURL(/\/compose\/.*$/);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { dataLayer?: ArrayLike<unknown>[] }).dataLayer
+    ?.some((entry) => entry[0] === 'event' && entry[1] === 'compose_with_drawing_click'))).toBe(true);
 });

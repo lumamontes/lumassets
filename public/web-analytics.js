@@ -8,6 +8,7 @@ if (location.hostname === 'lumassets.bibliotecadezines.workers.dev') {
 
   const measurementId = 'G-07J754P9YQ';
   const choiceKey = 'lumassets:analytics';
+  const nextClickKey = 'lumassets:analytics-click';
   const preference = document.querySelector('#analytics-settings');
   const settings = preference.querySelector('button');
   const prompt = document.querySelector('#analytics-prompt');
@@ -56,6 +57,14 @@ if (location.hostname === 'lumassets.bibliotecadezines.workers.dev') {
     tag.async = true;
     tag.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
     document.head.append(tag);
+
+    // Send a same-tab navigation click from the destination, after the tag has been queued.
+    try {
+      const pending = JSON.parse(sessionStorage.getItem(nextClickKey) || 'null');
+      sessionStorage.removeItem(nextClickKey);
+      if (pending?.path === location.pathname && actions.has(pending.action) && Date.now() - pending.time < 60_000)
+        gtag('event', `${pending.action}_click`);
+    } catch { /* Session storage may be disabled. */ }
   }
 
   preference.hidden = false;
@@ -90,24 +99,15 @@ if (location.hostname === 'lumassets.bibliotecadezines.workers.dev') {
     const target = event.target instanceof Element && event.target.closest('[data-analytics-action]');
     const action = target?.dataset.analyticsAction;
     if (choice !== 'granted' || !actions.has(action)) return;
-    const name = `${action}_click`;
-    // Give queued events a chance to send before a same-tab navigation unloads the page.
     if (target instanceof HTMLAnchorElement && target.origin === location.origin && !target.target
         && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey
         && !event.defaultPrevented) {
-      event.preventDefault();
-      let leaving = false;
-      function follow() {
-        if (leaving) return;
-        leaving = true;
-        clearTimeout(fallback);
-        location.assign(target.href);
-      }
-      const fallback = setTimeout(follow, 350);
-      gtag('event', name, { event_callback: follow, event_timeout: 350 });
-    } else {
-      gtag('event', name);
+      try {
+        sessionStorage.setItem(nextClickKey, JSON.stringify({ action, path: target.pathname, time: Date.now() }));
+        return;
+      } catch { /* Send on the current page if session storage is disabled. */ }
     }
+    gtag('event', `${action}_click`);
   });
 
   if (choice === 'granted') enableGoogleAnalytics();
