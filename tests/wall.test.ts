@@ -125,7 +125,21 @@ test('titles and names are plain, short text', () => {
 test('answers carry nosniff, and a broken database leaves no orphan image', async () => {
   const e = env();
   assert.equal((await handle(new Request(`${base}/api/wall`), e)).headers.get('x-content-type-options'), 'nosniff');
-  const broken = { ...e, DB: { prepare: () => ({ bind: () => ({ run: () => Promise.reject(new Error('db down')), all: () => Promise.resolve({ results: [] }), first: () => Promise.resolve(null) }) }) } } as WallEnv;
+  const broken: WallEnv = {
+    ...e,
+    DB: {
+      prepare: (sql) => {
+        const statement = e.DB.prepare(sql);
+        if (!sql.trimStart().startsWith('INSERT INTO posts')) return statement;
+        return {
+          bind: (...values) => ({
+            ...statement.bind(...values),
+            first: async () => { throw new Error('db down'); },
+          }),
+        };
+      },
+    },
+  };
   await assert.rejects(handle(share(composerPng()), broken, okTurnstile));
   assert.deepEqual(e.WALL.keys(), []);
 });
@@ -161,4 +175,27 @@ test('a full approval queue refuses new posts', async () => {
     await e.DB.prepare("INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, 't', NULL, 'pending', '2026-01-01', 1, 1)").bind(`p${String(i).padStart(11, '0')}`).run();
   assert.equal((await handle(share(composerPng()), e, okTurnstile)).status, 503);
   assert.deepEqual(e.WALL.keys(), []);
+});
+
+test('concurrent shares cannot both take the last approval slot', async () => {
+  const e = env();
+  for (let i = 0; i < LIMITS.pending - 1; i++)
+    await e.DB.prepare("INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, 't', NULL, 'pending', '2026-01-01', 1, 1)").bind(`p${String(i).padStart(11, '0')}`).run();
+
+  const put = e.WALL.put;
+  let uploads = 0;
+  let releaseUploads!: () => void;
+  const bothUploading = new Promise<void>((resolve) => { releaseUploads = resolve; });
+  e.WALL.put = async (...args) => {
+    await put(...args);
+    if (++uploads === 2) releaseUploads();
+    await bothUploading;
+  };
+
+  const shares = await Promise.all([
+    handle(share(composerPng()), e, okTurnstile),
+    handle(share(composerPng()), e, okTurnstile),
+  ]);
+  assert.deepEqual(shares.map(({ status }) => status).sort(), [201, 503]);
+  assert.equal(e.WALL.keys().length, 1);
 });

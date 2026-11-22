@@ -199,12 +199,22 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
       ...check,
     };
     await env.WALL.put(`wall/${post.id}.png`, bytes, { httpMetadata: { contentType: 'image/png' } });
+    let inserted: { id: string } | null;
     try {
-      await env.DB.prepare('INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)')
-        .bind(post.id, post.title, post.author, post.status, post.created_at, post.width, post.height).run();
+      inserted = await env.DB.prepare(`
+        INSERT INTO posts (id, title, author, status, created_at, width, height)
+        SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7
+        WHERE (SELECT COUNT(*) FROM posts WHERE status = 'pending') < ?8
+        RETURNING id
+      `).bind(post.id, post.title, post.author, post.status, post.created_at, post.width, post.height, LIMITS.pending)
+        .first<{ id: string }>();
     } catch (e) {
       await env.WALL.delete(`wall/${post.id}.png`); // no image without its entry
       throw e;
+    }
+    if (!inserted) {
+      await env.WALL.delete(`wall/${post.id}.png`);
+      return fail(503, 'Too many posts are waiting for approval. Try again in a day or two.');
     }
     return json({ id: post.id, status: 'pending' }, 201);
   }
