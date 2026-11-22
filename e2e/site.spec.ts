@@ -10,9 +10,9 @@ const cells = 'ul#grid > li:visible';
 
 test('home is the grid, without the editor bundle', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('lumassets · Drawings by Luma Montes');
+  await expect(page).toHaveTitle('Drawings-turned-assets by Luma Montes');
   await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /I drew these little monsters/);
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/generated\/og\/site\.png\?v=drawings-by-luma$/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/generated\/og\/site\.png\?v=drawings-turned-assets$/);
   await expect(page.locator(cells)).toHaveCount(published.length);
   const scripts = await page.locator('script[src]').evaluateAll((els) => els.map((e) => (e as HTMLScriptElement).src));
   expect(scripts.join(' ')).not.toMatch(/fabric|editor/i);

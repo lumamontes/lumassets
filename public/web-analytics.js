@@ -87,9 +87,28 @@ if (location.hostname === 'lumassets.bibliotecadezines.workers.dev') {
     }
   });
   document.addEventListener('click', (event) => {
-    const action = event.target instanceof Element && event.target.closest('[data-analytics-action]')?.dataset.analyticsAction;
-    if (choice === 'granted' && actions.has(action)) gtag('event', `${action}_click`);
-  }, true);
+    const target = event.target instanceof Element && event.target.closest('[data-analytics-action]');
+    const action = target?.dataset.analyticsAction;
+    if (choice !== 'granted' || !actions.has(action)) return;
+    const name = `${action}_click`;
+    // Give queued events a chance to send before a same-tab navigation unloads the page.
+    if (target instanceof HTMLAnchorElement && target.origin === location.origin && !target.target
+        && event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey
+        && !event.defaultPrevented) {
+      event.preventDefault();
+      let leaving = false;
+      function follow() {
+        if (leaving) return;
+        leaving = true;
+        clearTimeout(fallback);
+        location.assign(target.href);
+      }
+      const fallback = setTimeout(follow, 350);
+      gtag('event', name, { event_callback: follow, event_timeout: 350 });
+    } else {
+      gtag('event', name);
+    }
+  });
 
   if (choice === 'granted') enableGoogleAnalytics();
   else if (choice !== 'denied') setPrompt(true);

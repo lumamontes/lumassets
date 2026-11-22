@@ -15,8 +15,8 @@ interface Props {
 const { title, description, noindex = false, mainClass, canonicalUrl, previewImage } = Astro.props;
 const site = Astro.site ?? new URL(SITE.url);
 const canonical = canonicalUrl ?? new URL(Astro.url.pathname, site).href;
-const image = previewImage ?? { url: new URL('/generated/og/site.png?v=drawings-by-luma', site).href, width: 1200, height: 630, alt: 'Four geometric ink drawings on white above the words lumassets and Hand-drawn by Luma Montes.' };
-const fullTitle = title === SITE.name ? `${SITE.name} · ${SITE.tagline}` : `${title} · ${SITE.name}`;
+const image = previewImage ?? { url: new URL('/generated/og/site.png?v=drawings-turned-assets', site).href, width: 1200, height: 630, alt: 'Fofolete and three geometric ink drawings above the words drawings-turned-assets by luma montes.' };
+const fullTitle = title === SITE.name ? SITE.tagline : `${title} · ${SITE.name}`;
 const path = Astro.url.pathname;
 ---
 
