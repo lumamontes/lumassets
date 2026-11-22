@@ -203,6 +203,8 @@ const data = JSON.stringify(ordered.map(panelData));
 </style>
 
 <script>
+  import { downloadFile } from '../scripts/download';
+
   interface Item {
     id: string; slug: string; name: string; description: string; tags: string[]; collection: string;
     version: string; vector: boolean; display: string; svg: string; png: string; pngW: number; pngH: number;
@@ -416,16 +418,6 @@ const data = JSON.stringify(ordered.map(panelData));
     if (url) img.src = url;
   }
 
-  function download(name: string, blob: Blob) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  }
-
   const flash = (id: string, text: string, restore?: string) => {
     const b = $(id);
     // keep any icon: swap only the text (in the inner <span> when there is one)
@@ -453,13 +445,13 @@ const data = JSON.stringify(ordered.map(panelData));
   });
   $('p-svg').addEventListener('click', async () => {
     if (!current) return;
-    download(`${fileBase(current, exp.color)}.svg`, new Blob([await exportSvg(current)], { type: 'image/svg+xml' }));
+    downloadFile(`${fileBase(current, exp.color)}.svg`, new Blob([await exportSvg(current)], { type: 'image/svg+xml' }), 'library-svg');
   });
   $('p-png').addEventListener('click', async () => {
     if (!current) return;
     try {
       const png = await exportPng(current, exp.size);
-      download(`${fileBase(current, exp.color)}-${Math.max(png.width, png.height)}.png`, png.blob);
+      downloadFile(`${fileBase(current, exp.color)}-${Math.max(png.width, png.height)}.png`, png.blob, 'library-png');
       if (!current.vector && exp.size > Math.max(current.pngW, current.pngH)) note(`Not traced yet: exported at its real size, ${png.width}×${png.height} px.`);
     } catch {
       flash('p-png', 'Failed');
@@ -530,7 +522,7 @@ const data = JSON.stringify(ordered.map(panelData));
       // SVGs compress well; PNGs are already compressed
       const zipped = zipSync(files, { level: format === 'svg' ? 6 : 0 });
       const label = [filters.collection || 'lumassets', q.value.trim() && slugText(q.value), tinted && colorName(color), format].filter(Boolean).join('-');
-      download(`${label}.zip`, new Blob([zipped], { type: 'application/zip' }));
+      downloadFile(`${label}.zip`, new Blob([zipped], { type: 'application/zip' }), 'library-zip');
       status.textContent = `Downloaded ${list.length} drawing${list.length === 1 ? '' : 's'}.`;
     } catch (e) {
       status.textContent = `Couldn't make the ZIP: ${(e as Error).message}`;

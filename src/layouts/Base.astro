@@ -65,7 +65,7 @@ const path = Astro.url.pathname;
     </main>
     <footer class="site-footer mono">
       <span>@ <a href={SITE.websiteUrl} rel="noopener">{SITE.author}</a></span>
-      <span><a href="/about/#license">License</a></span>
+      <span><a href={`mailto:${SITE.contactEmail}`}>Email</a> · <a href="/about/#license">License</a></span>
     </footer>
     {!noindex && <script is:inline defer src="/web-analytics.js"></script>}
   </body>

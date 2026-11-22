@@ -12,7 +12,7 @@ There’s also a [composer][compose] where you can pick drawings, play with effe
 
 [quick-editor][quick-editor] turns photos of drawings into clean, transparent SVGs. The [asset guide](docs/adding-assets.md) shows how to add them to the library.
 
-[Contact][contact] · [Report a bug][issues]
+[Email][email] · [Report a bug][issues]
 
 ## The Wall
 
@@ -50,5 +50,5 @@ For the full check, install Chromium with `pnpm exec playwright install chromium
 [compose]: https://lumassets.bibliotecadezines.workers.dev/compose/
 [wall]: https://lumassets.bibliotecadezines.workers.dev/wall/
 [quick-editor]: https://github.com/lumamontes/quick-editor
-[contact]: https://lumamontes.com/br/contact
+[email]: mailto:lumagoesmontes@gmail.com
 [issues]: https://github.com/lumamontes/lumassets/issues

@@ -25,3 +25,8 @@ and desktop traffic.
 The shared layout loads the site’s public beacon on the production hostname and skips
 private pages. If the hostname changes, update both the Web Analytics site and the hostname
 check in `public/web-analytics.js`.
+
+Download counts are available under **Download counts** on `/wall/admin/` with the
+existing admin token. Apply the D1 migrations before deploying. The report covers the last
+30 days in UTC. A download counts when the library or composer starts a file download,
+with a ZIP counted as one file.

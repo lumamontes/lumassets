@@ -17,5 +17,6 @@ export const SITE = {
   /** The public repository of this site. */
   githubUrl: 'https://github.com/lumamontes/lumassets',
   /** Contact link: email, social… */
+  contactEmail: 'lumagoesmontes@gmail.com',
   contactUrl: 'https://lumamontes.com/br/contact',
 } as const;

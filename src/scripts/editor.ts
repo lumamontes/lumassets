@@ -1,3 +1,4 @@
+import { downloadFile } from './download';
 // Composition editor. Loaded only on /compose.
 // The CompositionDoc is the source of truth; the Fabric canvas is a view of it.
 import { ActiveSelection, Canvas, Control, FabricImage, controlsUtils, type FabricObject } from 'fabric';
@@ -756,17 +757,6 @@ export function startEditor() {
     render();
   }
 
-  function download(name: string, blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
-
   /** A named composition (opened from a file, or titled when shared) keeps its name; others get a dated one. */
   const baseName = () => {
     if (doc.title !== DEFAULT_TITLE) return safeFilename(doc.title);
@@ -820,7 +810,7 @@ export function startEditor() {
 
   async function exportPng() {
     if (!doc.layers.length) { say('Add an asset before exporting.'); return; }
-    download(`${baseName()}.png`, await compositionPng());
+    downloadFile(`${baseName()}.png`, await compositionPng(), 'compose-png');
     say('Exported PNG.');
   }
 
@@ -920,7 +910,7 @@ export function startEditor() {
       return;
     }
     const svg = toSvg(snapshot, assets, embeds, fills);
-    download(`${filename}.svg`, new Blob([svg], { type: 'image/svg+xml' }));
+    downloadFile(`${filename}.svg`, new Blob([svg], { type: 'image/svg+xml' }), 'compose-svg');
     const raster = ids.some((id) => !assets.get(id)!.vector);
     say(raster ? 'Exported SVG. The drawings inside stay scanned images, not vector paths.' : 'Exported SVG.');
   }
@@ -1051,7 +1041,7 @@ export function startEditor() {
     'export-png': exportPng,
     'export-svg': exportSvg,
     save: () => {
-      download(`${baseName()}.lumassets.json`, new Blob([docJson()], { type: 'application/json' }));
+      downloadFile(`${baseName()}.lumassets.json`, new Blob([docJson()], { type: 'application/json' }), 'compose-json');
       say('Saved the composition file. Open it here any time to keep working.');
     },
     'flip-x': () => { const l = selected(); if (l) { updateSelected({ flipX: !l.flipX }); commit(); } },

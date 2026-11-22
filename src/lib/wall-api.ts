@@ -1,3 +1,4 @@
+import { DOWNLOAD_LABELS, type DownloadKind } from './download-metrics.ts';
 // The wall: compositions people share from the composer, shown after Luma approves them.
 // Runs on Cloudflare Workers (src/worker.ts) with a private R2 bucket for the
 // images and a D1 database for the list. Nothing is public until it's approved, and a rejected
@@ -156,6 +157,17 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
   const path = url.pathname.replace(/\/+$/, '');
   if (!env.DB || !env.WALL) return fail(503, 'The wall is not set up yet.');
 
+  if (path === '/api/downloads' && req.method === 'POST') {
+    if (req.headers.get('origin') !== url.origin) return fail(403, 'Wrong origin.');
+    const kind = url.searchParams.get('kind') ?? '';
+    if (!Object.hasOwn(DOWNLOAD_LABELS, kind)) return fail(400, 'Unknown download type.');
+    await env.DB.prepare(`
+      INSERT INTO download_counts (day, kind, count) VALUES (date('now'), ?1, 1)
+      ON CONFLICT (day, kind) DO UPDATE SET count = count + 1
+    `).bind(kind).run();
+    return new Response(null, { status: 204, headers: { 'cache-control': 'no-store' } });
+  }
+
   // list approved posts
   if (path === '/api/wall' && req.method === 'GET') {
     const limit = Math.min(LIMITS.page, Math.max(1, Number(url.searchParams.get('limit')) || 30));
@@ -245,6 +257,13 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
   // admin
   if (path.startsWith('/api/admin/')) {
     if (!isAdmin(req, env)) return fail(401, 'Wrong or missing token.');
+    if (path === '/api/admin/downloads' && req.method === 'GET') {
+      const { results } = await env.DB.prepare(`
+        SELECT kind, sum(count) AS count FROM download_counts
+        WHERE day >= date('now', '-29 days') GROUP BY kind ORDER BY kind
+      `).bind().all<{ kind: DownloadKind; count: number }>();
+      return json({ downloads: results });
+    }
     if (path === '/api/admin/wall' && req.method === 'GET') {
       const asked = url.searchParams.get('status') ?? '';
       const status = ['pending', 'approved', 'hidden'].includes(asked) ? asked : 'pending';

@@ -10,7 +10,7 @@ import { LIMITS, checkComposerPng, cleanText, handle, type D1Like, type R2Like, 
 
 function d1(): D1Like {
   const db = new DatabaseSync(':memory:');
-  for (const migration of ['0001_wall.sql', '0002_share_limits.sql']) {
+  for (const migration of ['0001_wall.sql', '0002_share_limits.sql', '0003_download_counts.sql']) {
     db.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), 'utf8'));
   }
   return {
@@ -220,4 +220,24 @@ test('wall permalinks expose escaped social metadata only for approved posts', a
   assert.ok(page.includes('by Luma'));
   await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'hide' }) }), e);
   assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
+});
+
+test('download counts are grouped, limited to the last 30 days, and private', async () => {
+  const e = env();
+  const track = (kind: string, origin = base) => handle(new Request(`${base}/api/downloads?kind=${kind}`, {
+    method: 'POST', headers: { origin },
+  }), e);
+
+  assert.equal((await track('library-zip')).status, 204);
+  assert.equal((await track('library-zip')).status, 204);
+  assert.equal((await track('compose-png')).status, 204);
+  assert.equal((await track('constructor')).status, 400);
+  assert.equal((await track('library-svg', 'https://elsewhere.test')).status, 403);
+  await e.DB.prepare("INSERT INTO download_counts VALUES (date('now', '-30 days'), 'library-zip', 99)").bind().run();
+  assert.equal((await handle(new Request(`${base}/api/admin/downloads`), e)).status, 401);
+  const report = await handle(admin('/api/admin/downloads'), e);
+  assert.deepEqual(await report.json(), { downloads: [
+    { kind: 'compose-png', count: 1 },
+    { kind: 'library-zip', count: 2 },
+  ] });
 });

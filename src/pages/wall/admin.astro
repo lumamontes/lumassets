@@ -9,6 +9,18 @@ import Base from '../../layouts/Base.astro';
       <label>Token <input type="password" id="token" autocomplete="current-password" required /></label>
       <button class="btn small" type="submit">Load</button>
     </form>
+    <details class="metrics" id="metrics">
+      <summary>Download counts</summary>
+      <p><a href="https://dash.cloudflare.com/?to=/:account/web-analytics">Visits and page views in Cloudflare</a></p>
+      <p id="download-state" class="muted" role="status">Enter the admin token above to see download counts.</p>
+      <table id="download-counts" hidden>
+        <caption>Last 30 days · UTC</caption>
+        <thead><tr><th scope="col">File type</th><th scope="col">Downloads</th></tr></thead>
+        <tbody>
+        </tbody>
+      </table>
+      <p class="muted metrics-note">Each ZIP counts as one download. Counts start when tracking was enabled.</p>
+    </details>
     <div class="tabs" role="group" aria-label="Show">
       <button type="button" class="chip" data-status="pending" aria-pressed="true">Waiting</button>
       <button type="button" class="chip" data-status="approved" aria-pressed="false">On the wall</button>
@@ -24,6 +36,14 @@ import Base from '../../layouts/Base.astro';
   .adm h1 { font-size: 1.2rem; margin: 0 0 1rem; }
   .row { display: flex; gap: 0.5rem; align-items: end; margin-bottom: 1rem; }
   .row label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; }
+  .metrics { margin: 0 0 1rem; padding: 0.6rem 0.75rem; border: 1px solid var(--line); max-width: 30rem; }
+  .metrics summary { cursor: pointer; font-weight: 600; }
+  .metrics p { margin: 0.5rem 0; font-size: 0.85rem; }
+  .metrics table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .metrics caption { text-align: left; padding: 0.25rem 0; }
+  .metrics th, .metrics :global(td) { text-align: left; padding: 0.3rem 0; border-bottom: 1px solid var(--line); }
+  .metrics th:last-child, .metrics :global(td:last-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  .metrics .metrics-note { font-size: 0.78rem; }
   .tabs { display: flex; gap: 0.25rem; margin-bottom: 0.75rem; }
   .chip { font: 0.75rem/1 var(--mono); padding: 0.4rem 0.55rem; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
   .chip[aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
@@ -36,6 +56,8 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  import { DOWNLOAD_LABELS, type DownloadKind } from '../../lib/download-metrics';
+
   interface Post { id: string; title: string; author: string | null; createdAt: string; image: string; status: string }
   const $ = (id: string) => document.getElementById(id)!;
   const KEY = 'lumassets-wall-token';
@@ -65,6 +87,45 @@ import Base from '../../layouts/Base.astro';
       state.textContent = `Couldn't load: ${(e as Error).message}`;
     }
   }
+
+  const metrics = $('metrics') as HTMLDetailsElement;
+  const counts = $('download-counts') as HTMLTableElement;
+  const downloadState = $('download-state');
+  let downloadLoad = 0;
+
+  async function loadDownloads() {
+    if (!token || !metrics.open) return;
+    const mine = ++downloadLoad;
+    downloadState.textContent = 'Loading download counts…';
+    counts.hidden = true;
+    try {
+      const res = await fetch('/api/admin/downloads', { headers: auth() });
+      if (mine !== downloadLoad) return;
+      if (res.status === 401) {
+        downloadState.textContent = 'Enter the admin token above to see download counts.';
+        return;
+      }
+      if (!res.ok) throw new Error();
+      const { downloads } = await res.json() as { downloads: { kind: DownloadKind; count: number }[] };
+      if (mine !== downloadLoad) return;
+      const byKind = new Map(downloads.map(({ kind, count }) => [kind, count]));
+      const rows = [...Object.entries(DOWNLOAD_LABELS).map(([kind, label]) =>
+        [label, byKind.get(kind as DownloadKind) ?? 0] as const),
+        ['Total', downloads.reduce((sum, row) => sum + row.count, 0)] as const];
+      counts.tBodies[0].replaceChildren(...rows.map(([label, count]) => {
+        const row = document.createElement('tr');
+        row.insertCell().textContent = label;
+        row.insertCell().textContent = count.toLocaleString();
+        return row;
+      }));
+      downloadState.textContent = '';
+      counts.hidden = false;
+    } catch {
+      if (mine === downloadLoad) downloadState.textContent = 'Couldn’t load download counts. Reopen this section to try again.';
+    }
+  }
+
+  metrics.addEventListener('toggle', () => { void loadDownloads(); });
 
   function item(p: Post) {
     const li = document.createElement('li');
@@ -108,6 +169,7 @@ import Base from '../../layouts/Base.astro';
     token = ($('token') as HTMLInputElement).value.trim();
     sessionStorage.setItem(KEY, token);
     load();
+    void loadDownloads();
   });
   document.querySelectorAll<HTMLButtonElement>('[data-status]').forEach((b) =>
     b.addEventListener('click', () => {
