@@ -1193,20 +1193,36 @@ export function startEditor() {
   live(ui.rotation, () => ({ rotation: Number(ui.rotation.value) }));
   live(ui.blend, () => ({ blendMode: ui.blend.value as BlendMode }));
   for (const { key, checkbox, picker } of layerColors) {
+    // A native color picker can finish after the inspector has changed layers.
+    let editingLayer: Layer | null = null;
+    const beginPick = () => { editingLayer = selected(); };
+    picker.addEventListener('pointerdown', beginPick);
+    picker.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') beginPick();
+    });
     checkbox.addEventListener('change', () => {
       updateSelected({ [key]: checkbox.checked ? picker.value : null }, true);
       commit();
     });
     picker.addEventListener('input', () => {
-      const l = selected();
-      if (!l) return;
-      checkbox.checked = true;
-      l[key] = picker.value;
-      refreshSoon([l.id]);
+      const current = selected();
+      const layer = editingLayer ?? current;
+      if (!layer || !doc.layers.includes(layer)) { syncPanels(); return; }
+      editingLayer = layer;
+      layer[key] = picker.value;
+      if (layer === current) checkbox.checked = true;
+      else syncPanels();
+      refreshSoon([layer.id]);
     });
     picker.addEventListener('change', () => {
-      checkbox.checked = true;
-      updateSelected({ [key]: picker.value }, true);
+      const current = selected();
+      const layer = editingLayer ?? current;
+      editingLayer = null;
+      if (!layer || !doc.layers.includes(layer)) { syncPanels(); return; }
+      if (layer === current) {
+        updateSelected({ [key]: picker.value }, true);
+      }
+      // If selection moved, the last input already updated the original layer.
       commit();
     });
   }

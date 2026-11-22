@@ -380,3 +380,34 @@ test('adding another drawing keeps the live canvas background with Everything ef
   const file = JSON.parse(readFileSync((await saved.path())!, 'utf8'));
   expect(file.canvas.background).toBe('#102030');
 });
+
+test('finishing a color pick cannot overwrite a different layer background', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+  await expect(layers(page)).toHaveCount(2);
+  const picker = page.getByLabel('Layer background color', { exact: true });
+  await openSection(page, 'Look');
+  await picker.fill('#661177');
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+  await openSection(page, 'Exclude layers');
+  await page.getByRole('checkbox', { name: /fofolete/ }).check();
+
+  await layers(page).first().getByRole('button').click();
+  await picker.evaluate((input: HTMLInputElement) => {
+    input.value = '#ffffff';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await layers(page).last().getByRole('button').click();
+  await expect(picker).toHaveValue('#661177');
+  // Deliver the first layer's final picker event after the selection has moved.
+  await picker.evaluate((input: HTMLInputElement) => {
+    input.value = '#ffffff';
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await expect(picker).toHaveValue('#661177');
+  const [saved] = await Promise.all([page.waitForEvent('download'), fromMore(page, 'Save file')]);
+  const file = JSON.parse(readFileSync((await saved.path())!, 'utf8'));
+  expect(file.layers.map((layer: { background: string }) => layer.background)).toEqual(['#ffffff', '#661177']);
+});
