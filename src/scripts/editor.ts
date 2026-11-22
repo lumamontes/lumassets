@@ -1,6 +1,6 @@
 // Composition editor. Loaded only on /compose.
 // The CompositionDoc is the source of truth; the Fabric canvas is a view of it.
-import { Canvas, Control, FabricImage, controlsUtils, type FabricObject } from 'fabric';
+import { ActiveSelection, Canvas, Control, FabricImage, controlsUtils, type FabricObject } from 'fabric';
 import {
   CANVAS_LIMITS, DEFAULT_TITLE, PNG_KEYS, compositionFromSvg, layerFor, layerId, newDoc, parseDoc, pngTextFor, round, safeFilename, toSvg, withProvenance,
   type BlendMode, type CompositionDoc, type EditorAsset, type Layer, type OwnAsset, ownToEditorAsset,
@@ -227,6 +227,7 @@ export function startEditor() {
       return obj;
     }));
     if (token !== renderToken) return; // a newer render started
+    endDragView();
     // clearing and re-selecting fire Fabric selection events; they must not change selectedId
     rebuilding = true;
     try {
@@ -390,8 +391,9 @@ export function startEditor() {
 
   // ---------- whole-composition effects: a filtered copy of the canvas, shown over it ----------
   // The layers (without the background) are captured from Fabric, run through the same SVG
-  // filter the export writes, and the result is shown in an overlay. While you drag, the
-  // overlay hides so editing stays fast; it comes back when you let go.
+  // filter the export writes, and the result is shown in an overlay. While you drag a layer,
+  // the other layers keep their effects (see "drag view" below); everything is recomputed
+  // when you let go.
   const overlay = document.createElement('div');
   overlay.className = 'global-fx';
   overlay.setAttribute('aria-hidden', 'true');
@@ -401,6 +403,10 @@ export function startEditor() {
   canvas.lowerCanvasEl.after(overlay);
   let globalToken = 0;
   let globalTimer: ReturnType<typeof setTimeout> | undefined;
+  // drag view state (see below)
+  let dragging = false;
+  let dragStarting = false;
+  let dragView: { hidden: FabricObject[]; bg: Canvas['backgroundColor'] } | null = null;
   const globalSoon = () => { clearTimeout(globalTimer); globalTimer = setTimeout(updateGlobal, 180); };
 
   function showOverlay(on: boolean) {
@@ -408,21 +414,36 @@ export function startEditor() {
     canvas.lowerCanvasEl.style.opacity = on ? '0' : '1';
   }
 
-  /** The layers, without background, run through the composition's effects. */
-  async function globalImage(multiplier: number): Promise<HTMLImageElement | null> {
+  /** The layers, without background, run through the composition's effects.
+   *  With `except`, those layers are left out and the selection is not touched (used
+   *  mid-drag, where discarding the active object would cancel the drag). */
+  async function globalImage(multiplier: number, except?: Set<string>): Promise<HTMLImageElement | null> {
     if (!doc.effects?.length || !doc.layers.length) return null;
-    const bg = canvas.backgroundColor;
-    rebuilding = true; // capturing must not change the selection
+    const bg = dragView ? dragView.bg : canvas.backgroundColor;
     let href: string;
-    try {
-      canvas.discardActiveObject();
-      canvas.backgroundColor = '';
-      href = canvas.toDataURL({ format: 'png', multiplier });
-    } finally {
-      canvas.backgroundColor = bg;
-      const sel = selectedId && objectFor(selectedId);
-      if (sel) canvas.setActiveObject(sel);
-      rebuilding = false;
+    if (except) {
+      try {
+        canvas.backgroundColor = '';
+        href = canvas.toDataURL({ format: 'png', multiplier, filter: (o) => !except.has((o as LayerObject).layerId ?? '') });
+      } finally {
+        canvas.backgroundColor = dragView ? '' : bg;
+      }
+    } else {
+      // a drag view may be hiding layers: show them for the capture (synchronous, so the
+      // screen never sees it), then hide them again until the new overlay is ready
+      dragView?.hidden.forEach((o) => (o.visible = true));
+      rebuilding = true; // capturing must not change the selection
+      try {
+        canvas.discardActiveObject();
+        canvas.backgroundColor = '';
+        href = canvas.toDataURL({ format: 'png', multiplier });
+      } finally {
+        canvas.backgroundColor = dragView ? '' : bg;
+        dragView?.hidden.forEach((o) => (o.visible = false));
+        const sel = selectedId && objectFor(selectedId);
+        if (sel) canvas.setActiveObject(sel);
+        rebuilding = false;
+      }
     }
     canvas.requestRenderAll();
     const { width: W, height: H } = doc.canvas;
@@ -443,19 +464,73 @@ export function startEditor() {
   async function updateGlobal() {
     const token = ++globalToken;
     overlay.style.background = doc.canvas.background ?? 'transparent';
-    if (!doc.effects?.length) { showOverlay(false); return; }
+    if (!doc.effects?.length) { endDragView(); showOverlay(false); return; }
     try {
       const img = await globalImage(1);
-      if (token !== globalToken) return;
+      if (token !== globalToken || dragging) return;
+      endDragView();
       if (!img) { showOverlay(false); return; }
       overlayImg.src = img.src;
       showOverlay(true);
     } catch (e) {
+      endDragView();
       showOverlay(false);
       say((e as Error).message);
     }
   }
   showOverlay(false);
+
+  // ---------- drag view: moving a layer without losing the composition's effects ----------
+  // Fabric draws the moving layer on its lower canvas, which sits under the overlay. So while
+  // a layer is moved, scaled or rotated, the *other* layers are captured once with the
+  // effects and shown under the canvas, and the canvas draws only what is moving (without
+  // the composition's effects, which depend on where everything is). On release the whole
+  // composition is recomputed, and the drag view stays until the new overlay is ready.
+  const upperCanvasEl = canvas.upperCanvasEl;
+
+  function layerIdsOf(target: FabricObject) {
+    const objs = target instanceof ActiveSelection ? target.getObjects() : [target];
+    return new Set(objs.map((o) => (o as LayerObject).layerId).filter((id): id is string => !!id));
+  }
+
+  async function startDragView(target: FabricObject) {
+    const ids = layerIdsOf(target);
+    if (!ids.size || dragView || dragStarting) return;
+    dragStarting = true;
+    clearTimeout(globalTimer);
+    ++globalToken; // a refresh that was on its way would show the old positions
+    try {
+      const img = await globalImage(1, ids);
+      if (!dragging || dragView || !img) return; // released already: the release recomputes
+      await img.decode().catch(() => {});
+      if (!dragging || dragView) return;
+      overlayImg.src = img.src;
+      const hidden = canvas.getObjects().filter((o) => o.visible && !ids.has((o as LayerObject).layerId ?? ''));
+      dragView = { hidden, bg: canvas.backgroundColor };
+      hidden.forEach((o) => (o.visible = false));
+      canvas.backgroundColor = ''; // the overlay carries the background
+      overlay.hidden = false;
+      overlay.style.zIndex = '0';
+      Object.assign(canvas.lowerCanvasEl.style, { position: 'relative', zIndex: '1', opacity: '1' });
+      upperCanvasEl.style.zIndex = '2';
+      canvas.requestRenderAll();
+    } catch {
+      // keep dragging without effects; the release recomputes them
+    } finally {
+      dragStarting = false;
+    }
+  }
+
+  function endDragView() {
+    if (!dragView) return;
+    dragView.hidden.forEach((o) => (o.visible = true));
+    canvas.backgroundColor = dragView.bg;
+    dragView = null;
+    overlay.style.zIndex = '';
+    Object.assign(canvas.lowerCanvasEl.style, { position: '', zIndex: '' });
+    upperCanvasEl.style.zIndex = '';
+    canvas.requestRenderAll();
+  }
 
   function syncPanels() {
     syncEffects();
@@ -683,7 +758,7 @@ export function startEditor() {
       const box = $('share-turnstile');
       if (turnstileWidget !== undefined) turnstile()!.reset(turnstileWidget);
       else turnstileWidget = turnstile()!.render(box, {
-        sitekey: boot.turnstileSiteKey, size: 'flexible', action: 'share',
+        sitekey: boot.turnstileSiteKey, size: 'flexible', action: 'share', // the wall checks the action
         callback: (t: string) => { turnstileToken = t; syncShare(); },
         'expired-callback': () => { turnstileToken = ''; syncShare(); },
       });
@@ -995,9 +1070,20 @@ export function startEditor() {
     obj.snapAngle = e.e.shiftKey ? 15 : undefined;
     ui.rotation.value = String(Math.round(normalizeAngle(obj.angle ?? 0)));
   });
-  // while dragging, show the raw layers; the composition's effects come back on release
-  canvas.on('mouse:down', () => { if (doc.effects?.length) showOverlay(false); });
-  canvas.on('mouse:up', () => { if (doc.effects?.length) globalSoon(); });
+  // while a layer moves, the others keep the composition's effects (drag view above)
+  const onTransform = (e: { target: FabricObject }) => {
+    if (!doc.effects?.length || dragView || dragStarting) return;
+    dragging = true;
+    startDragView(e.target);
+  };
+  canvas.on('object:moving', onTransform);
+  canvas.on('object:scaling', onTransform);
+  canvas.on('object:rotating', onTransform);
+  canvas.on('mouse:up', () => {
+    const wasDragging = dragging;
+    dragging = false;
+    if (doc.effects?.length && (wasDragging || dragView)) globalSoon();
+  });
   canvas.on('selection:created', (e) => { if (rebuilding) return; selectedId = (e.selected?.[0] as LayerObject)?.layerId ?? null; showTab('layer'); syncPanels(); });
   canvas.on('selection:updated', (e) => { if (rebuilding) return; selectedId = (e.selected?.[0] as LayerObject)?.layerId ?? null; syncPanels(); });
   canvas.on('selection:cleared', () => { if (rebuilding) return; selectedId = null; syncPanels(); });

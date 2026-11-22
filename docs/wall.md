@@ -15,10 +15,9 @@ work. Posts store the title and optional name. The rate limiter stores a keyed, 
 
 ## One-time setup
 
-Install Wrangler (Cloudflare's CLI) and log in:
+Log in with the project's Wrangler dependency:
 
 ```sh
-pnpm add -D wrangler
 pnpm wrangler login
 ```
 
@@ -74,3 +73,5 @@ send. That's expected.
 
 Shared images are scaled down to 1600 px on the long side. Limits: 8 MB, 80 characters of title,
 40 of name.
+
+The approval queue holds up to 200 pending posts. Preview deployments have no wall storage.
