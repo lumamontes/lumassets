@@ -436,7 +436,16 @@ export function startEditor() {
   function showOverlay(on: boolean) {
     overlay.hidden = !on;
     canvas.lowerCanvasEl.style.opacity = on ? '0' : '1';
+    canvas.requestRenderAll();
   }
+
+  // Fabric normally draws the selection on the lower canvas, which Everything hides.
+  // Draw it on the pointer canvas while the filtered preview is covering the artwork.
+  canvas.on('after:render', ({ ctx }) => {
+    if (ctx !== canvas.getContext() && ctx !== canvas.contextTop) return;
+    canvas.clearContext(canvas.contextTop);
+    if (!overlay.hidden && !dragView) canvas.drawControls(canvas.contextTop);
+  });
 
   /** The layers, without background, run through the composition's effects.
    *  With `except`, those layers are left out and the selection is not touched (used

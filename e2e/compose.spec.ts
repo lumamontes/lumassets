@@ -411,3 +411,42 @@ test('finishing a color pick cannot overwrite a different layer background', asy
   const file = JSON.parse(readFileSync((await saved.path())!, 'utf8'));
   expect(file.layers.map((layer: { background: string }) => layer.background)).toEqual(['#ffffff', '#661177']);
 });
+
+test('Everything effects keep the selected layer outline and rotation handle visible', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await openSection(page, 'Make more');
+  await page.getByRole('button', { name: 'Mirror left–right' }).click();
+  await expect(layers(page)).toHaveCount(2);
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+
+  await layers(page).last().getByRole('button').click();
+  await expect(page.locator('#layer-fields')).toBeEnabled();
+  await expect(page.locator('.global-fx')).toBeVisible();
+  await expect(page.locator('canvas.lower-canvas')).toHaveCSS('opacity', '0');
+  const handles = page.locator('canvas.upper-canvas');
+  await expect.poll(() => handles.evaluate((surface: HTMLCanvasElement) => {
+    const pixels = surface.getContext('2d')!.getImageData(0, 0, surface.width, surface.height).data;
+    return pixels.some((value, index) => index % 4 === 3 && value > 0);
+  })).toBe(true);
+
+  const grip = await handles.evaluate((surface: HTMLCanvasElement) => {
+    const { width, height } = surface;
+    const pixels = surface.getContext('2d')!.getImageData(0, 0, width, height).data;
+    const first = pixels.findIndex((value, index) => index % 4 === 3 && value > 100);
+    if (first < 0) throw new Error('Selection controls are missing');
+    const top = Math.floor(first / 4 / width);
+    const xs = Array.from({ length: width }, (_, x) => x).filter((x) => pixels[(top * width + x) * 4 + 3] > 100);
+    const rect = surface.getBoundingClientRect();
+    return {
+      x: rect.left + ((xs[0] + xs.at(-1)!) / 2) * rect.width / width,
+      y: rect.top + top * rect.height / height + 12,
+    };
+  });
+  await page.mouse.move(grip.x, grip.y);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + 48, grip.y + 12, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('#rotation')).not.toHaveValue('0');
+});
