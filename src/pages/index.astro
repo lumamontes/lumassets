@@ -1,0 +1,567 @@
+---
+import Base from '../layouts/Base.astro';
+import { ASSETS, COLLECTIONS, filesOf, isFullPage, panelData, searchText } from '../lib/catalog';
+import { SITE } from '../site';
+import { icon } from '../lib/icons';
+
+const collections = COLLECTIONS.filter((c) => ASSETS.some((a) => a.collection === c.id));
+// Full pages go last: they're overviews, the single drawings are the point.
+const ordered = [...ASSETS.filter((a) => !isFullPage(a)), ...ASSETS.filter(isFullPage)];
+const data = JSON.stringify(ordered.map(panelData));
+---
+
+<Base title={SITE.name} description={`${ASSETS.length} drawings to copy or download as SVG or PNG. @ Luma Montes`}>
+  <h1 class="visually-hidden">lumassets: {ASSETS.length} drawings</h1>
+
+  <div class="bar">
+    <label class="search">
+      <span class="visually-hidden">Search assets</span>
+      <input id="q" type="search" placeholder={`Search ${ASSETS.length} drawings`} autocomplete="off" spellcheck="false" />
+    </label>
+    <div class="chips" role="group" aria-label="Collection">
+      <button type="button" class="chip" data-filter="collection" data-value="" aria-pressed="true">All</button>
+      {collections.map((c) => <button type="button" class="chip" data-filter="collection" data-value={c.id} aria-pressed="false">{c.name}</button>)}
+    </div>
+    <p class="count mono muted" id="count" aria-live="polite">{ASSETS.length}</p>
+    <button type="button" class="chip tint-chip" id="tint-clear" hidden title="Back to black">
+      <span class="dot" aria-hidden="true"></span><span>All in this color</span><Fragment set:html={icon('x', 12)} />
+    </button>
+    <details class="zip" id="zip">
+      <summary class="chip"><Fragment set:html={icon('download', 13)} /><span id="zip-label">Download all</span></summary>
+      <div class="zip-pop">
+        <p class="mono muted" id="zip-what"></p>
+        <fieldset class="zip-format">
+          <legend class="visually-hidden">Format</legend>
+          <label><input type="radio" name="zip-format" value="svg" checked /> SVG</label>
+          <label><input type="radio" name="zip-format" value="png" /> PNG</label>
+          <select id="zip-size" aria-label="PNG size">
+            <option value="512">512 px</option>
+            <option value="1024">1024 px</option>
+            <option value="2048" selected>2048 px</option>
+          </select>
+        </fieldset>
+        <button type="button" class="btn primary" id="zip-go">Download ZIP</button>
+        <p class="mono muted" id="zip-status" aria-live="polite"></p>
+      </div>
+    </details>
+  </div>
+
+  <div class="browse" id="browse">
+    <ul class="grid" id="grid">
+      {ordered.map((a, i) => {
+        const f = filesOf(a);
+        return (
+          <li id={a.slug} data-id={a.id} data-search={searchText(a)} data-collection={a.collection}>
+            <a class="cell" href={`#${a.slug}`} title={a.name} style={`--src:url(${f.display})`}>
+              <span class="tint" aria-hidden="true"></span>
+              <img class="art" src={f.display} width={f.w} height={f.h} alt="" loading={i < 24 ? 'eager' : 'lazy'} decoding="async" />
+              <span class="visually-hidden">{a.name}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+    <p class="empty muted" id="empty" hidden>Nothing matches. <button type="button" class="link" id="clear">Clear filters</button></p>
+
+    <aside class="panel" id="panel" aria-labelledby="p-name" hidden>
+      <div class="panel-head">
+        <h2 id="p-name"></h2>
+        <div class="panel-nav">
+          <button type="button" class="icon" id="p-prev" aria-label="Previous drawing" set:html={icon('left')}></button>
+          <button type="button" class="icon" id="p-next" aria-label="Next drawing" set:html={icon('right')}></button>
+          <button type="button" class="icon" id="p-close" aria-label="Close" set:html={icon('x')}></button>
+        </div>
+      </div>
+
+      <div class="panel-art" id="p-art"><img id="p-img" alt="" /></div>
+
+      <div class="swatches" role="radiogroup" aria-label="Color">
+        <button type="button" role="radio" class="swatch" data-color="#000000" aria-checked="true" title="Black"><span style="background:#000"></span></button>
+        <button type="button" role="radio" class="swatch" data-color="#ffffff" aria-checked="false" title="White"><span style="background:#fff"></span></button>
+        <label class="swatch custom" title="Any color"><input type="color" id="custom-color" value="#e0472b" aria-label="Any color" /></label>
+        <button type="button" class="link apply-all" id="p-apply-all" aria-pressed="false" title="Show every drawing in the grid in this color; downloads use it too">Apply to all</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="p-copy">Copy SVG</button>
+        <button type="button" class="btn" id="p-svg" aria-label="Download SVG"><Fragment set:html={icon('download', 14)} /><span>SVG</span></button>
+        <button type="button" class="btn" id="p-png" aria-label="Download PNG"><Fragment set:html={icon('download', 14)} /><span>PNG</span></button>
+      </div>
+      <p class="hint mono muted" id="p-note" hidden></p>
+
+      <p class="foot mono muted">
+        <a id="p-compose" class="with-icon">Compose with it <Fragment set:html={icon('right', 14)} /></a>
+        <span><a id="p-license-link" rel="license noopener"></a>, no credit needed</span>
+      </p>
+
+      <details class="more">
+        <summary class="mono muted">More</summary>
+        <p class="mono muted" id="p-meta"></p>
+        <p id="p-desc"></p>
+        <ul class="tags" id="p-tags"></ul>
+        <label class="row mono">PNG size
+          <select id="size">
+            <option value="512">512 px</option>
+            <option value="1024">1024 px</option>
+            <option value="2048" selected>2048 px</option>
+            <option value="4096">4096 px</option>
+          </select>
+        </label>
+        <label class="row mono"><span>Copy SVG with <code>currentColor</code> <small class="muted">(takes the page's text color, for websites)</small></span><input type="checkbox" id="css-color" /></label>
+        <button type="button" class="btn small" id="p-copy-img">Copy as image (PNG)</button>
+      </details>
+    </aside>
+  </div>
+
+  <script type="application/json" id="assets-data" set:html={data} />
+</Base>
+
+<style>
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  .search { flex: 1 1 14rem; max-width: 22rem; }
+  .search input { width: 100%; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .chip { font: 0.75rem/1 var(--mono); padding: 0.4rem 0.55rem; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
+  .chip:hover { color: var(--ink); }
+  .chip[aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
+  .count { margin: 0 0 0 auto; }
+
+  .browse { display: grid; grid-template-columns: 1fr; align-items: start; }
+  .browse.open { grid-template-columns: 1fr minmax(18rem, 24rem); }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(6rem, 11vw, 9rem), 1fr)); }
+  .grid li[hidden] { display: none; }
+  /* Every drawing gets the same square, fitted inside the same margin: the "normalized" grid. */
+  .cell { display: block; position: relative; aspect-ratio: 1; outline-offset: -2px; }
+  .cell img { position: absolute; inset: 16%; width: 68%; height: 68%; object-fit: contain; }
+  .cell:hover { background: var(--hover); }
+  .cell[aria-current='true'] { background: var(--hover); box-shadow: inset 0 0 0 1px var(--ink); }
+  .empty { padding: 3rem 1.25rem; }
+  .link { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+  .panel { position: sticky; top: 3.6rem; max-height: calc(100vh - 3.6rem); overflow-y: auto; scrollbar-gutter: stable; overscroll-behavior: contain; border-left: 1px solid var(--line); padding: 1rem 1.25rem 1.5rem; background: var(--bg); }
+  .panel-head { display: flex; justify-content: space-between; align-items: start; gap: 0.5rem; }
+  .panel-head h2 { font-size: 1.1rem; margin: 0.2rem 0 0; }
+  .panel-nav { display: flex; gap: 0.2rem; }
+  .icon { width: 2rem; height: 2rem; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
+  #p-svg, #p-png { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; }
+  .with-icon { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .icon:hover { border-color: var(--ink); }
+  /* checkerboard: shows exactly what's transparent and the real export color */
+  .panel-art { position: relative; aspect-ratio: 1; margin: 0.75rem 0; border: 1px solid var(--line);
+    background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
+  .panel-art.dark { background: repeating-conic-gradient(#1a1a1a 0 25%, #262626 0 50%) 0 0 / 14px 14px; }
+  .panel-art img { position: absolute; inset: 8%; width: 84%; height: 84%; object-fit: contain; }
+  .tags { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .tags button { font: 0.72rem/1 var(--mono); padding: 0.3rem 0.45rem; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
+  .tags button:hover { color: var(--ink); border-color: var(--ink); }
+  .swatches { display: flex; gap: 0.35rem; margin-bottom: 0.6rem; }
+  .swatch { width: 1.9rem; height: 1.9rem; padding: 3px; border: 1px solid var(--line); background: none; cursor: pointer; display: grid; place-items: center; }
+  .swatch span { width: 100%; height: 100%; border: 1px solid #8884; }
+  .swatch[aria-checked='true'], .swatch.custom.active { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .swatch.custom { position: relative; overflow: hidden; }
+  .swatch.custom input { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); border: 0; padding: 0; background: none; cursor: pointer; }
+  .actions { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.35rem; }
+  .actions .btn:disabled { opacity: 0.35; }
+  .hint { font-size: 0.72rem; margin: 0.5rem 0 0; }
+  .foot { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; font-size: 0.72rem; margin: 0.9rem 0 0; }
+  .foot a { color: var(--ink); }
+  .link { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+  .more { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 0.6rem; }
+  .more summary { cursor: pointer; font-size: 0.72rem; }
+  .more[open] { display: flex; flex-direction: column; gap: 0.6rem; }
+  .more p { margin: 0; }
+  .more .row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; font-size: 0.72rem; }
+  .more select { font: 0.75rem var(--mono); padding: 0.3rem 0.4rem; }
+  /* "Apply to all": every drawing drawn in one colour, through its own shape as a mask */
+  .tint { display: none; position: absolute; inset: 16%; background: var(--tint, #000);
+    -webkit-mask: var(--src) center / contain no-repeat; mask: var(--src) center / contain no-repeat; }
+  .grid.tinted .tint { display: block; }
+  .grid.tinted .cell img { visibility: hidden; }
+  .apply-all { margin-left: auto; font-size: 0.72rem; align-self: center; }
+  .apply-all[aria-pressed='true'] { font-weight: 600; text-decoration: none; }
+  .apply-all[aria-pressed='true']::before { content: '✓ '; }
+  .tint-chip { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--ink); border-color: var(--ink); }
+  .tint-chip[hidden] { display: none; }
+  .tint-chip .dot { width: 0.7rem; height: 0.7rem; border: 1px solid #8886; background: var(--tint, #000); }
+  .zip { position: relative; }
+  .zip summary { list-style: none; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--ink); }
+  .zip summary::-webkit-details-marker { display: none; }
+  .zip-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 15rem; background: var(--bg); border: 1px solid var(--ink);
+    padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); }
+  .zip-pop p { margin: 0; font-size: 0.72rem; }
+  .zip-format { border: 0; padding: 0; margin: 0; display: flex; gap: 0.75rem; align-items: center; font-size: 0.8rem; }
+  .zip-format select { font: 0.72rem var(--mono); margin-left: auto; }
+  .zip-format label { display: inline-flex; flex-direction: row; align-items: center; gap: 0.3rem; }
+
+
+  @media (max-width: 48rem) {
+    .browse.open { grid-template-columns: 1fr; }
+    .panel { position: fixed; inset: auto 0 0 0; top: auto; max-height: 75vh; border-left: 0; border-top: 1px solid var(--ink); z-index: 10; box-shadow: 0 -12px 30px rgb(0 0 0 / 0.15); }
+    .panel-art { aspect-ratio: auto; height: 30vh; }
+    .count { display: none; }
+  }
+</style>
+
+<script>
+  interface Item {
+    id: string; slug: string; name: string; description: string; tags: string[]; collection: string;
+    version: string; vector: boolean; display: string; svg: string; png: string; pngW: number; pngH: number;
+    license: string; licenseUrl: string; credit: string;
+  }
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const items: Item[] = JSON.parse($('assets-data').textContent!);
+  const bySlug = new Map(items.map((a) => [a.slug, a]));
+  const rows = [...document.querySelectorAll<HTMLLIElement>('#grid > li')];
+  const rowById = new Map(rows.map((li) => [li.dataset.id!, li]));
+  const q = $<HTMLInputElement>('q');
+  const filters = { collection: '' };
+  let current: Item | null = null;
+
+  // ---------- filtering
+  function apply(updateUrl = true) {
+    const terms = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const li of rows) {
+      const ok =
+        (!filters.collection || li.dataset.collection === filters.collection) &&
+        terms.every((t) => li.dataset.search!.includes(t));
+      li.hidden = !ok;
+      if (ok) shown++;
+    }
+    $('count').textContent = shown === rows.length ? `${rows.length}` : `${shown} of ${rows.length}`;
+    $('empty').hidden = shown > 0;
+    document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(filters.collection === b.dataset.value));
+    });
+    // the open drawing was filtered out: close it instead of showing something the grid doesn't
+    if (current && rowById.get(current.id)?.hidden) close(false);
+    zipInfo();
+    if (updateUrl) syncUrl();
+  }
+
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (q.value.trim()) p.set('q', q.value.trim());
+    if (filters.collection) p.set('collection', filters.collection);
+    const qs = p.toString();
+    history.replaceState(null, '', `${location.pathname}${qs ? `?${qs}` : ''}${current ? `#${current.slug}` : ''}`);
+  }
+
+  q.addEventListener('input', () => apply());
+  document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]').forEach((b) =>
+    b.addEventListener('click', () => {
+      filters.collection = b.dataset.value!;
+      apply();
+    }),
+  );
+  $('clear').addEventListener('click', () => {
+    q.value = ''; filters.collection = '';
+    apply(); q.focus();
+  });
+
+  // ---------- panel
+  const panel = $('panel');
+  function open(item: Item, focus = false) {
+    current = item;
+    $('p-name').textContent = item.name;
+    $<HTMLImageElement>('p-img').alt = item.description || item.name;
+    $('p-meta').textContent = `${item.id} · ${item.collection} · v${item.version}`;
+    $('p-desc').textContent = item.description;
+    $('p-desc').hidden = !item.description;
+    $('p-tags').replaceChildren(...item.tags.map((t) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.addEventListener('click', () => { q.value = t; apply(); });
+      li.append(b);
+      return li;
+    }));
+    $<HTMLAnchorElement>('p-compose').href = `/compose/?add=${encodeURIComponent(item.id)}`;
+    const lic = $<HTMLAnchorElement>('p-license-link');
+    lic.textContent = item.license;
+    if (item.licenseUrl) lic.href = item.licenseUrl; else lic.removeAttribute('href');
+    lic.title = 'Public domain: use it for anything, no credit needed';
+    refreshExport();
+    panel.hidden = false;
+    $('browse').classList.add('open');
+    rows.forEach((li) => li.querySelector('a')!.setAttribute('aria-current', String(li.dataset.id === item.id)));
+    syncUrl();
+    if (focus) $('p-close').focus();
+  }
+
+  function close(refocus = true) {
+    const was = current;
+    current = null;
+    panel.hidden = true;
+    $('browse').classList.remove('open');
+    rows.forEach((li) => li.querySelector('a')!.removeAttribute('aria-current'));
+    syncUrl();
+    if (was && refocus) rowById.get(was.id)?.querySelector('a')?.focus();
+  }
+
+  function step(delta: number) {
+    if (!current) return;
+    const visible = rows.filter((li) => !li.hidden);
+    const i = visible.findIndex((li) => li.dataset.id === current!.id);
+    const next = i < 0 ? visible[delta > 0 ? 0 : visible.length - 1] : visible[(i + delta + visible.length) % visible.length];
+    if (!next) return;
+    open(items.find((a) => a.id === next.dataset.id)!);
+    next.scrollIntoView({ block: 'nearest' });
+  }
+
+  $('grid').addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a.cell');
+    if (!a) return;
+    e.preventDefault();
+    const item = items.find((x) => x.id === a.closest('li')!.dataset.id);
+    if (item) current?.id === item.id ? close() : open(item);
+  });
+  $('p-close').addEventListener('click', () => close());
+  $('p-prev').addEventListener('click', () => step(-1));
+  $('p-next').addEventListener('click', () => step(1));
+  // ---------- export: pick a colour, then copy or download. Everything happens in the browser.
+  const exp = { size: 2048, color: '#000000' };
+  const svgCache = new Map<string, Promise<string>>();
+  let previewUrl: string | null = null;
+
+  const svgSource = (item: Item) => {
+    if (!svgCache.has(item.id)) svgCache.set(item.id, fetch(item.svg).then((r) => r.text()));
+    return svgCache.get(item.id)!;
+  };
+  const colorName = (c: string) => (c === 'currentColor' ? 'css' : c === '#000000' ? '' : c.slice(1));
+  const fileBase = (item: Item, color: string) => ['lumassets', item.slug, colorName(color)].filter(Boolean).join('-');
+  /** Scans (not traced yet) only exist in black as SVG. */
+  const svgLocked = (item: Item) => !item.vector && exp.color !== '#000000';
+
+  /** SVG text in a colour. Traced drawings use fill="currentColor", so this is a plain swap;
+   *  an explicit hex keeps the colour editable in Canva, Figma and others. */
+  async function exportSvg(item: Item, color = exp.color): Promise<string> {
+    let text = await svgSource(item);
+    if (item.vector && color !== 'currentColor') text = text.replaceAll('currentColor', color);
+    // where it's from and its license, as a comment right after the opening <svg> tag
+    const note = `<!-- ${item.credit.replaceAll('--', '–')}${item.licenseUrl ? ` (${item.licenseUrl})` : ''} -->`;
+    return text.replace(/<svg\b[^>]*>/, (tag) => `${tag}\n${note}`);
+  }
+
+  const loadImage = (src: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('image failed to load'));
+      img.src = src;
+    });
+
+  /** Transparent PNG, long side `size`, in the chosen colour. Scans are never upscaled. */
+  async function exportPng(item: Item, size: number): Promise<{ blob: Blob; width: number; height: number }> {
+    let src: string, w: number, h: number, revoke: string | null = null;
+    if (item.vector) {
+      const text = (await svgSource(item)).replaceAll('currentColor', '#000000');
+      src = revoke = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+      const vb = text.match(/viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/);
+      w = vb ? +vb[1] : 1000; h = vb ? +vb[2] : 1000;
+    } else {
+      src = item.png; w = item.pngW; h = item.pngH;
+    }
+    const native = Math.max(w, h);
+    const k = (item.vector ? size : Math.min(size, native)) / native;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(w * k));
+    canvas.height = Math.max(1, Math.round(h * k));
+    const ctx = canvas.getContext('2d')!;
+    const img = await loadImage(src);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (revoke) URL.revokeObjectURL(revoke);
+    if (exp.color !== '#000000') {
+      ctx.globalCompositeOperation = 'source-in'; // keep the drawing's shape, replace its colour
+      ctx.fillStyle = exp.color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    const blob = await new Promise<Blob>((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('PNG failed'))), 'image/png'));
+    return { blob, width: canvas.width, height: canvas.height };
+  }
+
+  const isLight = (c: string) => {
+    const n = parseInt(c.slice(1), 16);
+    return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 170;
+  };
+
+  function note(text: string) {
+    $('p-note').textContent = text;
+    $('p-note').hidden = !text;
+  }
+
+  async function refreshExport() {
+    if (tinted) syncTint();
+    if (!current) return;
+    const item = current;
+    document.querySelectorAll<HTMLButtonElement>('.swatch[data-color]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.color === exp.color)));
+    document.querySelector('.swatch.custom')!.classList.toggle('active', !['#000000', '#ffffff'].includes(exp.color));
+    $('p-art').classList.toggle('dark', isLight(exp.color));
+    const locked = svgLocked(item);
+    $<HTMLButtonElement>('p-copy').disabled = locked;
+    $<HTMLButtonElement>('p-svg').disabled = locked;
+    note(locked ? 'Not traced yet: in colour it comes as PNG only.' : '');
+
+    // preview in the real colour
+    const img = $<HTMLImageElement>('p-img');
+    let url: string | null = null;
+    if (exp.color === '#000000') img.src = item.display;
+    else if (item.vector) url = URL.createObjectURL(new Blob([await exportSvg(item)], { type: 'image/svg+xml' }));
+    else url = URL.createObjectURL((await exportPng(item, 800)).blob);
+    if (current !== item) { if (url) URL.revokeObjectURL(url); return; }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = url;
+    if (url) img.src = url;
+  }
+
+  function download(name: string, blob: Blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  const flash = (id: string, text: string, restore?: string) => {
+    const b = $(id);
+    // keep any icon: swap only the text (in the inner <span> when there is one)
+    const t = b.querySelector('span') ?? b;
+    const old = restore ?? t.textContent;
+    t.textContent = text;
+    setTimeout(() => { if (t.textContent === text) t.textContent = old; }, 1600);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('.swatch[data-color]').forEach((b) =>
+    b.addEventListener('click', () => { exp.color = b.dataset.color!; refreshExport(); }),
+  );
+  $<HTMLInputElement>('custom-color').addEventListener('input', (e) => { exp.color = (e.target as HTMLInputElement).value; refreshExport(); });
+  $<HTMLSelectElement>('size').addEventListener('change', (e) => { exp.size = +(e.target as HTMLSelectElement).value; });
+
+  $('p-copy').addEventListener('click', async () => {
+    if (!current) return;
+    const css = $<HTMLInputElement>('css-color').checked && current.vector;
+    try {
+      await navigator.clipboard.writeText(await exportSvg(current, css ? 'currentColor' : exp.color));
+      flash('p-copy', 'Copied');
+    } catch {
+      flash('p-copy', "Couldn't copy");
+    }
+  });
+  $('p-svg').addEventListener('click', async () => {
+    if (!current) return;
+    download(`${fileBase(current, exp.color)}.svg`, new Blob([await exportSvg(current)], { type: 'image/svg+xml' }));
+  });
+  $('p-png').addEventListener('click', async () => {
+    if (!current) return;
+    try {
+      const png = await exportPng(current, exp.size);
+      download(`${fileBase(current, exp.color)}-${Math.max(png.width, png.height)}.png`, png.blob);
+      if (!current.vector && exp.size > Math.max(current.pngW, current.pngH)) note(`Not traced yet: exported at its real size, ${png.width}×${png.height} px.`);
+    } catch {
+      flash('p-png', 'Failed');
+    }
+  });
+  $('p-copy-img').addEventListener('click', async () => {
+    if (!current) return;
+    const item = current;
+    const label = 'Copy as image (PNG)';
+    try {
+      $('p-copy-img').textContent = 'Copying…';
+      // pass a promise so Safari keeps the click's permission while the PNG renders
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': exportPng(item, exp.size).then((p) => p.blob) })]);
+      flash('p-copy-img', 'Copied', label);
+    } catch {
+      flash('p-copy-img', 'Blocked by the browser: use Download PNG', label);
+    }
+  });
+  // ---------- apply to all: the grid shows every drawing in the panel's colour
+  const grid = $('grid');
+  let tinted = false;
+  function syncTint() {
+    grid.classList.toggle('tinted', tinted);
+    document.documentElement.style.setProperty('--tint', exp.color);
+    $('p-apply-all').setAttribute('aria-pressed', String(tinted));
+    $('tint-clear').hidden = !tinted;
+    zipInfo();
+  }
+  $('p-apply-all').addEventListener('click', () => { tinted = !tinted; syncTint(); });
+  $('tint-clear').addEventListener('click', () => { tinted = false; exp.color = '#000000'; syncTint(); refreshExport(); });
+
+  // ---------- download everything shown, as one ZIP (fflate, loaded only when used)
+  const zipFormat = () => (document.querySelector<HTMLInputElement>('input[name="zip-format"]:checked')!.value as 'svg' | 'png');
+  const shownItems = () => rows.filter((li) => !li.hidden).map((li) => items.find((a) => a.id === li.dataset.id)!);
+  function zipInfo() {
+    const n = shownItems().length;
+    $('zip-label').textContent = n === rows.length ? 'Download all' : `Download ${n}`;
+    const colour = exp.color === '#000000' ? 'black' : exp.color;
+    $('zip-what').textContent = `${n} drawing${n === 1 ? '' : 's'}, in ${tinted ? colour : 'black'}.` + (tinted ? '' : ' For another color, pick it in a drawing\'s panel and press "Apply to all".');
+    $<HTMLSelectElement>('zip-size').disabled = zipFormat() === 'svg';
+  }
+  document.querySelectorAll('input[name="zip-format"]').forEach((r) => r.addEventListener('change', zipInfo));
+  $('zip').addEventListener('toggle', zipInfo);
+  $('zip-go').addEventListener('click', async () => {
+    const list = shownItems();
+    if (!list.length) return;
+    const button = $<HTMLButtonElement>('zip-go');
+    const status = $('zip-status');
+    button.disabled = true;
+    const color = exp.color;
+    const keep = exp.color;
+    if (!tinted) exp.color = '#000000';
+    try {
+      const { zipSync, strToU8 } = await import('fflate');
+      const files: Record<string, Uint8Array> = {};
+      const format = zipFormat();
+      const size = +$<HTMLSelectElement>('zip-size').value;
+      for (const [i, item] of list.entries()) {
+        status.textContent = `Preparing ${i + 1} of ${list.length}…`;
+        const base = fileBase(item, exp.color);
+        if (format === 'svg' && !svgLocked(item)) files[`${base}.svg`] = strToU8(await exportSvg(item));
+        else files[`${base}.png`] = new Uint8Array(await (await exportPng(item, size)).blob.arrayBuffer());
+      }
+      files['LICENSE.txt'] = strToU8(
+        `Drawings by Luma Montes, from lumassets.\n${list[0].license}${list[0].licenseUrl ? ` (${list[0].licenseUrl})` : ''}: use them for anything, no credit needed.\n`,
+      );
+      status.textContent = 'Zipping…';
+      // SVGs compress well; PNGs are already compressed
+      const zipped = zipSync(files, { level: format === 'svg' ? 6 : 0 });
+      const label = [filters.collection || 'lumassets', q.value.trim() && slugText(q.value), tinted && colorName(color), format].filter(Boolean).join('-');
+      download(`${label}.zip`, new Blob([zipped], { type: 'application/zip' }));
+      status.textContent = `Downloaded ${list.length} drawing${list.length === 1 ? '' : 's'}.`;
+    } catch (e) {
+      status.textContent = `Couldn't make the ZIP: ${(e as Error).message}`;
+    } finally {
+      exp.color = keep;
+      button.disabled = false;
+    }
+  });
+  const slugText = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+
+  document.addEventListener('keydown', (e) => {
+    if (!current || (e.target as HTMLElement).closest('input, textarea, select')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  });
+
+  // ---------- initial state from the URL
+  const params = new URLSearchParams(location.search);
+  q.value = params.get('q') ?? '';
+  filters.collection = params.get('collection') ?? '';
+  apply(false);
+  // a mistyped link (#%E0%A4) must not stop the page
+  const slugFromHash = () => { try { return decodeURIComponent(location.hash.slice(1)); } catch { return ''; } };
+  const fromHash = bySlug.get(slugFromHash());
+  if (fromHash) {
+    open(fromHash);
+    rowById.get(fromHash.id)?.scrollIntoView({ block: 'center' });
+  }
+  window.addEventListener('hashchange', () => {
+    const item = bySlug.get(slugFromHash());
+    if (item && item.id !== current?.id) open(item);
+  });
+</script>

@@ -1,0 +1,4 @@
+# Local secrets for `pnpm dev:wall` (wrangler pages dev). Copy to .dev.vars (not committed).
+ADMIN_TOKEN=local-test-token
+# Cloudflare's Turnstile test secret: always passes. Only accepted on localhost.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

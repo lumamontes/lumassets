@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Wall" description="Things people made in the lumassets composer.">
+  <div class="wall-head">
+    <h1>Wall</h1>
+    <p class="muted">Things people made in the <a href="/compose/">composer</a>. Remix any of them, or share yours from there.</p>
+  </div>
+  <p class="muted state" id="state" aria-live="polite">Loading…</p>
+  <ul class="wall" id="wall"></ul>
+  <p class="more-wrap"><button type="button" class="btn" id="more" hidden>Load more</button></p>
+</Base>
+
+<style>
+  .wall-head { padding: 1.25rem 1.25rem 0; max-width: 46rem; margin-bottom: 1rem; }
+  .wall-head h1 { margin: 0 0 0.4rem; font-size: 1.2rem; }
+  .wall-head p { margin: 0; }
+  .state { padding: 0 1.25rem; margin: 0; }
+  .state[hidden] { display: none; }
+  .wall { list-style: none; margin: 0; padding: 0 1.25rem 1.25rem; columns: 18rem; column-gap: 1rem; }
+  .wall :global(li) { break-inside: avoid; margin: 0 0 1rem; border: 1px solid var(--line); }
+  .wall :global(img) { display: block; width: 100%; height: auto; background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
+  .wall :global(.meta) { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.6rem; font-size: 0.8rem; align-items: baseline; }
+  .wall :global(.meta span) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wall :global(.meta a) { font-family: var(--mono); font-size: 0.72rem; white-space: nowrap; color: var(--ink); }
+  .wall :global(small) { color: var(--muted); }
+  .more-wrap { text-align: center; }
+  .more-wrap .btn[hidden] { display: none; }
+</style>
+
+<script>
+  interface Post { id: string; title: string; author: string | null; createdAt: string; width: number; height: number; image: string }
+  const $ = (id: string) => document.getElementById(id)!;
+  const wall = $('wall');
+  const more = $('more') as HTMLButtonElement;
+  const PAGE = 30;
+  let before = '';
+
+  function card(p: Post) {
+    const li = document.createElement('li');
+    const img = document.createElement('img');
+    img.src = p.image;
+    img.width = p.width;
+    img.height = p.height;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.alt = p.title;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const label = document.createElement('span');
+    label.textContent = p.title; // always as text, never as HTML
+    if (p.author) {
+      const by = document.createElement('small');
+      by.textContent = ` by ${p.author}`;
+      label.append(by);
+    }
+    const remix = document.createElement('a');
+    remix.href = `/compose/?wall=${encodeURIComponent(p.id)}`;
+    remix.textContent = 'Remix';
+    meta.append(label, remix);
+    li.append(img, meta);
+    return li;
+  }
+
+  async function load() {
+    more.disabled = true;
+    try {
+      const res = await fetch(`/api/wall?limit=${PAGE}${before ? `&before=${encodeURIComponent(before)}` : ''}`);
+      if (!res.ok) throw new Error(String(res.status));
+      const { posts } = (await res.json()) as { posts: Post[] };
+      wall.append(...posts.map(card));
+      if (posts.length) before = posts[posts.length - 1].createdAt;
+      more.hidden = posts.length < PAGE;
+      $('state').textContent = 'Nothing here yet. Make something in the composer and share it!';
+      $('state').hidden = wall.children.length > 0;
+    } catch {
+      $('state').textContent = wall.children.length ? "Couldn't load more. Try again in a bit." : "The wall isn't available right now.";
+      $('state').hidden = false;
+    } finally {
+      more.disabled = false;
+    }
+  }
+  more.addEventListener('click', load);
+  load();
+</script>

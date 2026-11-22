@@ -1,0 +1,17 @@
+# Cloudflare Pages settings. The site is static (dist/); functions/api/ is the wall (docs/wall.md).
+name = "lumassets"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-11-01"
+
+# Uncomment these bindings after creating the wall resources (docs/wall.md).
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "lumassets-wall"
+# database_id = "REPLACE-WITH-YOUR-D1-DATABASE-ID"   # from: pnpm wrangler d1 create lumassets-wall
+# migrations_dir = "migrations"
+
+# [[r2_buckets]]
+# binding = "WALL"
+# bucket_name = "lumassets-wall"   # private: never make it public, the API decides what's shown
+
+# Secrets (not here): ADMIN_TOKEN, TURNSTILE_SECRET. See docs/wall.md.

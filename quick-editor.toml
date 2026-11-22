@@ -1,0 +1,14 @@
+# Settings for quick-editor (https://github.com/…/quick-editor), the tool that turns
+# photos of drawings into the vector assets in this repo. Paths are relative to this file.
+[paths]
+inbox = "scans/inbox"            # photos to process (not committed)
+sessions = "scans"               # per-photo progress (committed)
+vectors = "assets/vector"        # <id>.svg, <id>-backing.svg
+originals = "assets/originals"   # <collection>/<id>.png
+
+[catalog]
+assets = "data/assets.json"
+collections = "data/collections.json"
+
+[quality]
+min_pixels = 600   # keep in sync with "quality.minSourcePixels" in data/collections.json

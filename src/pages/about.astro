@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+---
+
+<Base title="About" description="About lumassets. @ Luma Montes">
+  <article class="prose">
+    <h1>About</h1>
+    <p>lumassets is a set of drawings-turned-assets by <a href={SITE.websiteUrl} rel="noopener">Luma Montes</a>, a side project for spending more time with creative stuff while also doing some coding.</p>
+    <p>Each asset can be copied, recolored or downloaded as SVG or PNG, one at a time or all at once as a ZIP.</p>
+    <p>There's also a <a href="/compose/">composer</a>, kind of an editor, where you can pick assets, play with them, add some cool effects and export. Make something weird!</p>
+    <p>A companion tool, <a href={SITE.quickEditorUrl} rel="noopener">quick-editor</a>, was made so it's easier to turn photos of drawings into clean, transparent SVGs.</p>
+    <p><a href={SITE.githubUrl} rel="noopener">GitHub</a> · <a href={SITE.contactUrl}>Contact</a></p>
+
+    <h2 id="license">License</h2>
+    <ul>
+      <li>Assets: <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>. Use them for anything, no credit needed.</li>
+      <li>Code (this site and quick-editor): <a href={`${SITE.githubUrl.replace(/\/$/, '')}/blob/main/LICENSE`} rel="noopener">MIT</a>.</li>
+    </ul>
+
+    <p>Found a bug? <a href={`${SITE.githubUrl.replace(/\/$/, '')}/issues`} rel="noopener">Open an issue</a>.</p>
+  </article>
+</Base>

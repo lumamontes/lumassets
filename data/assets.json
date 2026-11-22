@@ -1,0 +1,2665 @@
+[
+  {
+    "id": "sq1-00",
+    "name": "quadrados-1, página inteira",
+    "slug": "quadrados-1-pagina-inteira",
+    "description": "The full page: scratchy hatched shapes and stitched lines scattered across one sheet.",
+    "aliases": [
+      "asset-1",
+      "Quadrados 1 00",
+      "quadrados 1"
+    ],
+    "tags": [
+      "full-page",
+      "scratchy"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-00.svg",
+    "format": "svg",
+    "width": 1847,
+    "height": 2409,
+    "viewBox": "0 0 1847 2409",
+    "fileSize": 648347,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-1/sq1-00.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 1107
+    }
+  },
+  {
+    "id": "sq1-01",
+    "name": "quadrado-1",
+    "slug": "quadrado-1",
+    "description": "A dense cluster of folded, hatched planes stacked into a wide horizontal mass.",
+    "aliases": [
+      "asset-1-1",
+      "Quadrados 1 01",
+      "quadrados 1",
+      "folded cluster"
+    ],
+    "tags": [
+      "hatched",
+      "cluster",
+      "wide",
+      "dense"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-01.svg",
+    "format": "svg",
+    "width": 2430,
+    "height": 1598,
+    "viewBox": "0 0 2430 1598",
+    "fileSize": 147324,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 323 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-01.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-1.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 323
+    }
+  },
+  {
+    "id": "sq1-02",
+    "name": "quadrado-2",
+    "slug": "quadrado-2",
+    "description": "A small hatched block trailing a stitched horizontal line.",
+    "aliases": [
+      "asset-1-2",
+      "Quadrados 1 02",
+      "quadrados 1",
+      "block and thread"
+    ],
+    "tags": [
+      "hatched",
+      "stitch",
+      "horizontal"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-02.svg",
+    "format": "svg",
+    "width": 2428,
+    "height": 1204,
+    "viewBox": "0 0 2428 1204",
+    "fileSize": 48014,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 341 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-02.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-2.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 341
+    }
+  },
+  {
+    "id": "sq1-03",
+    "name": "quadrado-3",
+    "slug": "quadrado-3",
+    "description": "A tall vertical stack of hatched shapes, narrow at the top and heavier at the base.",
+    "aliases": [
+      "asset-1-3",
+      "Quadrados 1 03",
+      "quadrados 1",
+      "tall stack"
+    ],
+    "tags": [
+      "vertical",
+      "stack",
+      "hatched"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-03.svg",
+    "format": "svg",
+    "width": 773,
+    "height": 2417,
+    "viewBox": "0 0 773 2417",
+    "fileSize": 121298,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 559 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-03.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-3.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 559
+    }
+  },
+  {
+    "id": "sq1-04",
+    "name": "quadrado-4",
+    "slug": "quadrado-4",
+    "description": "A vertical stitched line with crossbars, ending in a small hatched shape.",
+    "aliases": [
+      "asset-1-4",
+      "Quadrados 1 04",
+      "quadrados 1",
+      "antenna line"
+    ],
+    "tags": [
+      "vertical",
+      "stitch",
+      "antenna"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-04.svg",
+    "format": "svg",
+    "width": 1000,
+    "height": 1512,
+    "viewBox": "0 0 1000 1512",
+    "fileSize": 24589,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 185 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-04.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-4.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 185
+    }
+  },
+  {
+    "id": "sq1-05",
+    "name": "quadrado-5",
+    "slug": "quadrado-5",
+    "description": "An angular hatched kite with a stitched thread extending to the right.",
+    "aliases": [
+      "asset-1-5",
+      "Quadrados 1 05",
+      "quadrados 1",
+      "kite with thread"
+    ],
+    "tags": [
+      "kite",
+      "stitch",
+      "diagonal"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-05.svg",
+    "format": "svg",
+    "width": 1728,
+    "height": 1232,
+    "viewBox": "0 0 1728 1232",
+    "fileSize": 47667,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 212 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-05.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-5.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 212
+    }
+  },
+  {
+    "id": "sq1-06",
+    "name": "quadrado-6",
+    "slug": "quadrado-6",
+    "description": "A bold, solid, low-resolution glyph with visible pixel edges.",
+    "aliases": [
+      "asset-1-6",
+      "Quadrados 1 06",
+      "quadrados 1",
+      "pixel glyph"
+    ],
+    "tags": [
+      "pixel",
+      "solid",
+      "bold",
+      "low-res"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-06.svg",
+    "format": "svg",
+    "width": 400,
+    "height": 432,
+    "viewBox": "0 0 400 432",
+    "fileSize": 11962,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 50 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-06.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-6.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 50
+    }
+  },
+  {
+    "id": "sq1-07",
+    "name": "quadrado-7",
+    "slug": "quadrado-7",
+    "description": "A stepped vertical line with small crossbars, ending in a pointed shape.",
+    "aliases": [
+      "asset-1-7",
+      "Quadrados 1 07",
+      "quadrados 1",
+      "stepped line"
+    ],
+    "tags": [
+      "vertical",
+      "steps",
+      "stitch"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-07.svg",
+    "format": "svg",
+    "width": 792,
+    "height": 1984,
+    "viewBox": "0 0 792 1984",
+    "fileSize": 21647,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 244 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-07.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-7.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 244
+    }
+  },
+  {
+    "id": "sq1-08",
+    "name": "quadrado-8",
+    "slug": "quadrado-8",
+    "description": "A small zigzag mark with a tiny shape, set on a mostly empty field.",
+    "aliases": [
+      "asset-1-8",
+      "Quadrados 1 08",
+      "quadrados 1",
+      "small zigzag"
+    ],
+    "tags": [
+      "small",
+      "zigzag",
+      "sparse"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-08.svg",
+    "format": "svg",
+    "width": 636,
+    "height": 2414,
+    "viewBox": "0 0 636 2414",
+    "fileSize": 33900,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-1/sq1-08.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-8.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 675
+    }
+  },
+  {
+    "id": "sq1-09",
+    "name": "quadrado-9",
+    "slug": "quadrado-9",
+    "description": "A vertical stitched chain linking two small triangular shapes.",
+    "aliases": [
+      "asset-1-9",
+      "Quadrados 1 09",
+      "quadrados 1",
+      "beaded chain"
+    ],
+    "tags": [
+      "vertical",
+      "chain"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-09.svg",
+    "format": "svg",
+    "width": 760,
+    "height": 2368,
+    "viewBox": "0 0 760 2368",
+    "fileSize": 38572,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 292 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-09.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-9.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 292
+    }
+  },
+  {
+    "id": "sq1-10",
+    "name": "quadrado-10",
+    "slug": "quadrado-10",
+    "description": "Bold diagonal slash fragments breaking apart toward the lower right.",
+    "aliases": [
+      "asset-1-10",
+      "Quadrados 1 10",
+      "quadrados 1",
+      "diagonal slash"
+    ],
+    "tags": [
+      "diagonal",
+      "fragments",
+      "bold"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-10.svg",
+    "format": "svg",
+    "width": 808,
+    "height": 680,
+    "viewBox": "0 0 808 680",
+    "fileSize": 16842,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 97 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-10.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-10.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 97
+    }
+  },
+  {
+    "id": "sq1-11",
+    "name": "quadrado-11",
+    "slug": "quadrado-11",
+    "description": "A wide hatched plane edged with a row of small triangles.",
+    "aliases": [
+      "asset-1-11",
+      "Quadrados 1 11",
+      "quadrados 1",
+      "wide plane"
+    ],
+    "tags": [
+      "wide",
+      "hatched",
+      "triangles"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-11.svg",
+    "format": "svg",
+    "width": 2176,
+    "height": 1272,
+    "viewBox": "0 0 2176 1272",
+    "fileSize": 102716,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 268 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-11.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-11.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 268
+    }
+  },
+  {
+    "id": "sq1-12",
+    "name": "quadrado-12",
+    "slug": "quadrado-12",
+    "description": "A tall curved band divided into small hatched cells.",
+    "aliases": [
+      "asset-1-12",
+      "Quadrados 1 12",
+      "quadrados 1",
+      "curved band"
+    ],
+    "tags": [
+      "band",
+      "cells",
+      "vertical",
+      "curve"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-12.svg",
+    "format": "svg",
+    "width": 1832,
+    "height": 2418,
+    "viewBox": "0 0 1832 2418",
+    "fileSize": 117078,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 532 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-12.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-12.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 532
+    }
+  },
+  {
+    "id": "sq1-13",
+    "name": "quadrado-13",
+    "slug": "quadrado-13",
+    "description": "A hooked line falling into a crumpled, hatched mass.",
+    "aliases": [
+      "asset-1-13",
+      "Quadrados 1 13",
+      "quadrados 1",
+      "hook and mass"
+    ],
+    "tags": [
+      "hook",
+      "crumpled",
+      "line"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-13.svg",
+    "format": "svg",
+    "width": 2303,
+    "height": 2416,
+    "viewBox": "0 0 2303 2416",
+    "fileSize": 224561,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 591 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-13.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-13.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 591
+    }
+  },
+  {
+    "id": "sq1-14",
+    "name": "quadrado-4 (cópia)",
+    "slug": "quadrado-4-copia",
+    "description": "Exact duplicate of Antenna Line. Kept as a draft until reviewed.",
+    "aliases": [
+      "asset-1-14",
+      "Quadrados 1 14",
+      "quadrados 1",
+      "antenna line"
+    ],
+    "tags": [
+      "vertical",
+      "stitch",
+      "antenna"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/source/quadrados-1/asset-1-14.svg",
+    "format": "svg",
+    "width": 119,
+    "height": 183,
+    "viewBox": "0 0 119 183",
+    "fileSize": 2642,
+    "containsRaster": true,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "draft",
+    "duplicateOf": "sq1-04"
+  },
+  {
+    "id": "sq1-15",
+    "name": "quadrado-14",
+    "slug": "quadrado-14",
+    "description": "A long, flat wedge with hatched inner triangles.",
+    "aliases": [
+      "asset-1-15",
+      "Quadrados 1 15",
+      "quadrados 1",
+      "flat wedge"
+    ],
+    "tags": [
+      "wedge",
+      "flat",
+      "horizontal"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-15.svg",
+    "format": "svg",
+    "width": 1304,
+    "height": 560,
+    "viewBox": "0 0 1304 560",
+    "fileSize": 28249,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 159 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-15.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-15.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 159
+    }
+  },
+  {
+    "id": "sq1-16",
+    "name": "quadrado-15",
+    "slug": "quadrado-15",
+    "description": "Two hatched wedges meeting at a point like a bow tie.",
+    "aliases": [
+      "asset-1-16",
+      "Quadrados 1 16",
+      "quadrados 1",
+      "bow tie"
+    ],
+    "tags": [
+      "pair",
+      "wedges",
+      "hatched"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-16.svg",
+    "format": "svg",
+    "width": 1016,
+    "height": 1216,
+    "viewBox": "0 0 1016 1216",
+    "fileSize": 40648,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 148 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-16.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-16.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 148
+    }
+  },
+  {
+    "id": "sq1-18",
+    "name": "quadrado-16",
+    "slug": "quadrado-16",
+    "description": "A boat-like wedge filled with a loose lattice.",
+    "aliases": [
+      "asset-1-18",
+      "Quadrados 1 18",
+      "quadrados 1",
+      "paper boat"
+    ],
+    "tags": [
+      "wedge",
+      "boat",
+      "lattice"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-18.svg",
+    "format": "svg",
+    "width": 2048,
+    "height": 968,
+    "viewBox": "0 0 2048 968",
+    "fileSize": 63403,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 252 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-18.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-18.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 252
+    }
+  },
+  {
+    "id": "sq1-19",
+    "name": "quadrado-17",
+    "slug": "quadrado-17",
+    "description": "A looping horizontal thread with stitched crossings.",
+    "aliases": [
+      "asset-1-19",
+      "Quadrados 1 19",
+      "quadrados 1",
+      "looping thread"
+    ],
+    "tags": [
+      "horizontal",
+      "loop",
+      "stitch"
+    ],
+    "collection": "quadrados-1",
+    "sourcePath": "assets/vector/sq1-19.svg",
+    "format": "svg",
+    "width": 1360,
+    "height": 592,
+    "viewBox": "0 0 1360 592",
+    "fileSize": 20496,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 166 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-1/sq1-19.png",
+    "previousSources": [
+      "assets/source/quadrados-1/asset-1-19.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: img20260924_02395396-1.png)",
+      "pixels": 166
+    }
+  },
+  {
+    "id": "sq2-00",
+    "name": "quadrados-2, página inteira",
+    "slug": "quadrados-2-pagina-inteira",
+    "description": "The full page: outlined shapes with patterned interiors scattered across one sheet.",
+    "aliases": [
+      "asset-2",
+      "Quadrados 2 00",
+      "quadrados 2"
+    ],
+    "tags": [
+      "full-page",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-00.svg",
+    "format": "svg",
+    "width": 2404,
+    "height": 1927,
+    "viewBox": "0 0 2404 1927",
+    "fileSize": 355309,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-2/sq2-00.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 2295
+    }
+  },
+  {
+    "id": "sq2-01",
+    "name": "quadrado-18",
+    "slug": "quadrado-18",
+    "description": "An outlined wedge with a zigzag interior tapering to a thin tail.",
+    "aliases": [
+      "asset-2-1",
+      "Quadrados 2 01",
+      "quadrados 2",
+      "zigzag wedge"
+    ],
+    "tags": [
+      "wedge",
+      "zigzag",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-01.svg",
+    "format": "svg",
+    "width": 968,
+    "height": 2184,
+    "viewBox": "0 0 968 2184",
+    "fileSize": 59214,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 269 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-01.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-1.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 269
+    }
+  },
+  {
+    "id": "sq2-02",
+    "name": "quadrado-19",
+    "slug": "quadrado-19",
+    "description": "A boxy form like a small house, with striped roof and window grids.",
+    "aliases": [
+      "asset-2-2",
+      "Quadrados 2 02",
+      "quadrados 2",
+      "little house"
+    ],
+    "tags": [
+      "house",
+      "windows",
+      "box",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-02.svg",
+    "format": "svg",
+    "width": 2244,
+    "height": 2431,
+    "viewBox": "0 0 2244 2431",
+    "fileSize": 141689,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 307 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-02.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-2.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 307
+    }
+  },
+  {
+    "id": "sq2-03",
+    "name": "quadrado-20",
+    "slug": "quadrado-20",
+    "description": "Two patterned bands meeting at a sharp corner.",
+    "aliases": [
+      "asset-2-3",
+      "Quadrados 2 03",
+      "quadrados 2",
+      "corner band"
+    ],
+    "tags": [
+      "corner",
+      "band",
+      "angle"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-03.svg",
+    "format": "svg",
+    "width": 2423,
+    "height": 1287,
+    "viewBox": "0 0 2423 1287",
+    "fileSize": 70775,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 414 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-03.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-3.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 414
+    }
+  },
+  {
+    "id": "sq2-04",
+    "name": "quadrado-21",
+    "slug": "quadrado-21",
+    "description": "A long diagonal blade with small blocks along its spine.",
+    "aliases": [
+      "asset-2-4",
+      "Quadrados 2 04",
+      "quadrados 2",
+      "long blade"
+    ],
+    "tags": [
+      "blade",
+      "diagonal",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-04.svg",
+    "format": "svg",
+    "width": 2421,
+    "height": 2136,
+    "viewBox": "0 0 2421 2136",
+    "fileSize": 94943,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 463 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-04.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-4.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 463
+    }
+  },
+  {
+    "id": "sq2-05",
+    "name": "quadrado-22",
+    "slug": "quadrado-22",
+    "description": "A wide triangle crossed by a ladder-like line.",
+    "aliases": [
+      "asset-2-5",
+      "Quadrados 2 05",
+      "quadrados 2",
+      "ladder triangle"
+    ],
+    "tags": [
+      "triangle",
+      "ladder",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-05.svg",
+    "format": "svg",
+    "width": 1930,
+    "height": 2428,
+    "viewBox": "0 0 1930 2428",
+    "fileSize": 136588,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 342 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-05.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-5.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 342
+    }
+  },
+  {
+    "id": "sq2-06",
+    "name": "quadrado-23",
+    "slug": "quadrado-23",
+    "description": "A thin diagonal rod with small marks along its length.",
+    "aliases": [
+      "asset-2-6",
+      "Quadrados 2 06",
+      "quadrados 2",
+      "thin rod"
+    ],
+    "tags": [
+      "rod",
+      "diagonal",
+      "thin"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-06.svg",
+    "format": "svg",
+    "width": 2424,
+    "height": 1600,
+    "viewBox": "0 0 2424 1600",
+    "fileSize": 83503,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 405 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-06.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-6.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 405
+    }
+  },
+  {
+    "id": "sq2-07",
+    "name": "quadrado-24",
+    "slug": "quadrado-24",
+    "description": "A long kite shape with a squared spiral inside.",
+    "aliases": [
+      "asset-2-7",
+      "Quadrados 2 07",
+      "quadrados 2",
+      "spiral kite"
+    ],
+    "tags": [
+      "kite",
+      "spiral",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-07.svg",
+    "format": "svg",
+    "width": 1928,
+    "height": 1984,
+    "viewBox": "0 0 1928 1984",
+    "fileSize": 101657,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 244 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-07.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-7.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 244
+    }
+  },
+  {
+    "id": "sq2-08",
+    "name": "quadrado-25",
+    "slug": "quadrado-25",
+    "description": "An L-shaped band with patterned triangles along its length.",
+    "aliases": [
+      "asset-2-8",
+      "Quadrados 2 08",
+      "quadrados 2",
+      "l band"
+    ],
+    "tags": [
+      "band",
+      "corner",
+      "patterned"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-08.svg",
+    "format": "svg",
+    "width": 1750,
+    "height": 2417,
+    "viewBox": "0 0 1750 2417",
+    "fileSize": 148269,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 576 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-08.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-8.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 576
+    }
+  },
+  {
+    "id": "sq2-09",
+    "name": "quadrado-26",
+    "slug": "quadrado-26",
+    "description": "A tall, narrow triangle with nested triangles inside.",
+    "aliases": [
+      "asset-2-9",
+      "Quadrados 2 09",
+      "quadrados 2",
+      "tall triangle"
+    ],
+    "tags": [
+      "triangle",
+      "vertical",
+      "outline"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-09.svg",
+    "format": "svg",
+    "width": 2419,
+    "height": 1178,
+    "viewBox": "0 0 2419 1178",
+    "fileSize": 85244,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 495 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-09.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-9.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 495
+    }
+  },
+  {
+    "id": "sq2-10",
+    "name": "quadrado-27",
+    "slug": "quadrado-27",
+    "description": "A flat wedge with a row of small windows.",
+    "aliases": [
+      "asset-2-10",
+      "Quadrados 2 10",
+      "quadrados 2",
+      "window wedge"
+    ],
+    "tags": [
+      "wedge",
+      "windows",
+      "flat"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-10.svg",
+    "format": "svg",
+    "width": 1079,
+    "height": 2428,
+    "viewBox": "0 0 1079 2428",
+    "fileSize": 82264,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 347 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-10.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-10.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 347
+    }
+  },
+  {
+    "id": "sq2-11",
+    "name": "quadrado-28",
+    "slug": "quadrado-28",
+    "description": "A long horizontal needle with a striped tip.",
+    "aliases": [
+      "asset-2-11",
+      "Quadrados 2 11",
+      "quadrados 2",
+      "needle"
+    ],
+    "tags": [
+      "blade",
+      "thin",
+      "horizontal"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-11.svg",
+    "format": "svg",
+    "width": 584,
+    "height": 2419,
+    "viewBox": "0 0 584 2419",
+    "fileSize": 68558,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 493 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-11.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-11.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 493
+    }
+  },
+  {
+    "id": "sq2-12",
+    "name": "quadrado-29",
+    "slug": "quadrado-29",
+    "description": "A flattened diamond with a striped lower edge.",
+    "aliases": [
+      "asset-2-12",
+      "Quadrados 2 12",
+      "quadrados 2",
+      "striped diamond"
+    ],
+    "tags": [
+      "diamond",
+      "stripes",
+      "flat"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-12.svg",
+    "format": "svg",
+    "width": 889,
+    "height": 2415,
+    "viewBox": "0 0 889 2415",
+    "fileSize": 95161,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-2/sq2-12.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-12.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 637
+    }
+  },
+  {
+    "id": "sq2-13",
+    "name": "quadrado-30",
+    "slug": "quadrado-30",
+    "description": "A large diagonal wedge topped by a small antenna.",
+    "aliases": [
+      "asset-2-13",
+      "Quadrados 2 13",
+      "quadrados 2",
+      "antenna wedge"
+    ],
+    "tags": [
+      "wedge",
+      "antenna",
+      "diagonal"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-13.svg",
+    "format": "svg",
+    "width": 2417,
+    "height": 1918,
+    "viewBox": "0 0 2417 1918",
+    "fileSize": 114312,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "qualityException": "Traced from only 553 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again.",
+    "originalPath": "assets/originals/quadrados-2/sq2-13.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-13.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 553
+    }
+  },
+  {
+    "id": "sq2-14",
+    "name": "quadrado-31",
+    "slug": "quadrado-31",
+    "description": "Two small wedges set far apart on an open field.",
+    "aliases": [
+      "asset-2-14",
+      "Quadrados 2 14",
+      "quadrados 2",
+      "wedge pair"
+    ],
+    "tags": [
+      "pair",
+      "small",
+      "wedges"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-14.svg",
+    "format": "svg",
+    "width": 2405,
+    "height": 889,
+    "viewBox": "0 0 2405 889",
+    "fileSize": 54886,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-2/sq2-14.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-14.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 1958
+    }
+  },
+  {
+    "id": "sq2-15",
+    "name": "quadrado-32",
+    "slug": "quadrado-32",
+    "description": "An L-shaped patterned band with antennas along the top.",
+    "aliases": [
+      "asset-2-15",
+      "Quadrados 2 15",
+      "quadrados 2",
+      "antenna band"
+    ],
+    "tags": [
+      "band",
+      "corner",
+      "antenna"
+    ],
+    "collection": "quadrados-2",
+    "sourcePath": "assets/vector/sq2-15.svg",
+    "format": "svg",
+    "width": 2146,
+    "height": 2412,
+    "viewBox": "0 0 2146 2412",
+    "fileSize": 150975,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-2/sq2-15.png",
+    "previousSources": [
+      "assets/source/quadrados-2/asset-2-15.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG (best photo match only ×1.0: 20250625_182035 (1).jpg)",
+      "pixels": 833
+    }
+  },
+  {
+    "id": "sq3-25",
+    "name": "quadrados-3, página inteira",
+    "slug": "quadrados-3-pagina-inteira",
+    "description": "The full page: bold outlined shapes packed into one round cluster.",
+    "aliases": [
+      "fatia25",
+      "Quadrados 3 25",
+      "quadrados 3",
+      "slice 25"
+    ],
+    "tags": [
+      "full-page",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-25.svg",
+    "format": "svg",
+    "width": 9098,
+    "height": 5541,
+    "viewBox": "0 0 9098 5541",
+    "fileSize": 2196426,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-25.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia25.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 9094
+    }
+  },
+  {
+    "id": "sq3-01",
+    "name": "quadrado-37 (cópia)",
+    "slug": "quadrado-37-copia",
+    "description": "A 259 px copy of Chevron Wedge (sq3-06). Kept as a draft.",
+    "aliases": [
+      "fatia1",
+      "Quadrados 3 01",
+      "quadrados 3",
+      "slice 1",
+      "chevron wedge"
+    ],
+    "tags": [
+      "wedge",
+      "chevrons",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/source/quadrados-3/fatia1.svg",
+    "format": "svg",
+    "width": 1071,
+    "height": 684,
+    "viewBox": "0 0 1071 684",
+    "fileSize": 6687,
+    "containsRaster": true,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "draft",
+    "duplicateOf": "sq3-06"
+  },
+  {
+    "id": "sq3-02",
+    "name": "quadrado-33",
+    "slug": "quadrado-33",
+    "description": "Lightly drawn overlapping planes with nested frames.",
+    "aliases": [
+      "fatia2",
+      "Quadrados 3 02",
+      "quadrados 3",
+      "slice 2",
+      "layered planes"
+    ],
+    "tags": [
+      "layers",
+      "translucent",
+      "light"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-02.svg",
+    "format": "svg",
+    "width": 2259,
+    "height": 2406,
+    "viewBox": "0 0 2259 2406",
+    "fileSize": 214301,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-02.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia2.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1721
+    }
+  },
+  {
+    "id": "sq3-03",
+    "name": "quadrado-34",
+    "slug": "quadrado-34",
+    "description": "A cluster of bold shapes with solid black triangles.",
+    "aliases": [
+      "fatia3",
+      "Quadrados 3 03",
+      "quadrados 3",
+      "slice 3",
+      "filled triangles"
+    ],
+    "tags": [
+      "cluster",
+      "filled",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-03.svg",
+    "format": "svg",
+    "width": 2407,
+    "height": 2383,
+    "viewBox": "0 0 2407 2383",
+    "fileSize": 160989,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-03.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia3.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1406
+    }
+  },
+  {
+    "id": "sq3-04",
+    "name": "quadrado-35",
+    "slug": "quadrado-35",
+    "description": "A skewed square holding a set of nested frames.",
+    "aliases": [
+      "fatia4",
+      "Quadrados 3 04",
+      "quadrados 3",
+      "slice 4",
+      "nested frames"
+    ],
+    "tags": [
+      "frames",
+      "nested",
+      "outline"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-04.svg",
+    "format": "svg",
+    "width": 2405,
+    "height": 1551,
+    "viewBox": "0 0 2405 1551",
+    "fileSize": 171047,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-04.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia4.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1896
+    }
+  },
+  {
+    "id": "sq3-05",
+    "name": "quadrado-36",
+    "slug": "quadrado-36",
+    "description": "A thin, slightly curved vertical band with small patterns.",
+    "aliases": [
+      "fatia5",
+      "Quadrados 3 05",
+      "quadrados 3",
+      "slice 5",
+      "thin curve"
+    ],
+    "tags": [
+      "band",
+      "thin",
+      "curve",
+      "vertical"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-05.svg",
+    "format": "svg",
+    "width": 1029,
+    "height": 3125,
+    "viewBox": "0 0 1029 3125",
+    "fileSize": 149172,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-05.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia5.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 3121
+    }
+  },
+  {
+    "id": "sq3-06",
+    "name": "quadrado-37",
+    "slug": "quadrado-37",
+    "description": "A bold triangular wedge with chevrons inside.",
+    "aliases": [
+      "fatia6",
+      "Quadrados 3 06",
+      "quadrados 3",
+      "slice 6",
+      "chevron wedge"
+    ],
+    "tags": [
+      "wedge",
+      "chevrons",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-06.svg",
+    "format": "svg",
+    "width": 2409,
+    "height": 1542,
+    "viewBox": "0 0 2409 1542",
+    "fileSize": 78577,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-06.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia6.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1068
+    }
+  },
+  {
+    "id": "sq3-07",
+    "name": "quadrado-38",
+    "slug": "quadrado-38",
+    "description": "A long triangle with a single nested triangle.",
+    "aliases": [
+      "fatia7",
+      "Quadrados 3 07",
+      "quadrados 3",
+      "slice 7",
+      "long triangle"
+    ],
+    "tags": [
+      "triangle",
+      "nested",
+      "outline"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-07.svg",
+    "format": "svg",
+    "width": 2409,
+    "height": 1660,
+    "viewBox": "0 0 2409 1660",
+    "fileSize": 88177,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-07.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia7.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1054
+    }
+  },
+  {
+    "id": "sq3-08",
+    "name": "quadrado-39",
+    "slug": "quadrado-39",
+    "description": "A bent band like a boomerang, filled with a zigzag.",
+    "aliases": [
+      "fatia8",
+      "Quadrados 3 08",
+      "quadrados 3",
+      "slice 8",
+      "zigzag boomerang"
+    ],
+    "tags": [
+      "boomerang",
+      "zigzag",
+      "band"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-08.svg",
+    "format": "svg",
+    "width": 2244,
+    "height": 2406,
+    "viewBox": "0 0 2244 2406",
+    "fileSize": 113072,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-08.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia8.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1488
+    }
+  },
+  {
+    "id": "sq3-09",
+    "name": "quadrado-40",
+    "slug": "quadrado-40",
+    "description": "A bent band with a hatched lower arm.",
+    "aliases": [
+      "fatia9",
+      "Quadrados 3 09",
+      "quadrados 3",
+      "slice 9",
+      "hatched boomerang"
+    ],
+    "tags": [
+      "boomerang",
+      "hatched",
+      "band"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-09.svg",
+    "format": "svg",
+    "width": 1789,
+    "height": 2408,
+    "viewBox": "0 0 1789 2408",
+    "fileSize": 116196,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-09.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia9.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1179
+    }
+  },
+  {
+    "id": "sq3-10",
+    "name": "quadrado-41",
+    "slug": "quadrado-41",
+    "description": "A narrow bent band tapering to a sharp point.",
+    "aliases": [
+      "fatia10",
+      "Quadrados 3 10",
+      "quadrados 3",
+      "slice 10",
+      "narrow bend"
+    ],
+    "tags": [
+      "boomerang",
+      "narrow",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-10.svg",
+    "format": "svg",
+    "width": 1124,
+    "height": 2411,
+    "viewBox": "0 0 1124 2411",
+    "fileSize": 44396,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-10.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia10.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 863
+    }
+  },
+  {
+    "id": "sq3-11",
+    "name": "quadrado-42",
+    "slug": "quadrado-42",
+    "description": "A kite shape with a bent, curving tail.",
+    "aliases": [
+      "fatia11",
+      "Quadrados 3 11",
+      "quadrados 3",
+      "slice 11",
+      "bent kite"
+    ],
+    "tags": [
+      "kite",
+      "bent",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-11.svg",
+    "format": "svg",
+    "width": 2377,
+    "height": 2411,
+    "viewBox": "0 0 2377 2411",
+    "fileSize": 90345,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-11.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia11.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 850
+    }
+  },
+  {
+    "id": "sq3-12",
+    "name": "quadrado-43",
+    "slug": "quadrado-43",
+    "description": "An inverted triangle packed with small rectangular blocks.",
+    "aliases": [
+      "fatia12",
+      "Quadrados 3 12",
+      "quadrados 3",
+      "slice 12",
+      "block triangle"
+    ],
+    "tags": [
+      "triangle",
+      "blocks",
+      "inverted"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-12.svg",
+    "format": "svg",
+    "width": 1666,
+    "height": 2741,
+    "viewBox": "0 0 1666 2741",
+    "fileSize": 255254,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-12.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia12.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 2737
+    }
+  },
+  {
+    "id": "sq3-13",
+    "name": "quadrado-44",
+    "slug": "quadrado-44",
+    "description": "A long diagonal band with triangles along its length.",
+    "aliases": [
+      "fatia13",
+      "Quadrados 3 13",
+      "quadrados 3",
+      "slice 13",
+      "diagonal band"
+    ],
+    "tags": [
+      "band",
+      "diagonal",
+      "long"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-13.svg",
+    "format": "svg",
+    "width": 2354,
+    "height": 2407,
+    "viewBox": "0 0 2354 2407",
+    "fileSize": 102941,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-13.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia13.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1342
+    }
+  },
+  {
+    "id": "sq3-14",
+    "name": "quadrado-45",
+    "slug": "quadrado-45",
+    "description": "A heavy shape with a cell-like pattern along one side.",
+    "aliases": [
+      "fatia14",
+      "Quadrados 3 14",
+      "quadrados 3",
+      "slice 14",
+      "cell shard"
+    ],
+    "tags": [
+      "cells",
+      "hexagons",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-14.svg",
+    "format": "svg",
+    "width": 1786,
+    "height": 2411,
+    "viewBox": "0 0 1786 2411",
+    "fileSize": 102922,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-14.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia14.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 879
+    }
+  },
+  {
+    "id": "sq3-15",
+    "name": "quadrado-46",
+    "slug": "quadrado-46",
+    "description": "A thin curved band with a small knob at the top.",
+    "aliases": [
+      "fatia15",
+      "Quadrados 3 15",
+      "quadrados 3",
+      "slice 15",
+      "knob curve"
+    ],
+    "tags": [
+      "band",
+      "curve",
+      "thin",
+      "knob"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-15.svg",
+    "format": "svg",
+    "width": 1337,
+    "height": 3191,
+    "viewBox": "0 0 1337 3191",
+    "fileSize": 169335,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-15.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia15.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 3187
+    }
+  },
+  {
+    "id": "sq3-16",
+    "name": "quadrado-47",
+    "slug": "quadrado-47",
+    "description": "A bold pentagon split by inner lines.",
+    "aliases": [
+      "fatia16",
+      "Quadrados 3 16",
+      "quadrados 3",
+      "slice 16",
+      "broken pentagon"
+    ],
+    "tags": [
+      "pentagon",
+      "broken",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-16.svg",
+    "format": "svg",
+    "width": 1845,
+    "height": 2412,
+    "viewBox": "0 0 1845 2412",
+    "fileSize": 70704,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-16.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia16.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 813
+    }
+  },
+  {
+    "id": "sq3-17",
+    "name": "quadrado-48",
+    "slug": "quadrado-48",
+    "description": "A bold triangle with a nested triangle inside.",
+    "aliases": [
+      "fatia17",
+      "Quadrados 3 17",
+      "quadrados 3",
+      "slice 17",
+      "nested triangle"
+    ],
+    "tags": [
+      "triangle",
+      "nested",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-17.svg",
+    "format": "svg",
+    "width": 1485,
+    "height": 2409,
+    "viewBox": "0 0 1485 2409",
+    "fileSize": 76077,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-17.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia17.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1091
+    }
+  },
+  {
+    "id": "sq3-18",
+    "name": "quadrado-49",
+    "slug": "quadrado-49",
+    "description": "A tilted rectangle divided into triangles.",
+    "aliases": [
+      "fatia18",
+      "Quadrados 3 18",
+      "quadrados 3",
+      "slice 18",
+      "tilted box"
+    ],
+    "tags": [
+      "rectangle",
+      "triangles",
+      "tilted"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-18.svg",
+    "format": "svg",
+    "width": 2409,
+    "height": 2323,
+    "viewBox": "0 0 2409 2323",
+    "fileSize": 141616,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-18.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia18.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1033
+    }
+  },
+  {
+    "id": "sq3-19",
+    "name": "quadrado-50",
+    "slug": "quadrado-50",
+    "description": "A kite divided into large nested triangles.",
+    "aliases": [
+      "fatia19",
+      "Quadrados 3 19",
+      "quadrados 3",
+      "slice 19",
+      "triangle kite"
+    ],
+    "tags": [
+      "kite",
+      "triangles",
+      "bold"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-19.svg",
+    "format": "svg",
+    "width": 1762,
+    "height": 2407,
+    "viewBox": "0 0 1762 2407",
+    "fileSize": 166448,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-19.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia19.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1441
+    }
+  },
+  {
+    "id": "sq3-20",
+    "name": "quadrado-51",
+    "slug": "quadrado-51",
+    "description": "Several planes stacked and twisted vertically.",
+    "aliases": [
+      "fatia20",
+      "Quadrados 3 20",
+      "quadrados 3",
+      "slice 20",
+      "stacked planes"
+    ],
+    "tags": [
+      "stack",
+      "planes",
+      "vertical"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-20.svg",
+    "format": "svg",
+    "width": 1411,
+    "height": 2406,
+    "viewBox": "0 0 1411 2406",
+    "fileSize": 152972,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-20.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia20.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1517
+    }
+  },
+  {
+    "id": "sq3-21",
+    "name": "quadrado-52",
+    "slug": "quadrado-52",
+    "description": "A wedge with a fringed, curved edge.",
+    "aliases": [
+      "fatia21",
+      "Quadrados 3 21",
+      "quadrados 3",
+      "slice 21",
+      "fringed wedge"
+    ],
+    "tags": [
+      "wedge",
+      "fringe",
+      "curved"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-21.svg",
+    "format": "svg",
+    "width": 2408,
+    "height": 2171,
+    "viewBox": "0 0 2408 2171",
+    "fileSize": 122754,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-21.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia21.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1267
+    }
+  },
+  {
+    "id": "sq3-22",
+    "name": "quadrado-53",
+    "slug": "quadrado-53",
+    "description": "A spiral of short curved strokes.",
+    "aliases": [
+      "fatia22",
+      "Quadrados 3 22",
+      "quadrados 3",
+      "slice 22",
+      "stroke spiral"
+    ],
+    "tags": [
+      "spiral",
+      "strokes",
+      "round"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-22.svg",
+    "format": "svg",
+    "width": 2413,
+    "height": 2161,
+    "viewBox": "0 0 2413 2161",
+    "fileSize": 81653,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-22.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia22.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 722
+    }
+  },
+  {
+    "id": "sq3-23",
+    "name": "quadrado-54",
+    "slug": "quadrado-54",
+    "description": "An arc of short curved strokes, like a feather edge.",
+    "aliases": [
+      "fatia23",
+      "Quadrados 3 23",
+      "quadrados 3",
+      "slice 23",
+      "stroke arc"
+    ],
+    "tags": [
+      "arc",
+      "strokes",
+      "thin"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-23.svg",
+    "format": "svg",
+    "width": 1172,
+    "height": 2411,
+    "viewBox": "0 0 1172 2411",
+    "fileSize": 48932,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-23.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia23.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 913
+    }
+  },
+  {
+    "id": "sq3-24",
+    "name": "quadrado-55",
+    "slug": "quadrado-55",
+    "description": "A tall band densely hatched and crossed with lines.",
+    "aliases": [
+      "fatia24",
+      "Quadrados 3 24",
+      "quadrados 3",
+      "slice 24",
+      "hatched tower"
+    ],
+    "tags": [
+      "band",
+      "vertical",
+      "hatched",
+      "dense"
+    ],
+    "collection": "quadrados-3",
+    "sourcePath": "assets/vector/sq3-24.svg",
+    "format": "svg",
+    "width": 1326,
+    "height": 2406,
+    "viewBox": "0 0 1326 2406",
+    "fileSize": 121035,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-3/sq3-24.png",
+    "previousSources": [
+      "assets/source/quadrados-3/fatia24.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 1508
+    }
+  },
+  {
+    "id": "mon-00",
+    "name": "monstrinhos, página inteira",
+    "slug": "monstrinhos-pagina-inteira",
+    "description": "The full page: a crowd of little monsters, heads and busts drawn in pen.",
+    "aliases": [
+      "Documento3",
+      "monstrinhos"
+    ],
+    "tags": [
+      "full-page",
+      "monsters"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-00.svg",
+    "format": "svg",
+    "width": 2404,
+    "height": 1702,
+    "viewBox": "0 0 2404 1702",
+    "fileSize": 237943,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-00.png",
+    "previousSources": [
+      "assets/source/monstrinhos/Documento3.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 2338
+    }
+  },
+  {
+    "id": "mon-01",
+    "name": "monstrinho-1",
+    "slug": "monstrinho-1",
+    "description": "A grinning head with star eyes and flame-like hair, on a bust with a bat collar.",
+    "aliases": [
+      "Documento"
+    ],
+    "tags": [
+      "head",
+      "bust",
+      "hair",
+      "grin"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-01.svg",
+    "format": "svg",
+    "width": 2173,
+    "height": 2418,
+    "viewBox": "0 0 2173 2418",
+    "fileSize": 128259,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-01.png",
+    "previousSources": [
+      "assets/source/monstrinhos/Documento.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 539
+    },
+    "qualityException": "Traced from only 539 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "mon-02",
+    "name": "monstrinho-2",
+    "slug": "monstrinho-2",
+    "description": "A long cone face under a crown-like top, on a curled stand.",
+    "aliases": [
+      "Documento1"
+    ],
+    "tags": [
+      "head",
+      "bust",
+      "crown"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-02.svg",
+    "format": "svg",
+    "width": 1249,
+    "height": 2420,
+    "viewBox": "0 0 1249 2420",
+    "fileSize": 71552,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-02.png",
+    "previousSources": [
+      "assets/source/monstrinhos/Documento1.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 490
+    },
+    "qualityException": "Traced from only 490 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "mon-03",
+    "name": "monstrinho-3",
+    "slug": "monstrinho-3",
+    "description": "A worried round face under a big hatched hat.",
+    "aliases": [
+      "Documento34"
+    ],
+    "tags": [
+      "head",
+      "hat"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-03.svg",
+    "format": "svg",
+    "width": 1553,
+    "height": 2416,
+    "viewBox": "0 0 1553 2416",
+    "fileSize": 89230,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-03.png",
+    "previousSources": [
+      "assets/source/monstrinhos/Documento34.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 601
+    }
+  },
+  {
+    "id": "mon-04",
+    "name": "monstrinho-4",
+    "slug": "monstrinho-4",
+    "description": "A face framed by a scalloped, spiky mane, one eye shaded in.",
+    "aliases": [
+      "Documento343434"
+    ],
+    "tags": [
+      "head",
+      "spiky"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-04.svg",
+    "format": "svg",
+    "width": 1904,
+    "height": 2224,
+    "viewBox": "0 0 1904 2224",
+    "fileSize": 87674,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-04.png",
+    "previousSources": [
+      "assets/source/monstrinhos/Documento343434.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 274
+    },
+    "qualityException": "Traced from only 274 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "mon-05",
+    "name": "monstrinho-5",
+    "slug": "monstrinho-5",
+    "description": "A fuzzy creature with spiral eyes and fangs, on a wavy bust.",
+    "aliases": [
+      "m1"
+    ],
+    "tags": [
+      "bust",
+      "fangs",
+      "spiral"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-05.svg",
+    "format": "svg",
+    "width": 1746,
+    "height": 2418,
+    "viewBox": "0 0 1746 2418",
+    "fileSize": 109791,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-05.png",
+    "previousSources": [
+      "assets/source/monstrinhos/m1.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 543
+    },
+    "qualityException": "Traced from only 543 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "mon-06",
+    "name": "monstrinho-6",
+    "slug": "monstrinho-6",
+    "description": "A tall bust in profile with a pointed ear and a little hatched mark.",
+    "aliases": [
+      "m2"
+    ],
+    "tags": [
+      "bust",
+      "profile"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-06.svg",
+    "format": "svg",
+    "width": 1356,
+    "height": 2415,
+    "viewBox": "0 0 1356 2415",
+    "fileSize": 78553,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/monstrinhos/mon-06.png",
+    "previousSources": [
+      "assets/source/monstrinhos/m2.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 632
+    }
+  },
+  {
+    "id": "av-01",
+    "name": "avulso-1",
+    "slug": "avulso-1",
+    "description": "A desk corner: screens, a laptop, a keyboard and a chair.",
+    "aliases": [
+      "img20260924_02373168"
+    ],
+    "tags": [
+      "scene",
+      "desk"
+    ],
+    "collection": "avulsos",
+    "sourcePath": "assets/vector/av-01.svg",
+    "format": "svg",
+    "width": 2404,
+    "height": 1563,
+    "viewBox": "0 0 2404 1563",
+    "fileSize": 373842,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.1.0",
+    "status": "published",
+    "originalPath": "assets/originals/avulsos/av-01.png",
+    "previousSources": [
+      "assets/source/avulsos/img20260924_02373168.svg"
+    ],
+    "provenance": {
+      "method": "refit",
+      "from": "the image inside the current SVG",
+      "pixels": 2165
+    }
+  },
+  {
+    "id": "av-02",
+    "name": "fofolete",
+    "slug": "fofolete",
+    "description": "A small girl with glasses, a star in her hair and a wavy striped top.",
+    "aliases": [
+      "avulso-2",
+      "menina de óculos"
+    ],
+    "tags": [
+      "figure",
+      "glasses"
+    ],
+    "collection": "avulsos",
+    "sourcePath": "assets/vector/av-02.svg",
+    "format": "svg",
+    "width": 1800,
+    "height": 2406,
+    "viewBox": "0 0 1800 2406",
+    "fileSize": 457893,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "originalPath": "assets/originals/avulsos/av-02.png",
+    "previousSources": [
+      "assets/source/avulsos/menina-oculos.png"
+    ],
+    "provenance": {
+      "method": "trace",
+      "from": "menina-oculos.png (already cleaned)",
+      "pixels": 1739
+    }
+  },
+  {
+    "id": "sq4-01",
+    "name": "quadrado-56",
+    "slug": "quadrado-56",
+    "description": "A slanted square frame with a tall window inside, its edge drawn in squiggles.",
+    "aliases": [],
+    "tags": [
+      "square",
+      "frame",
+      "window"
+    ],
+    "collection": "quadrados-4",
+    "sourcePath": "assets/vector/sq4-01.svg",
+    "format": "svg",
+    "width": 2422,
+    "height": 1785,
+    "viewBox": "0 0 2422 1785",
+    "fileSize": 110114,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-4/sq4-01.png",
+    "previousSources": [
+      "assets/source/quadrados-4/pagina-caixas.png"
+    ],
+    "provenance": {
+      "method": "trace",
+      "from": "pagina-caixas.png, box 416,1081,437x321 px (default clean settings)",
+      "pixels": 437
+    },
+    "qualityException": "Traced from only 437 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "sq4-02",
+    "name": "quadrado-57",
+    "slug": "quadrado-57",
+    "description": "A slanted square frame with a small hatched block inside.",
+    "aliases": [],
+    "tags": [
+      "square",
+      "frame",
+      "hatched"
+    ],
+    "collection": "quadrados-4",
+    "sourcePath": "assets/vector/sq4-02.svg",
+    "format": "svg",
+    "width": 2424,
+    "height": 1849,
+    "viewBox": "0 0 2424 1849",
+    "fileSize": 66520,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-4/sq4-02.png",
+    "previousSources": [
+      "assets/source/quadrados-4/pagina-caixas.png"
+    ],
+    "provenance": {
+      "method": "trace",
+      "from": "pagina-caixas.png, box 921,1099,401x305 px (default clean settings)",
+      "pixels": 401
+    },
+    "qualityException": "Traced from only 401 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "sq4-03",
+    "name": "quadrado-58",
+    "slug": "quadrado-58",
+    "description": "A plain square with soft, rounded corners, outline only.",
+    "aliases": [],
+    "tags": [
+      "square",
+      "outline",
+      "rounded"
+    ],
+    "collection": "quadrados-4",
+    "sourcePath": "assets/vector/sq4-03.svg",
+    "format": "svg",
+    "width": 2424,
+    "height": 1957,
+    "viewBox": "0 0 2424 1957",
+    "fileSize": 26384,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "originalPath": "assets/originals/quadrados-4/sq4-03.png",
+    "previousSources": [
+      "assets/source/quadrados-4/pagina-caixas.png"
+    ],
+    "provenance": {
+      "method": "trace",
+      "from": "pagina-caixas.png, box 945,1559,401x323 px (default clean settings)",
+      "pixels": 401
+    },
+    "qualityException": "Traced from only 401 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  }
+]

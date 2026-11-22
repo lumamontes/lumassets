@@ -1,0 +1,120 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Wall: approve" description="Approve what shows on the wall." noindex>
+  <div class="adm">
+    <h1>Wall: approve</h1>
+    <form id="login" class="row">
+      <label>Token <input type="password" id="token" autocomplete="current-password" required /></label>
+      <button class="btn small" type="submit">Load</button>
+    </form>
+    <div class="tabs" role="group" aria-label="Show">
+      <button type="button" class="chip" data-status="pending" aria-pressed="true">Waiting</button>
+      <button type="button" class="chip" data-status="approved" aria-pressed="false">On the wall</button>
+      <button type="button" class="chip" data-status="hidden" aria-pressed="false">Hidden</button>
+    </div>
+    <p class="muted" id="state" aria-live="polite">Enter the token (ADMIN_TOKEN) to load.</p>
+    <ul class="queue" id="queue"></ul>
+  </div>
+</Base>
+
+<style>
+  .adm { padding: 1.25rem; max-width: 60rem; }
+  .adm h1 { font-size: 1.2rem; margin: 0 0 1rem; }
+  .row { display: flex; gap: 0.5rem; align-items: end; margin-bottom: 1rem; }
+  .row label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; }
+  .tabs { display: flex; gap: 0.25rem; margin-bottom: 0.75rem; }
+  .chip { font: 0.75rem/1 var(--mono); padding: 0.4rem 0.55rem; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
+  .chip[aria-pressed='true'] { border-color: var(--ink); color: var(--ink); }
+  .queue { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+  .queue :global(li) { border: 1px solid var(--line); display: flex; flex-direction: column; }
+  .queue :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
+  .queue :global(.info) { padding: 0.5rem; font-size: 0.8rem; }
+  .queue :global(.info small) { display: block; color: var(--muted); font-family: var(--mono); font-size: 0.7rem; }
+  .queue :global(.acts) { display: flex; gap: 0.3rem; padding: 0 0.5rem 0.5rem; }
+</style>
+
+<script>
+  interface Post { id: string; title: string; author: string | null; createdAt: string; image: string; status: string }
+  const $ = (id: string) => document.getElementById(id)!;
+  const KEY = 'lumassets-wall-token';
+  let token = sessionStorage.getItem(KEY) ?? '';
+  let status = 'pending';
+  const auth = () => ({ authorization: `Bearer ${token}` });
+
+  let loading = 0;
+  async function load() {
+    const state = $('state');
+    const queue = $('queue');
+    if (!token) return;
+    const mine = ++loading; // switching tabs quickly: only the last answer is shown
+    state.textContent = 'Loading…';
+    queue.querySelectorAll('img').forEach((i) => i.src.startsWith('blob:') && URL.revokeObjectURL(i.src));
+    queue.replaceChildren();
+    try {
+      const res = await fetch(`/api/admin/wall?status=${status}`, { headers: auth() });
+      if (mine !== loading) return;
+      if (res.status === 401) { state.textContent = 'Wrong token.'; sessionStorage.removeItem(KEY); return; }
+      if (!res.ok) throw new Error(String(res.status));
+      const { posts } = (await res.json()) as { posts: Post[] };
+      if (mine !== loading) return;
+      state.textContent = posts.length ? `${posts.length} here.` : 'Nothing here.';
+      for (const p of posts) queue.append(item(p));
+    } catch (e) {
+      state.textContent = `Couldn't load: ${(e as Error).message}`;
+    }
+  }
+
+  function item(p: Post) {
+    const li = document.createElement('li');
+    const img = document.createElement('img');
+    img.alt = p.title;
+    // images that aren't public yet need the token, so they're fetched rather than linked
+    fetch(p.image, { headers: auth() })
+      .then((r) => { if (!r.ok) throw new Error(); return r.blob(); })
+      .then((b) => { img.src = URL.createObjectURL(b); })
+      .catch(() => { img.alt = `${p.title} (image missing)`; });
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.textContent = p.title;
+    const meta = document.createElement('small');
+    meta.textContent = `${p.author ? `${p.author} · ` : ''}${new Date(p.createdAt).toLocaleString()}`;
+    info.append(meta);
+    const acts = document.createElement('div');
+    acts.className = 'acts';
+    const btn = (label: string, action: string, primary = false) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `btn small${primary ? ' primary' : ''}`;
+      b.textContent = label;
+      b.addEventListener('click', async () => {
+        if (action === 'reject' && !confirm('Delete it for good?')) return;
+        b.disabled = true;
+        const res = await fetch(`/api/admin/wall/${p.id}`, { method: 'POST', headers: { ...auth(), 'content-type': 'application/json' }, body: JSON.stringify({ action }) });
+        if (res.ok) li.remove(); else { b.disabled = false; alert(`Failed (${res.status}).`); }
+      });
+      return b;
+    };
+    if (p.status !== 'approved') acts.append(btn('Approve', 'approve', true));
+    if (p.status !== 'hidden') acts.append(btn('Hide', 'hide'));
+    acts.append(btn('Delete', 'reject'));
+    li.append(img, info, acts);
+    return li;
+  }
+
+  $('login').addEventListener('submit', (e) => {
+    e.preventDefault();
+    token = ($('token') as HTMLInputElement).value.trim();
+    sessionStorage.setItem(KEY, token);
+    load();
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-status]').forEach((b) =>
+    b.addEventListener('click', () => {
+      status = b.dataset.status!;
+      document.querySelectorAll('[data-status]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      load();
+    }),
+  );
+  load();
+</script>

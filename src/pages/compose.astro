@@ -1,0 +1,352 @@
+---
+import Base from '../layouts/Base.astro';
+import { ASSETS, RELEASE, filesOf, licenseOf, searchText } from '../lib/catalog';
+import { BLEND_MODES, type EditorAsset } from '../lib/composition';
+import { icon } from '../lib/icons';
+import { SITE } from '../site';
+
+// Everything the editor needs, embedded once. The editor bundle loads only on this page.
+const editorAssets: EditorAsset[] = ASSETS.map((a) => {
+  const f = filesOf(a);
+  const lic = licenseOf(a);
+  return {
+    id: a.id, name: a.name, slug: a.slug, version: a.version,
+    width: f.vector ? a.width : f.pngW,
+    height: f.vector ? a.height : f.pngH,
+    license: lic.undecided ? `© ${lic.attribution}, all rights reserved` : lic.name,
+    vector: f.vector,
+    display: f.display, raster: f.png, embed: f.vector ? f.svg : f.png, searchText: searchText(a),
+  };
+});
+const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileSiteKey: SITE.turnstileSiteKey });
+---
+
+<Base
+  title="Compose"
+  description="Mix the drawings on a canvas, recolor them, add effects, and export PNG or SVG."
+  mainClass="compose-main"
+>
+  <h1 class="visually-hidden">Compose</h1>
+  <div class="editor" id="editor">
+    <div class="toolbar" role="toolbar" aria-label="Composition">
+      <div class="tb-group">
+        <button class="btn small" type="button" data-cmd="undo" title="Undo (Ctrl/⌘ Z)">Undo</button>
+        <button class="btn small" type="button" data-cmd="redo" title="Redo (Shift Ctrl/⌘ Z)">Redo</button>
+      </div>
+      <div class="tb-group">
+        <button class="btn small" type="button" data-cmd="share" title="Post it on the wall (after approval)">Share</button>
+        <button class="btn small primary" type="button" data-cmd="export-png">Export PNG</button>
+        <details class="menu" id="more">
+          <summary class="btn small" aria-label="More: SVG, save, open, clear">More <Fragment set:html={icon('chevron', 14)} /></summary>
+          <div class="menu-list">
+            <button type="button" data-cmd="export-svg" title="A vector file: drawings stay sharp at any size">Export SVG</button>
+            <hr />
+            <button type="button" data-cmd="save" title="A .json file to keep working on this later">Save file</button>
+            <label class="file" title="A saved .json, or a PNG or SVG exported from here">Open file<input type="file" id="open" accept="application/json,.json,image/png,.png,image/svg+xml,.svg" /></label>
+            <hr />
+            <button type="button" class="danger" data-cmd="reset" title="Remove every layer (Undo brings them back)">Clear canvas</button>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <aside class="panel library" aria-labelledby="lib-title">
+      <h2 id="lib-title">Drawings</h2>
+      <label class="btn small own-add">
+        <Fragment set:html={icon('plus', 14)} />Add your own
+        <input type="file" id="own-file" class="visually-hidden" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg" multiple />
+      </label>
+      <p class="hint own-hint">SVG, PNG or JPG, or drop files anywhere here. They stay in your browser; photos get their paper removed.</p>
+      <ul class="picker own" id="own-picker" aria-label="Your drawings" hidden></ul>
+      <input type="search" id="lib-search" placeholder="Search" aria-label="Search drawings" />
+      <ul class="picker" id="picker" aria-label="Library"></ul>
+    </aside>
+
+    <section class="stage-wrap" aria-label="Canvas">
+      <div class="quickbar" role="group" aria-label="Colors">
+        <label class="qb">Background <input type="color" id="bg" /></label>
+        <label class="qb check"><input type="checkbox" id="transparent" /> Transparent</label>
+        <span class="qb-sep" aria-hidden="true"></span>
+        <label class="qb" title="Recolor every layer at once">Ink for all <input type="color" id="ink-all" value="#000000" /></label>
+        <button class="btn small" type="button" data-cmd="ink-all-reset" title="Every layer back to its original ink">Original ink</button>
+      </div>
+      <div class="stage" id="stage">
+        <canvas id="canvas" aria-label="Composition canvas. Select layers with the layer list for keyboard editing."></canvas>
+      </div>
+      <p class="status mono" id="status" role="status" aria-live="polite">Loading the editor…</p>
+    </section>
+
+    <aside class="panel props" aria-label="Properties">
+      <!-- the layer list: always visible, so switching layers is one click -->
+      <section class="layers-box" aria-labelledby="layers-title">
+        <h2 id="layers-title">Layers <span class="count" id="layer-count"></span></h2>
+        <ol class="layers" id="layers" reversed></ol>
+        <p class="hint" id="layers-empty">Add drawings from the left. The top of this list is in front.</p>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Edit">
+        <button type="button" role="tab" id="tab-layer" aria-controls="pane-layer" aria-selected="true">Layer</button>
+        <button type="button" role="tab" id="tab-all" aria-controls="pane-all" aria-selected="false" tabindex="-1">Everything</button>
+      </div>
+
+      <!-- the selected layer -->
+      <section class="pane" id="pane-layer" role="tabpanel" aria-labelledby="tab-layer">
+        <p class="empty-hint" id="no-layer">Click a drawing on the left to add it, or click one on the canvas to edit it.</p>
+        <fieldset id="layer-fields" disabled>
+          <legend class="visually-hidden">Selected layer</legend>
+          <div class="quick" role="toolbar" aria-label="Layer">
+            <button class="icon-btn" type="button" data-cmd="duplicate" title="Duplicate" aria-label="Duplicate"><Fragment set:html={icon('copy')} /><span>Copy</span></button>
+            <button class="icon-btn" type="button" data-cmd="forward" title="Bring forward" aria-label="Bring forward"><Fragment set:html={icon('up')} /><span>Up</span></button>
+            <button class="icon-btn" type="button" data-cmd="backward" title="Send backward" aria-label="Send backward"><Fragment set:html={icon('down')} /><span>Down</span></button>
+            <button class="icon-btn" type="button" data-cmd="reset-layer" title="Back to how it was added: no effects, original ink, default size and rotation" aria-label="Reset layer"><Fragment set:html={icon('reset')} /><span>Reset</span></button>
+            <button class="icon-btn danger" type="button" data-cmd="delete" title="Delete" aria-label="Delete"><Fragment set:html={icon('x')} /><span>Delete</span></button>
+          </div>
+
+          <details class="group" open>
+            <summary>Effects <span class="count" id="fx-count"></span></summary>
+            <div class="fx-tools">
+              <details class="fx-picker">
+                <summary class="btn small"><Fragment set:html={icon('plus', 14)} />Add effect</summary>
+                <div class="picker-grid" id="fx-add" role="menu" aria-label="Add an effect"></div>
+              </details>
+              <button class="btn small" type="button" data-cmd="surprise" title="Replace this layer's effects with a random combination"><Fragment set:html={icon('shuffle', 14)} />Surprise</button>
+            </div>
+            <ol class="fx-list" id="fx-list"></ol>
+            <p class="hint">Stack in any order. Shuffle on an effect reshuffles it, so no two results are the same.</p>
+          </details>
+
+          <details class="group">
+            <summary>Look</summary>
+            <div class="row">
+              <label class="check"><input type="checkbox" id="use-color" /> Ink color</label>
+              <input type="color" id="color" aria-label="Ink color" value="#c9432b" />
+            </div>
+            <label>Opacity <input type="range" id="opacity" min="0" max="1" step="0.01" /></label>
+            <label>Blend with what's below
+              <select id="blend">{BLEND_MODES.map((m) => <option value={m}>{m}</option>)}</select>
+            </label>
+          </details>
+
+          <details class="group">
+            <summary>Size &amp; position</summary>
+            <label>Size <input type="range" id="scale" min="0.02" max="4" step="0.01" /></label>
+            <label>Rotation <input type="range" id="rotation" min="-180" max="180" step="1" /></label>
+            <div class="buttons">
+              <button class="btn small" type="button" data-cmd="flip-x">Flip horizontal</button>
+              <button class="btn small" type="button" data-cmd="flip-y">Flip vertical</button>
+            </div>
+            <p class="hint">Or on the canvas: drag to move, the corners to resize, the round handle on top to rotate (hold Shift to snap to 15°). Keys: arrows nudge, <kbd>[</kbd> <kbd>]</kbd> rotate.</p>
+          </details>
+
+          <details class="group">
+            <summary>Make more</summary>
+            <p class="hint">Copies of this layer, made in one step (Undo removes them all).</p>
+            <div class="sub">
+              <strong>Scatter</strong>
+              <label>Copies <input type="range" id="scatter-count" min="2" max="40" step="1" value="12" /></label>
+              <label>Variation <input type="range" id="scatter-vary" min="0" max="1" step="0.05" value="0.6" /></label>
+              <label class="check"><input type="checkbox" id="scatter-fx" checked /> Each copy gets its own effect variation</label>
+              <button class="btn small" type="button" data-cmd="scatter">Scatter</button>
+            </div>
+            <div class="sub">
+              <strong>Symmetry</strong>
+              <div class="buttons">
+                <button class="btn small" type="button" data-cmd="mirror-x" title="A mirrored copy across the vertical centre line">Mirror left–right</button>
+                <button class="btn small" type="button" data-cmd="mirror-y" title="A mirrored copy across the horizontal centre line">Mirror top–bottom</button>
+              </div>
+              <label>Kaleidoscope segments <input type="range" id="kaleido-count" min="3" max="16" step="1" value="6" /></label>
+              <button class="btn small" type="button" data-cmd="kaleidoscope" title="Copies rotated around the canvas centre. Move the layer away from the centre first for a bigger ring.">Kaleidoscope</button>
+            </div>
+          </details>
+        </fieldset>
+      </section>
+
+      <!-- the whole composition -->
+      <section class="pane" id="pane-all" role="tabpanel" aria-labelledby="tab-all" hidden>
+        <details class="group" open>
+          <summary>Effects on everything <span class="count" id="gfx-count"></span></summary>
+          <div class="fx-tools">
+            <details class="fx-picker">
+              <summary class="btn small"><Fragment set:html={icon('plus', 14)} />Add effect</summary>
+              <div class="picker-grid" id="gfx-add" role="menu" aria-label="Add an effect to everything"></div>
+            </details>
+            <button class="btn small" type="button" data-cmd="global-surprise" title="Replace the composition's effects with a random combination"><Fragment set:html={icon('shuffle', 14)} />Surprise</button>
+          </div>
+          <ol class="fx-list" id="gfx-list"></ol>
+          <p class="hint">Applied to all layers together, after their own effects. The background stays clean.</p>
+        </details>
+        <details class="group" open>
+          <summary>Canvas</summary>
+          <div class="row">
+            <label>Width <input type="number" id="cw" min="64" max="6000" step="1" /></label>
+            <label>Height <input type="number" id="ch" min="64" max="6000" step="1" /></label>
+          </div>
+        </details>
+        <p class="hint">Work isn't saved automatically: use “Save file” to keep a composition. SVG export keeps traced drawings and effects live; drawings not traced yet go in as images.</p>
+      </section>
+    </aside>
+  </div>
+
+  <dialog class="share" id="share" aria-labelledby="share-title-h">
+    <form id="share-form" method="dialog">
+      <h2 id="share-title-h">Share on the wall</h2>
+      <img id="share-preview" alt="Your composition" />
+      <label>Title <input type="text" id="share-title" maxlength="80" placeholder="Untitled" /></label>
+      <label>Your name <small>(optional, shown with it)</small> <input type="text" id="share-author" maxlength="40" autocomplete="nickname" /></label>
+      <label class="check"><input type="checkbox" id="share-ok" /> It's OK to show this publicly on the <a href="/wall/" target="_blank">wall</a></label>
+      <div id="share-turnstile"></div>
+      <p class="hint">It shows up after it's approved. Anyone can open it in the composer and remix it.</p>
+      <p class="status mono" id="share-status" role="status" aria-live="polite"></p>
+      <div class="share-actions">
+        <button type="button" class="btn small" id="share-cancel">Close</button>
+        <button type="submit" class="btn small primary" id="share-send" disabled>Send</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="application/json" id="boot" set:html={boot} />
+</Base>
+
+<style is:global>
+  .compose-main { display: flex; }
+  /* whole-composition effects preview, layered between Fabric's two canvases */
+  .global-fx { position: absolute; inset: 0; pointer-events: none; }
+  .global-fx[hidden] { display: none; }
+  .global-fx img { display: block; width: 100%; height: 100%; }
+</style>
+
+<style>
+  .editor {
+    flex: 1; display: grid; gap: 0; min-height: calc(100vh - 8rem);
+    grid-template-columns: 14rem minmax(0, 1fr) 20rem;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 'tool tool tool' 'lib stage props';
+  }
+  .toolbar { grid-area: tool; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); }
+  .menu { position: relative; }
+  .menu > summary { list-style: none; display: inline-flex; align-items: center; gap: 0.3rem; }
+  .menu > summary::-webkit-details-marker { display: none; }
+  .menu > summary .i { transform: rotate(90deg); transition: transform 0.15s; }
+  .menu[open] > summary .i { transform: rotate(-90deg); }
+  .menu-list { position: absolute; right: 0; top: calc(100% + 0.35rem); z-index: 20; min-width: 11rem; display: flex; flex-direction: column; padding: 0.3rem; background: var(--bg); border: 1px solid var(--ink); }
+  .menu-list > button, .menu-list > .file { all: unset; box-sizing: border-box; display: block; padding: 0.5rem 0.65rem; font: 500 0.75rem/1.3 var(--mono); cursor: pointer; }
+  .menu-list > button:hover, .menu-list > .file:hover { background: var(--ink); color: var(--bg); }
+  .menu-list > button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .menu-list > .file { position: relative; overflow: hidden; }
+  .menu-list > .file:focus-within { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .menu-list > .danger { color: var(--danger, #b3261e); }
+  .menu-list hr { border: 0; border-top: 1px solid var(--line); margin: 0.25rem 0; }
+  .tb-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .file { position: relative; overflow: hidden; }
+  .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .file:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .panel { padding: 1rem; overflow-y: auto; max-height: calc(100vh - 8rem); }
+  .panel h2 { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.6rem; }
+  .library { grid-area: lib; border-right: 1px solid var(--line); }
+  .library input[type='search'] { width: 100%; margin-bottom: 0.75rem; }
+  .own-add { display: flex; align-items: center; justify-content: center; gap: 0.35rem; cursor: pointer; }
+  .own-add:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .own-hint { margin: 0.4rem 0 0.75rem; }
+  .picker.own { margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--line); }
+  .picker.own[hidden] { display: none; }
+  .picker.own :global(button) { background-image: conic-gradient(var(--line) 25%, var(--bg) 0 50%, var(--line) 0 75%, var(--bg) 0); background-size: 10px 10px; }
+  .editor.dropping .stage-wrap { outline: 2px dashed var(--ink); outline-offset: -10px; }
+  .picker { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .picker :global(button) { width: 100%; aspect-ratio: 1; display: grid; place-items: center; padding: 0.35rem; background: var(--bg); border: 1px solid var(--line); cursor: copy; }
+  .picker :global(button:hover) { border-color: var(--ink); }
+  .picker :global(img) { max-height: 100%; width: auto; }
+  .stage-wrap { grid-area: stage; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; background: var(--hover); min-width: 0; }
+  .stage { box-shadow: 0 0 0 1px var(--line); background-image: conic-gradient(#ddd 25%, #fff 0 50%, #ddd 0 75%, #fff 0); background-size: 16px 16px; }
+  .status { margin: 0.75rem 0 0; color: var(--muted); min-height: 1.2em; text-align: center; }
+  .props { grid-area: props; border-left: 1px solid var(--line); display: flex; flex-direction: column; padding: 0; }
+  .tabs { display: flex; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 2; }
+  .layers-box { padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); }
+  .layers-box h2 { margin: 0 0 0.5rem; }
+  .layers-box .layers { max-height: min(14rem, 28vh); overflow-y: auto; }
+  .layers-box .layers:empty { display: none; }
+  .layers-box .hint:not([hidden]) { margin: 0; }
+  .quickbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-bottom: 0.9rem; font-size: 0.8rem; }
+  .qb { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .qb input[type='color'] { width: 2rem; height: 1.6rem; padding: 0; border: 1px solid var(--line); background: none; cursor: pointer; }
+  .qb-sep { width: 1px; height: 1.2rem; background: var(--line); }
+  .tabs button { flex: 1; background: none; border: 0; border-bottom: 2px solid transparent; padding: 0.7rem 0.4rem; font: 0.75rem/1 var(--mono); color: var(--muted); cursor: pointer; }
+  .tabs button[aria-selected='true'] { color: var(--ink); border-bottom-color: var(--ink); }
+  .pane { padding: 0.75rem 1rem 1.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+  .pane[hidden] { display: none; }
+  .count { color: var(--muted); font-weight: 400; }
+  .empty-hint { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0; }
+  .props label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; }
+  .props label.check { flex-direction: row; align-items: center; gap: 0.4rem; }
+  .props input[type='number'], .props input[type='range'], .props select { width: 100%; }
+  .row { display: flex; gap: 0.75rem; align-items: end; justify-content: space-between; }
+  .row > label { flex: 1; }
+  fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  fieldset:disabled { display: none; }
+  .quick { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; margin-bottom: 0.5rem; }
+  .icon-btn { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0.4rem 0; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; font-size: 1rem; line-height: 1; }
+  .icon-btn :global(.i) { width: 1rem; height: 1rem; }
+  .icon-btn span { font: 0.62rem/1 var(--mono); color: var(--muted); }
+  .icon-btn:hover { border-color: var(--ink); }
+  .icon-btn.danger:hover { border-color: #d33; color: #d33; }
+  .group { border-top: 1px solid var(--line); padding: 0.6rem 0; }
+  .group > summary { cursor: pointer; font: 600 0.8rem/1.4 var(--sans); list-style: none; display: flex; align-items: center; gap: 0.35rem; }
+  .group > summary::before { content: ''; width: 0.38rem; height: 0.38rem; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(-45deg); margin: 0 0.2rem 0 0.1rem; transition: transform 0.15s; }
+  .group[open] > summary::before { transform: rotate(45deg); }
+  .group > summary::-webkit-details-marker { display: none; }
+  .group[open] { display: flex; flex-direction: column; gap: 0.6rem; }
+  .sub { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0; }
+  .sub + .sub { border-top: 1px dashed var(--line); }
+  .sub strong { font-size: 0.78rem; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .fx-tools { display: grid; grid-template-columns: 1fr auto; gap: 0.35rem; position: relative; }
+  .fx-picker > summary { list-style: none; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+  .fx-tools > .btn { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .fx-picker[open] > summary { background: var(--ink); color: var(--bg); }
+  .fx-picker > summary::-webkit-details-marker { display: none; }
+  .picker-grid { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; background: var(--bg); border: 1px solid var(--ink); padding: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); max-height: 60vh; overflow-y: auto; }
+  .picker-grid :global(h4) { margin: 0; font: 0.65rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .picker-grid :global(.opts) { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; }
+  .picker-grid :global(button) { text-align: left; font: 0.78rem/1.2 var(--sans); padding: 0.4rem 0.5rem; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; }
+  .picker-grid :global(button:hover), .picker-grid :global(button:focus-visible) { border-color: var(--ink); background: var(--hover); }
+  .fx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+  .fx-list :global(.fx) { border: 1px solid var(--line); }
+  .fx-list :global(.fx.off .fx-name), .fx-list :global(.fx.off .fx-body) { opacity: 0.45; }
+  .fx-list :global(.fx.off .fx-name) { text-decoration: line-through; }
+  .fx-list :global(.fx-head) { display: flex; align-items: center; gap: 0.2rem; padding: 0.25rem 0.25rem 0.25rem 0.5rem; }
+  .fx-list :global(.fx-name) { flex: 1; text-align: left; background: none; border: 0; padding: 0.2rem 0; font: 600 0.8rem/1.2 var(--sans); color: var(--ink); cursor: pointer; }
+  .fx-list :global(.fx-name small) { display: block; font: 0.62rem/1.2 var(--mono); color: var(--muted); font-weight: 400; }
+  .fx-list :global(.icon) { width: 1.6rem; height: 1.6rem; border: 1px solid transparent; background: none; color: var(--ink); cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
+  .fx-list :global(.fx-name .i) { width: 0.8rem; height: 0.8rem; vertical-align: -1px; margin-right: 0.15rem; color: var(--muted); transition: transform 0.15s; }
+  .fx-list :global(.fx-name[aria-expanded='true'] .i) { transform: rotate(90deg); }
+  .fx-list :global(.icon:hover:not(:disabled)) { border-color: var(--line); }
+  .fx-list :global(.icon:disabled) { opacity: 0.25; }
+  .fx-list :global(.fx-body) { padding: 0.25rem 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.45rem; border-top: 1px solid var(--line); }
+  .fx-list :global(.fx-body[hidden]) { display: none; }
+  .fx-list :global(.fx-hint) { font-size: 0.72rem; color: var(--muted); margin: 0; }
+  .layers { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column-reverse; gap: 0.25rem; }
+  .layers :global(button) { width: 100%; display: flex; align-items: center; gap: 0.5rem; text-align: left; font: inherit; font-size: 0.85rem; background: var(--bg); border: 1px solid var(--line); padding: 0.3rem; cursor: pointer; color: inherit; }
+  .layers :global(button[aria-pressed='true']) { border-color: var(--ink); }
+  .layers :global(img) { width: 2rem; height: 2rem; object-fit: contain; }
+  .hint { font-size: 0.78rem; color: var(--muted); margin: 0; }
+  .share { width: min(26rem, 92vw); border: 1px solid var(--ink); padding: 1.1rem; background: var(--bg); color: var(--ink); }
+  .share::backdrop { background: rgb(0 0 0 / 0.35); }
+  .share form { display: flex; flex-direction: column; gap: 0.7rem; }
+  .share h2 { margin: 0; font-size: 1rem; }
+  .share img { width: 100%; max-height: 14rem; object-fit: contain; background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px; border: 1px solid var(--line); }
+  .share label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; }
+  .share label.check { flex-direction: row; align-items: center; gap: 0.4rem; }
+  .share small { color: var(--muted); }
+  .share .status { text-align: left; margin: 0; }
+  .share-actions { display: flex; justify-content: flex-end; gap: 0.4rem; }
+  .hint kbd { font: 0.7rem/1 var(--mono); border: 1px solid var(--line); padding: 0.1rem 0.3rem; }
+  @media (max-width: 62rem) {
+    .editor { grid-template-columns: 1fr; grid-template-areas: 'tool' 'stage' 'lib' 'props'; }
+    .panel { max-height: none; border: 0; border-top: 1px solid var(--line); }
+    .picker { grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); max-height: 16rem; overflow-y: auto; }
+  }
+</style>
+
+<script>
+  import { startEditor } from '../scripts/editor';
+  startEditor();
+</script>

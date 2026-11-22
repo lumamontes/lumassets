@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import { SITE } from '../site';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  /** Extra class on <main>, e.g. for the full-width editor. */
+  mainClass?: string;
+}
+
+const { title, description, noindex = false, mainClass } = Astro.props;
+const site = Astro.site ?? new URL(SITE.url);
+const canonical = new URL(Astro.url.pathname, site).href;
+const image = new URL('/generated/og/site.png', site).href;
+const fullTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)" />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name}: ${SITE.tagline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/">lumassets</a>
+      <nav class="nav" aria-label="Main">
+        <a href="/compose/" aria-current={path.startsWith('/compose') ? 'page' : undefined}>Compose</a>
+        <a href="/wall/" aria-current={path.startsWith('/wall') ? 'page' : undefined}>Wall</a>
+        <a href="/about/" aria-current={path.startsWith('/about') ? 'page' : undefined}>About</a>
+        <a href={SITE.githubUrl} rel="noopener">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" class={mainClass}>
+      <slot />
+    </main>
+    <footer class="site-footer mono">
+      <span>@ <a href={SITE.websiteUrl} rel="noopener">{SITE.author}</a></span>
+      <span><a href="/about/#license">License</a></span>
+    </footer>
+  </body>
+</html>

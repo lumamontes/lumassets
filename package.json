@@ -1,0 +1,49 @@
+{
+  "name": "lumassets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Luma's hand-drawn visual assets: a static library and composition playground.",
+  "packageManager": "pnpm@10.27.0",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "assets": "node scripts/build-assets.mjs",
+    "check:catalog": "node scripts/build-assets.mjs --check",
+    "test": "node --test \"tests/*.test.*\"",
+    "dev": "node scripts/build-assets.mjs && astro dev",
+    "studio": "quick-editor",
+    "build": "node scripts/build-assets.mjs && astro build",
+    "check": "node scripts/build-assets.mjs && astro check",
+    "check:links": "node scripts/check-links.mjs",
+    "test:e2e": "playwright test",
+    "lighthouse": "node scripts/lighthouse.mjs",
+    "verify": "pnpm check:catalog && pnpm test && pnpm check && pnpm build && pnpm check:links && pnpm test:e2e",
+    "preview": "astro preview",
+    "astro": "astro",
+    "dev:wall": "pnpm build && wrangler pages dev"
+  },
+  "dependencies": {
+    "astro": "^7.4.13",
+    "fabric": "^6.9.1",
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.63.0",
+    "sharp": "^0.34.5",
+    "typescript": "^6.0.0",
+    "wrangler": "^4.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ],
+    "ignoredBuiltDependencies": [
+      "canvas"
+    ]
+  }
+}

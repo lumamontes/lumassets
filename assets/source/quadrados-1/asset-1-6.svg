@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 44 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:affinity="https://www.affinity.studio/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-2251,-677)">
+        <use id="Fundo" xlink:href="#_Image1" x="2250" y="676" width="46px" height="50px"/>
+    </g>
+    <defs>
+        <image id="_Image1" width="46px" height="50px" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAyCAYAAAAjrenXAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABT0lEQVRoge2YSQ7DMAhFoer9r+xuOqQemY2lvE27SMzPF2BjgEPBTXGLVsPDSIiGsn6kZYdwkdCaDI6LyJDjH1hajnU8k3BW7mcSzuIWHs2sktW7G3HtGlKsYx0fCTfZ3YSQYt9bvhIEZh09nYSMoLpdP9d8VLTwEasPajpcllRhE+W4VZf6pkyE4y6ttee4VSBzl694OW7pcnet3tfs3DVXYPPnTWbRV9C7ON1mWq926D6EXwNI0mQl0CP1EIDv+K7rjCY+VbhEsHTKYZ3HZ6cxa5fVogF+wnuLsc/IBDTr/b3ba4dWYrnrsFLLu9ioNwXsevDq45w2KCriqEFiJEDc5z2ES+dKFrtGN/WOeuzM6dVVZt2E6vZUW7TjJqIB/ItTe/ockjHH01wzF1i7jdXvEu/iRJAfb6dEnlVM40ZfepoZFSV898gn4pS7mhhe+KkwaGjKVNAAAAAASUVORK5CYII="/>
+    </defs>
+</svg>

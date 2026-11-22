@@ -1,0 +1,81 @@
+/* Black ink on white, like the drawings. Dark mode flips both, drawings included. */
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+  --muted: #6e6e6e;
+  --line: #e6e6e6;
+  --hover: #f4f4f4;
+  --focus: #2457d6;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --art-filter: none;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0c0c;
+    --ink: #f2f2f2;
+    --muted: #9a9a9a;
+    --line: #262626;
+    --hover: #181818;
+    --focus: #7aa2ff;
+    --art-filter: invert(1);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+/* keep room for the scrollbar, so pages don't jump sideways when it comes and goes */
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main { flex: 1; }
+img { display: block; max-width: 100%; height: auto; }
+/* Every drawing is black ink: invert it in dark mode so it matches the text. */
+.art { filter: var(--art-filter); }
+a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+h1, h2, h3 { font-weight: 600; line-height: 1.2; margin: 0 0 0.5em; letter-spacing: -0.01em; }
+p { margin: 0 0 1em; }
+.mono { font-family: var(--mono); font-size: 0.8rem; }
+.muted { color: var(--muted); }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 0.5rem; top: -3rem; background: var(--ink); color: var(--bg); padding: 0.4rem 0.7rem; z-index: 20; }
+.skip:focus { top: 0.5rem; }
+
+.site-header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.25rem; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 600; text-decoration: none; font-size: 1rem; }
+.nav { display: flex; gap: 1.1rem; font-family: var(--mono); font-size: 0.8rem; }
+.nav a { text-decoration: none; color: var(--muted); }
+.nav a:hover, .nav a[aria-current='page'] { color: var(--ink); }
+.site-footer { padding: 1.25rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; justify-content: space-between; color: var(--muted); }
+.site-footer a { color: var(--muted); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font: 500 0.8rem/1 var(--mono); padding: 0.6rem 0.8rem;
+  border: 1px solid var(--ink); background: transparent; color: var(--ink);
+  text-decoration: none; cursor: pointer; border-radius: 0;
+}
+.btn:hover { background: var(--ink); color: var(--bg); }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.small { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+
+input[type='search'], input[type='text'], input[type='number'], select {
+  font: inherit; color: inherit; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 0; padding: 0.5rem 0.65rem;
+}
+input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: -1px; }
+label { font-size: 0.85rem; }
+
+.prose { max-width: 40rem; padding: 2rem 1.25rem 3rem; }
+.prose h1 { font-size: 1.6rem; }
+.prose h2 { font-size: 1.1rem; margin-top: 2rem; }
+.notice { border-left: 2px solid var(--ink); padding: 0.5rem 0.8rem; font-size: 0.85rem; }

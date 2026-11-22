@@ -1,0 +1,30 @@
+node_modules/
+dist/
+.astro/
+public/generated/
+.env
+.env.*
+.DS_Store
+*.log
+playwright-report/
+test-results/
+lighthouse-reports/
+
+# studio
+scans/inbox/
+studio/.venv/
+__pycache__/
+*.pyc
+src/generated/
+
+# quick-editor refit review pages
+.quick-editor/
+
+# local Cloudflare secrets and state
+.dev.vars
+.wrangler/
+
+# Local scan sessions and legacy export archives
+scans/*.studio.json
+/*.zip
+/Claude outputs/

@@ -1,0 +1,78 @@
+{
+  "releaseVersion": "0.1.0",
+  "quality": {
+    "minSourcePixels": 600
+  },
+  "collections": [
+    {
+      "id": "quadrados-1",
+      "name": "Quadrados 1",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "sq1",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "quadrados-2",
+      "name": "Quadrados 2",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "sq2",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "quadrados-3",
+      "name": "Quadrados 3",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "sq3",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "monstrinhos",
+      "name": "Monstrinhos",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "mon",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "quadrados-4",
+      "name": "Quadrados 4",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "sq4",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "avulsos",
+      "name": "Avulsos",
+      "description": "",
+      "license": "CC0 1.0",
+      "attribution": "Luma Montes",
+      "version": "0.1.0",
+      "idPrefix": "av",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "featured": [
+    "sq3-19",
+    "sq2-02",
+    "sq1-01",
+    "sq3-22",
+    "sq2-07",
+    "sq3-08",
+    "sq1-16",
+    "sq3-14"
+  ]
+}

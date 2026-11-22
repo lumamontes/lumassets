@@ -1,0 +1,18 @@
+# Response headers for Cloudflare Pages (static files only; the /api/ answers set their own).
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: object-src 'none'; base-uri 'self'; form-action 'self'
+
+# the approval page: never inside another site's frame, never cached, never indexed
+/wall/admin/*
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Cache-Control: no-store
+  X-Robots-Tag: noindex
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
