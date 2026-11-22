@@ -10,9 +10,15 @@ There’s also a [composer][compose] where you can pick drawings, play with effe
 
 [![Fofolete glows at the center of a purple canvas, framed by mirrored Quadrados in pink and teal.](docs/composer-screenshot.png)][compose]
 
+## The Wall
+
+[The Wall][wall] is where people share things they’ve made in the composer. To put something up, click **Share** in Compose. It’ll appear once it’s approved.
+
+Open a post to copy its link or choose **Remix** to bring it into the composer and make your own version.
+
 [quick-editor][quick-editor] turns photos of drawings into clean, transparent SVGs. The [asset guide](docs/adding-assets.md) shows how to add them to the library.
 
-[Visit the wall][wall] · [Contact][contact] · [Report a bug][issues]
+[Contact][contact] · [Report a bug][issues]
 
 ## Technology
 
