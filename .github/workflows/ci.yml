@@ -19,7 +19,7 @@ jobs:
     env:
       SITE_URL: https://lumassets.bibliotecadezines.workers.dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4 # version comes from "packageManager" in package.json
 
