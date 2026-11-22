@@ -56,7 +56,7 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
         <Fragment set:html={icon('plus', 14)} />Add your own
         <input type="file" id="own-file" class="visually-hidden" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg" multiple />
       </label>
-      <p class="hint own-hint">SVG, PNG or JPG, or drop files anywhere here. They stay in your browser; photos get their paper removed.</p>
+      <p class="hint own-hint">SVG, PNG or JPG, or drop files anywhere here. Files stay in your browser.</p>
       <ul class="picker own" id="own-picker" aria-label="Your drawings" hidden></ul>
       <input type="search" id="lib-search" placeholder="Search" aria-label="Search drawings" />
       <ul class="picker" id="picker" aria-label="Library"></ul>
@@ -198,6 +198,34 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
       </section>
     </aside>
   </div>
+
+  <dialog class="share photo-import" id="photo-import" aria-labelledby="photo-title">
+    <form method="dialog">
+      <h2 id="photo-title">Add image</h2>
+      <p class="hint" id="photo-name"></p>
+      <label>Image treatment
+        <select id="photo-mode" autofocus>
+          <option value="original">Keep original</option>
+          <option value="paper">Remove paper</option>
+          <option value="background">Remove background</option>
+        </select>
+      </label>
+      <div class="photo-preview">
+        <canvas id="photo-preview" role="img" aria-label="Image preview"></canvas>
+      </div>
+      <div id="photo-background" hidden>
+        <p class="hint">Click the backdrop to sample its color. This works best on a solid background.</p>
+        <label>Color tolerance
+          <input id="photo-tolerance" type="range" min="0" max="100" value="32" />
+        </label>
+      </div>
+      <p class="hint" id="photo-status" role="status"></p>
+      <div class="share-actions">
+        <button type="submit" class="btn small" value="cancel" formnovalidate>Skip</button>
+        <button type="submit" class="btn small primary" id="photo-add" value="add">Add image</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog class="share" id="share" aria-labelledby="share-title-h">
     <form id="share-form" method="dialog">
@@ -349,6 +377,20 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
   .share label.check { flex-direction: row; align-items: center; gap: 0.4rem; }
   .share small { color: var(--muted); }
   .share .status { text-align: left; margin: 0; }
+  .photo-import { width: min(32rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); box-sizing: border-box; }
+  .photo-preview {
+    display: grid; place-items: center; overflow: hidden;
+    background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px;
+    border: 1px solid var(--line);
+  }
+  .photo-preview canvas {
+    display: block;
+    width: min(100%, var(--photo-width), calc(min(40dvh, 18rem) * var(--photo-ratio)));
+    height: auto;
+  }
+  .photo-import[data-mode="background"] canvas { cursor: crosshair; }
+  #photo-background label { margin-top: 0.45rem; }
+  #photo-status:empty { display: none; }
   .share-actions { display: flex; justify-content: flex-end; gap: 0.4rem; }
   .hint kbd { font: 0.7rem/1 var(--mono); border: 1px solid var(--line); padding: 0.1rem 0.3rem; }
   @media (max-width: 62rem) {

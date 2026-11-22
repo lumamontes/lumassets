@@ -1,6 +1,5 @@
 // Turns a visitor's own file into a drawing Compose can use. Runs only in their browser:
-// nothing is uploaded. SVGs stay vectors; photos and flat images get their paper removed
-// so effects and ink colors work the same way they do on the library drawings.
+// nothing is uploaded. SVGs stay vectors and raster imports have a treatment preview.
 import { OWN_MAX_CHARS, svgDataUrl, type OwnAsset } from '../lib/composition';
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
@@ -37,7 +36,7 @@ const readAs = (file: File, kind: 'text' | 'url') =>
     kind === 'text' ? r.readAsText(file) : r.readAsDataURL(file);
   });
 
-export async function importFile(file: File): Promise<Imported> {
+export async function importFile(file: File): Promise<Imported | null> {
   if (file.size > MAX_FILE_BYTES) throw new Error(`${file.name} is over 15 MB.`);
   const isSvg = file.type === 'image/svg+xml' || /\.svg$/i.test(file.name);
   if (isSvg) return importSvg(file);
@@ -82,37 +81,118 @@ export async function rasterFor(own: OwnAsset): Promise<string> {
   return c.toDataURL('image/png');
 }
 
-// ---------- raster: remove the paper, trim to the ink ----------
-async function importRaster(file: File): Promise<Imported> {
-  const img = await loadImg(await readAs(file, 'url'));
-  const k = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
-  const c = document.createElement('canvas');
-  c.width = Math.max(1, Math.round(img.naturalWidth * k));
-  c.height = Math.max(1, Math.round(img.naturalHeight * k));
-  const ctx = c.getContext('2d', { willReadFrequently: true })!;
-  ctx.drawImage(img, 0, 0, c.width, c.height);
-  const px = ctx.getImageData(0, 0, c.width, c.height);
+// ---------- raster: preview the selected treatment before adding it ----------
+async function importRaster(file: File): Promise<Imported | null> {
+  const original = await readAs(file, 'url');
+  const img = await loadImg(original);
+  const scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+  const width = Math.max(1, Math.round(img.naturalWidth * scale));
+  const height = Math.max(1, Math.round(img.naturalHeight * scale));
+  const dialog = document.querySelector<HTMLDialogElement>('#photo-import')!;
+  const preview = dialog.querySelector<HTMLCanvasElement>('#photo-preview')!;
+  const mode = dialog.querySelector<HTMLSelectElement>('#photo-mode')!;
+  const tolerance = dialog.querySelector<HTMLInputElement>('#photo-tolerance')!;
+  const background = dialog.querySelector<HTMLElement>('#photo-background')!;
+  const status = dialog.querySelector<HTMLElement>('#photo-status')!;
+  const add = dialog.querySelector<HTMLButtonElement>('#photo-add')!;
 
-  const transparent = hasTransparency(px.data);
-  if (!transparent) removePaper(px.data, c.width, c.height);
-  const box = inkBox(px, c.width, c.height);
-  if (!box) throw new Error(`No drawing found in ${file.name}: it looks empty.`);
-  ctx.putImageData(px, 0, 0);
+  dialog.querySelector('#photo-name')!.textContent = file.name;
+  preview.width = width;
+  preview.height = height;
+  preview.style.setProperty('--photo-width', `${width}px`);
+  preview.style.setProperty('--photo-ratio', String(width / height));
+  const ctx = preview.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0, width, height);
+  const source = ctx.getImageData(0, 0, width, height);
+  const transparent = hasTransparency(source.data);
+  mode.value = 'original';
+  tolerance.value = '32';
+  dialog.returnValue = '';
+  let sample = 0;
+  let box = { x: 0, y: 0, w: width, h: height };
+
+  function render() {
+    dialog.dataset.mode = mode.value;
+    background.hidden = mode.value !== 'background';
+    const px = new ImageData(new Uint8ClampedArray(source.data), width, height);
+    if (mode.value === 'paper' && !transparent) removePaper(px.data, width, height);
+    if (mode.value === 'background') clearConnectedColor(px, sample, tolerance.valueAsNumber);
+
+    const bounds = mode.value === 'original' ? { x: 0, y: 0, w: width, h: height } : inkBox(px, width, height);
+    add.disabled = !bounds;
+    status.textContent = bounds ? '' : 'This treatment removed the whole image. Try a lower tolerance or keep the original.';
+    if (bounds) box = bounds;
+    ctx.putImageData(px, 0, 0);
+  }
+
+  const events = new AbortController();
+  const options = { signal: events.signal };
+  mode.addEventListener('change', render, options);
+  tolerance.addEventListener('input', render, options);
+  preview.addEventListener('click', (event) => {
+    if (mode.value !== 'background') return;
+    const rect = preview.getBoundingClientRect();
+    const x = Math.max(0, Math.min(width - 1, Math.floor((event.clientX - rect.left) * width / rect.width)));
+    const y = Math.max(0, Math.min(height - 1, Math.floor((event.clientY - rect.top) * height / rect.height)));
+    sample = y * width + x;
+    render();
+  }, options);
+
+  render();
+  const accepted = await new Promise<boolean>((resolve) => {
+    dialog.addEventListener('close', () => resolve(dialog.returnValue === 'add' && !add.disabled), { once: true });
+    dialog.showModal();
+  });
+  events.abort();
+  if (!accepted) return null;
+
   const out = document.createElement('canvas');
   out.width = box.w;
   out.height = box.h;
-  out.getContext('2d')!.drawImage(c, box.x, box.y, box.w, box.h, 0, 0, box.w, box.h);
-  const data = out.toDataURL('image/png');
+  out.getContext('2d')!.drawImage(preview, box.x, box.y, box.w, box.h, 0, 0, box.w, box.h);
+  const keep = mode.value === 'original';
+  const data = keep && scale === 1 && /^data:image\/(png|jpeg|webp);base64,/.test(original)
+    ? original
+    : out.toDataURL(keep && file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.94);
   if (data.length > OWN_MAX_CHARS) throw new Error(`${file.name} is too large.`);
-  const small = Math.max(box.w, box.h) < 600
-    ? ` It's only ${Math.max(box.w, box.h)} px across, so it will look blocky if you make it big: a sharper photo or an SVG works better.`
-    : '';
+  const notes: Record<string, string> = {
+    original: 'Added with the original background.',
+    paper: transparent ? 'Added with its existing transparency.' : 'Added with the paper removed.',
+    background: 'Added with the selected backdrop cleared.',
+  };
   return {
     own: { id: await hashId(data), name: nameOf(file), width: box.w, height: box.h, vector: false, data },
-    note: (transparent
-      ? 'Added with its own transparent background.'
-      : 'Added. The paper and shadows were removed, so only the drawing is left.') + small,
+    note: notes[mode.value],
   };
+}
+
+/** Clear the connected region that matches the sampled color, leaving other regions intact. */
+function clearConnectedColor({ data, width, height }: ImageData, seed: number, tolerance: number) {
+  const offset = seed * 4;
+  const [r, g, b, alpha] = data.subarray(offset, offset + 4);
+  const visited = new Uint8Array(width * height);
+  const queue = new Uint32Array(visited.length);
+  let end = 0;
+
+  function enqueue(pixel: number) {
+    if (visited[pixel]) return;
+    visited[pixel] = 1;
+    const i = pixel * 4;
+    if (Math.abs(data[i + 3] - alpha) > tolerance) return;
+    if (Math.max(Math.abs(data[i] - r), Math.abs(data[i + 1] - g), Math.abs(data[i + 2] - b)) > tolerance) return;
+    queue[end++] = pixel;
+  }
+
+  enqueue(seed);
+  for (let head = 0; head < end; head++) {
+    const pixel = queue[head];
+    const x = pixel % width;
+    data[pixel * 4 + 3] = 0;
+    if (x > 0) enqueue(pixel - 1);
+    if (x < width - 1) enqueue(pixel + 1);
+    if (pixel >= width) enqueue(pixel - width);
+    if (pixel < queue.length - width) enqueue(pixel + width);
+  }
 }
 
 /** True when a meaningful share of pixels is already see-through (a cut-out PNG). */

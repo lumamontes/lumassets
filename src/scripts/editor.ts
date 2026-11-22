@@ -1355,7 +1355,9 @@ export function startEditor() {
     for (const f of list) {
       say(`Reading ${f.name}…`);
       try {
-        const { own: o, note } = await importFile(f);
+        const imported = await importFile(f);
+        if (!imported) continue;
+        const { own: o, note } = imported;
         const known = assets.has(o.id);
         await registerOwn(o);
         await addAsset(o.id);
@@ -1365,11 +1367,16 @@ export function startEditor() {
         notes.push((e as Error).message);
       }
     }
-    say(notes.join(' '));
+    say(notes.join(' ') || 'No images added.');
     if (added) showTab('layer');
   }
+  let ownImportQueue = Promise.resolve();
+  function queueOwnFiles(files: Iterable<File>) {
+    const pending = [...files];
+    ownImportQueue = ownImportQueue.then(() => addOwnFiles(pending));
+  }
   const ownInput = $<HTMLInputElement>('own-file');
-  ownInput.addEventListener('change', () => { addOwnFiles(ownInput.files ?? []); ownInput.value = ''; });
+  ownInput.addEventListener('change', () => { queueOwnFiles(ownInput.files ?? []); ownInput.value = ''; });
   // drop files anywhere on the editor
   const editorEl = ui.stage.closest('.editor') as HTMLElement;
   const hasFiles = (e: DragEvent) => [...(e.dataTransfer?.types ?? [])].includes('Files');
@@ -1379,7 +1386,7 @@ export function startEditor() {
     if (!hasFiles(e)) return;
     e.preventDefault();
     editorEl.classList.remove('dropping');
-    addOwnFiles(e.dataTransfer!.files);
+    queueOwnFiles(e.dataTransfer!.files);
   });
 
   // Library picker

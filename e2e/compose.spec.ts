@@ -621,3 +621,57 @@ test('a PNG keeps its original layers while encoding even if Composer changes', 
   await expect(page.locator('#status')).toHaveText('Opened the composition.');
   await expect(layers(page)).toHaveCount(1);
 });
+
+test('photo imports preview original, paper removal and a sampled backdrop', async ({ page }) => {
+  await page.goto('/compose/');
+  await page.setViewportSize({ width: 390, height: 740 });
+  const image = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, 400, 800);
+    ctx.fillStyle = 'navy';
+    ctx.fillRect(80, 160, 240, 480);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(160, 320, 80, 160);
+    return canvas.toDataURL().split(',')[1];
+  });
+  const file = { name: 'photo.png', mimeType: 'image/png', buffer: Buffer.from(image, 'base64') };
+  const dialog = page.getByRole('dialog', { name: 'Add image' });
+  const mode = dialog.getByLabel('Image treatment');
+  const canvas = dialog.locator('canvas');
+  const previewPixel = (x: number, y: number) => canvas.evaluate(
+    (canvas: HTMLCanvasElement, [x, y]) => Array.from(canvas.getContext('2d')!.getImageData(x, y, 1, 1).data),
+    [x, y],
+  );
+
+  await page.locator('#own-file').setInputFiles(file);
+  await expect(mode).toHaveValue('original');
+  expect(await previewPixel(0, 0)).toEqual([255, 255, 255, 255]);
+  await dialog.getByRole('button', { name: 'Add image' }).click();
+  await expect(layers(page)).toHaveCount(1);
+
+  await page.locator('#own-file').setInputFiles(file);
+  await mode.selectOption('paper');
+  expect((await previewPixel(0, 0))[3]).toBe(0);
+  await mode.selectOption('background');
+  const bounds = (await canvas.boundingBox())!;
+  expect(bounds.width / bounds.height).toBeCloseTo(0.5);
+  await canvas.click({ position: { x: bounds.width * 0.3, y: bounds.height * 0.3 } });
+  expect((await previewPixel(120, 240))[3]).toBe(0);
+  expect(await previewPixel(0, 0)).toEqual([255, 255, 255, 255]);
+  await canvas.click({ position: { x: 8, y: 8 } });
+  expect((await previewPixel(0, 0))[3]).toBe(0);
+  expect(await previewPixel(200, 400)).toEqual([255, 255, 255, 255]);
+  expect(await previewPixel(120, 240)).toEqual([0, 0, 128, 255]);
+  await dialog.getByRole('button', { name: 'Add image' }).click();
+  await expect(layers(page)).toHaveCount(2);
+
+  await page.locator('#own-file').setInputFiles(file);
+  await expect(mode).toHaveValue('original');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(layers(page)).toHaveCount(2);
+});
