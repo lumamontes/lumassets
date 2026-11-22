@@ -1,6 +1,6 @@
 # Deploying to Cloudflare Pages (free tier)
 
-The site is fully static, so it fits Cloudflare Pages' free plan with no Functions, database or paid services.
+The catalog and Composer are built as static pages. The wall runs as a Pages Function with a private R2 bucket, D1 database and Turnstile.
 
 1. Push the repository to GitHub.
 2. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages → Connect to Git** and pick the repository.
@@ -20,4 +20,4 @@ The site is fully static, so it fits Cloudflare Pages' free plan with no Functio
 - The largest source file (`fatia25.svg`) is about 5.6 MB, well under the per-file limit.
 - Image generation happens during the build, so build time grows with the catalog. Unchanged assets are not cached between Cloudflare builds; that's fine at this size.
 
-Astro's docs now recommend Cloudflare Workers for new projects that need server features. This project has none, so Pages is the simplest free option. Switch to Workers only if a server feature becomes necessary.
+For the production wall, follow [the wall setup](wall.md). Keep the storage bindings and secrets scoped to production.

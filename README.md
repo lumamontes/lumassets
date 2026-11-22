@@ -53,7 +53,7 @@ The first `pnpm dev` or `pnpm build` rasterizes every published asset, which tak
 
 ## Making assets: quick-editor
 
-New assets come from photos or scans of drawings, processed with [quick-editor](../quick-editor) (its own repository): frame the page, clean the lighting and paper, pick the pieces, review the traced SVGs, save. `quick-editor.toml` in this repo tells it where things go here (photos in `scans/inbox/`, SVGs in `assets/vector/`, entries in `data/assets.json` as drafts).
+New assets come from photos or scans of drawings, processed with [quick-editor](https://github.com/lumamontes/quick-editor) (its own repository): frame the page, clean the lighting and paper, pick the pieces, review the traced SVGs, save. `quick-editor.toml` in this repo tells it where things go here (photos in `scans/inbox/`, SVGs in `assets/vector/`, entries in `data/assets.json` as drafts).
 
 ```sh
 brew install uv potrace                              # once
