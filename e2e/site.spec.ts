@@ -133,3 +133,32 @@ test('the wall page explains itself when the API is not there (static preview)',
   await page.goto('/wall/admin/');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
 });
+
+test('wall artwork opens in place, with navigation and focus restored on close', async ({ page }) => {
+  const makePost = (id: string, title: string, author: string | null) => ({
+    id, title, author, createdAt: '2026-11-22T00:00:00Z', width: 1600, height: 1000, image: '/favicon.svg',
+  });
+  await page.route('**/api/wall?limit=30', (route) => route.fulfill({
+    json: { posts: [makePost('adyspfn372ys', 'eu na madrugada', 'luma faz um teste'), makePost('fghjkmn12345', 'Another drawing', null)] },
+  }));
+  await page.goto('/wall/');
+  const first = page.locator('#wall .label').getByRole('link', { name: 'eu na madrugada' });
+  await expect(first).toHaveAttribute('href', '/wall/post/adyspfn372ys/');
+  await first.click();
+
+  const viewer = page.getByRole('dialog', { name: 'eu na madrugada' });
+  await expect(viewer).toBeVisible();
+  await expect(page).toHaveURL(/\/wall\/$/);
+  await expect(viewer.getByText('by luma faz um teste')).toBeVisible();
+  await expect(viewer.getByRole('button', { name: 'Close artwork' })).toBeFocused();
+  await expect(viewer.getByRole('link', { name: 'Remix' })).toHaveAttribute('href', '/compose/?wall=adyspfn372ys');
+
+  await viewer.getByRole('button', { name: 'Next artwork' }).click();
+  await expect(page.getByRole('dialog', { name: 'Another drawing' })).toBeVisible();
+  await page.keyboard.press('ArrowLeft');
+  await expect(viewer).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(viewer).toBeHidden();
+  await expect(first).toBeFocused();
+  await expect(page).toHaveURL(/\/wall\/$/);
+});

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { icon } from '../../lib/icons';
 ---
 
 <Base title="Wall" description="Things people made in the lumassets composer.">
@@ -12,6 +13,30 @@ import Base from '../../layouts/Base.astro';
   <input class="share-feedback" id="share-link" aria-label="Share link" type="url" readonly hidden />
   <ul class="wall" id="wall"></ul>
   <p class="more-wrap"><button type="button" class="btn" id="more" hidden>Load more</button></p>
+  <dialog class="wall-viewer" id="wall-viewer" aria-labelledby="viewer-title">
+    <article>
+      <header class="viewer-header">
+        <div>
+          <h2 id="viewer-title"></h2>
+          <p class="muted" id="viewer-author" hidden></p>
+        </div>
+        <button class="icon" type="button" id="viewer-close" aria-label="Close artwork" autofocus set:html={icon('x')}></button>
+      </header>
+      <figure class="viewer-art"><img id="viewer-image" alt="" /></figure>
+      <footer class="viewer-actions">
+        <div class="viewer-nav">
+          <button class="icon" type="button" id="viewer-prev" aria-label="Previous artwork" set:html={icon('left')}></button>
+          <button class="icon" type="button" id="viewer-next" aria-label="Next artwork" set:html={icon('right')}></button>
+        </div>
+        <div class="viewer-links">
+          <button class="btn small" type="button" id="viewer-share">Share</button>
+          <a class="btn small" id="viewer-remix">Remix</a>
+        </div>
+      </footer>
+      <p class="muted" id="viewer-status" role="status"></p>
+      <input id="viewer-share-link" aria-label="Artwork share link" type="url" readonly hidden />
+    </article>
+  </dialog>
 </Base>
 
 <style>
@@ -33,6 +58,33 @@ import Base from '../../layouts/Base.astro';
   .wall :global(small) { color: var(--muted); }
   .more-wrap { text-align: center; }
   .more-wrap .btn[hidden] { display: none; }
+  :global(html:has(.wall-viewer[open])) { overflow: hidden; }
+  .wall-viewer {
+    box-sizing: border-box; width: min(51rem, calc(100% - 1.5rem)); max-height: calc(100dvh - 1.5rem);
+    padding: 0; border: 1px solid var(--ink); background: var(--bg); color: var(--ink);
+    overscroll-behavior: contain;
+  }
+  .wall-viewer::backdrop { background: rgb(0 0 0 / 55%); }
+  .wall-viewer article { padding: clamp(0.75rem, 3vw, 1.25rem); }
+  .viewer-header, .viewer-actions, .viewer-nav, .viewer-links { display: flex; gap: 0.5rem; align-items: center; }
+  .viewer-header, .viewer-actions { justify-content: space-between; }
+  .viewer-header { align-items: start; }
+  .viewer-header h2 { margin: 0; font-size: 1.15rem; overflow-wrap: anywhere; }
+  .viewer-header p { margin: 0.2rem 0 0; }
+  .wall-viewer .icon {
+    display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0;
+    flex-shrink: 0; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer;
+  }
+  .wall-viewer .icon:hover:not([aria-disabled='true']) { border-color: var(--ink); }
+  .viewer-art { display: grid; place-items: center; margin: 0.8rem 0; }
+  .viewer-art img {
+    display: block; width: auto; height: auto; max-width: 100%; max-height: 65dvh; object-fit: contain;
+    border: 1px solid var(--line); background: repeating-conic-gradient(#e8e8e8 0 25%, #fff 0 50%) 0 0 / 14px 14px;
+  }
+  .viewer-nav [aria-disabled='true'] { opacity: 0.4; cursor: default; }
+  #viewer-status { margin: 0.5rem 0 0; }
+  #viewer-status:empty { display: none; }
+  #viewer-share-link { width: 100%; margin-top: 0.5rem; }
 </style>
 
 <script>
@@ -45,6 +97,73 @@ import Base from '../../layouts/Base.astro';
   const more = $('more') as HTMLButtonElement;
   const PAGE = 30;
   let before = '';
+  const postsOnWall: Post[] = [];
+  const dialog = $('wall-viewer') as HTMLDialogElement;
+  const viewerImage = $('viewer-image') as HTMLImageElement;
+  const viewerAuthor = $('viewer-author');
+  const previous = $('viewer-prev');
+  const next = $('viewer-next');
+  const viewerRemix = $('viewer-remix') as HTMLAnchorElement;
+  const viewerStatus = $('viewer-status');
+  const viewerShareLink = $('viewer-share-link') as HTMLInputElement;
+  let displayed = -1;
+  let opener: HTMLAnchorElement | null = null;
+
+  const remixPath = (post: Post) => `/compose/?wall=${encodeURIComponent(post.id)}`;
+  const shareUrl = (post: Post) => new URL(wallEntryPath(post.id), location.origin).href;
+
+  function showArtwork(index: number) {
+    const post = postsOnWall[index];
+    if (!post) return;
+    displayed = index;
+    $('viewer-title').textContent = post.title;
+    viewerAuthor.textContent = post.author ? `by ${post.author}` : '';
+    viewerAuthor.hidden = !post.author;
+    viewerImage.alt = post.title;
+    viewerImage.width = post.width;
+    viewerImage.height = post.height;
+    viewerImage.src = post.image;
+    viewerRemix.href = remixPath(post);
+    viewerShareLink.hidden = true;
+    viewerStatus.textContent = '';
+    previous.setAttribute('aria-disabled', String(index === 0));
+    next.setAttribute('aria-disabled', String(index === postsOnWall.length - 1));
+  }
+
+  function previewLink(link: HTMLAnchorElement, post: Post) {
+    link.addEventListener('click', (event) => {
+      if (typeof dialog.showModal !== 'function' || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      opener = link;
+      showArtwork(postsOnWall.indexOf(post));
+      dialog.showModal();
+    });
+  }
+
+  $('viewer-close').addEventListener('click', () => dialog.close());
+  previous.addEventListener('click', () => showArtwork(displayed - 1));
+  next.addEventListener('click', () => showArtwork(displayed + 1));
+  $('viewer-share').addEventListener('click', () => {
+    const post = postsOnWall[displayed];
+    if (post) void shareWallEntry(shareUrl(post), post.title, viewerStatus, viewerShareLink);
+  });
+  dialog.addEventListener('keydown', (event) => {
+    if (event.target instanceof HTMLInputElement || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      showArtwork(displayed + (event.key === 'ArrowLeft' ? -1 : 1));
+    }
+  });
+  let startedOnBackdrop = false;
+  dialog.addEventListener('pointerdown', (event) => { startedOnBackdrop = event.target === dialog; });
+  dialog.addEventListener('click', (event) => {
+    if (startedOnBackdrop && event.target === dialog) dialog.close();
+    startedOnBackdrop = false;
+  });
+  dialog.addEventListener('close', () => {
+    opener?.focus({ preventScroll: true });
+    opener = null;
+  });
 
   function card(p: Post) {
     const li = document.createElement('li');
@@ -61,11 +180,13 @@ import Base from '../../layouts/Base.astro';
     const artwork = document.createElement('a');
     artwork.href = details;
     artwork.append(img);
+    previewLink(artwork, p);
     const label = document.createElement('span');
     label.className = 'label';
     const title = document.createElement('a');
     title.href = details;
     title.textContent = p.title;
+    previewLink(title, p);
     label.append(title);
     if (p.author) {
       const by = document.createElement('small');
@@ -73,7 +194,7 @@ import Base from '../../layouts/Base.astro';
       label.append(by);
     }
     const remix = document.createElement('a');
-    remix.href = `/compose/?wall=${encodeURIComponent(p.id)}`;
+    remix.href = remixPath(p);
     remix.textContent = 'Remix';
     const share = document.createElement('button');
     share.type = 'button';
@@ -81,7 +202,7 @@ import Base from '../../layouts/Base.astro';
     share.textContent = 'Share';
     share.setAttribute('aria-label', `Share ${p.title}`);
     share.addEventListener('click', () => {
-      void shareWallEntry(new URL(details, location.origin).href, p.title, $('share-status'), $('share-link') as HTMLInputElement);
+      void shareWallEntry(shareUrl(p), p.title, $('share-status'), $('share-link') as HTMLInputElement);
     });
     const actions = document.createElement('span');
     actions.className = 'actions';
@@ -97,6 +218,7 @@ import Base from '../../layouts/Base.astro';
       const res = await fetch(`/api/wall?limit=${PAGE}${before ? `&before=${encodeURIComponent(before)}` : ''}`);
       if (!res.ok) throw new Error(String(res.status));
       const { posts } = (await res.json()) as { posts: Post[] };
+      postsOnWall.push(...posts);
       wall.append(...posts.map(card));
       if (posts.length) before = posts[posts.length - 1].createdAt;
       more.hidden = posts.length < PAGE;
