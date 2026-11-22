@@ -450,3 +450,70 @@ test('Everything effects keep the selected layer outline and rotation handle vis
   await page.mouse.up();
   await expect(page.locator('#rotation')).not.toHaveValue('0');
 });
+
+test('refreshing Everything does not interrupt resizing a newly added layer', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+  const preview = page.locator('.global-fx img');
+  await expect(preview).toBeVisible();
+
+  const beforeAdd = (await preview.getAttribute('src'))!;
+  await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+  await expect(layers(page)).toHaveCount(2);
+  await expect(preview).not.toHaveAttribute('src', beforeAdd);
+  const selected = layers(page).last().getByRole('button');
+  await expect(selected).toHaveAttribute('aria-pressed', 'true');
+
+  const corner = await page.locator('canvas.upper-canvas').evaluate((surface: HTMLCanvasElement) => {
+    const { width, height } = surface;
+    const pixels = surface.getContext('2d')!.getImageData(0, 0, width, height).data;
+    const last = pixels.findLastIndex((value, index) => index % 4 === 3 && value > 100);
+    if (last < 0) throw new Error('No resize handles');
+    const pixel = Math.floor(last / 4);
+    const rect = surface.getBoundingClientRect();
+    return {
+      x: rect.left + (pixel % width) * rect.width / width - 2,
+      y: rect.top + Math.floor(pixel / width) * rect.height / height - 4,
+    };
+  });
+  const size = page.locator('#scale');
+  const original = Number(await size.inputValue());
+  const beforeRefresh = (await preview.getAttribute('src'))!;
+  await page.mouse.move(corner.x, corner.y);
+  await page.mouse.down();
+  // Queue the same redraw that runs after a drawing is added, while the handle is held.
+  await page.locator('#opacity').evaluate((input: HTMLInputElement) => {
+    input.value = '0.9';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expect(preview).not.toHaveAttribute('src', beforeRefresh);
+  await page.mouse.move(corner.x + 48, corner.y + 48, { steps: 6 });
+  await page.mouse.up();
+
+  await expect.poll(async () => Number(await size.inputValue())).toBeGreaterThan(original);
+  await expect(selected).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('a newly added layer stays selected if clicked while its image is loading', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  const raster = await page.locator('#boot').evaluate((el) => JSON.parse(el.textContent!).assets.find((asset: { id: string }) => asset.id === 'av-02').raster);
+  let releaseImage!: () => void;
+  const loading = new Promise<void>((resolve) => { releaseImage = resolve; });
+  await page.route(new URL(raster, page.url()).href, async (route) => {
+    await loading;
+    await route.continue();
+  });
+  try {
+    await page.getByRole('button', { name: 'Add fofolete', exact: true }).click();
+    const added = layers(page).last().getByRole('button', { name: /fofolete/ });
+    await expect(added).toHaveAttribute('aria-pressed', 'true');
+    await added.click();
+    await expect(added).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#layer-fields')).toBeEnabled();
+  } finally {
+    releaseImage();
+  }
+});

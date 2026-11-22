@@ -296,8 +296,15 @@ export function startEditor() {
   function select(id: string | null) {
     selectedId = id;
     const obj = id ? objectFor(id) : undefined;
-    if (obj) canvas.setActiveObject(obj);
-    else canvas.discardActiveObject();
+    // A layer can be selected in the list before its Fabric object has loaded.
+    // Clearing the previous Fabric selection must not clear that pending choice.
+    rebuilding = true;
+    try {
+      if (obj) canvas.setActiveObject(obj);
+      else canvas.discardActiveObject();
+    } finally {
+      rebuilding = false;
+    }
     canvas.requestRenderAll();
     syncPanels();
   }
@@ -447,39 +454,29 @@ export function startEditor() {
     if (!overlay.hidden && !dragView) canvas.drawControls(canvas.contextTop);
   });
 
-  /** The layers, without background, run through the composition's effects.
-   *  With `except`, those layers are left out and the selection is not touched (used
-   *  mid-drag, where discarding the active object would cancel the drag). */
+  /** Renders a preview without the background or selection controls. */
   async function globalImage(multiplier: number, except?: Set<string>): Promise<HTMLImageElement | null> {
     if (!doc.effects?.length || !doc.layers.length) return null;
     if (doc.layers.some((layer) => layer.excludeFromEverything))
       return renderEverythingRuns(multiplier, except);
 
     const bg = canvas.backgroundColor;
+    // Show temporarily hidden objects for a full capture, then restore the drag view.
+    const hidden = except ? undefined : dragView?.hidden;
+    hidden?.forEach((object) => (object.visible = true));
+    canvas.backgroundColor = '';
     let href: string;
-    if (except) {
-      try {
-        canvas.backgroundColor = '';
-        href = canvas.toDataURL({ format: 'png', multiplier, filter: (o) => !except.has((o as LayerObject).layerId ?? '') });
-      } finally {
-        canvas.backgroundColor = bg;
-      }
-    } else {
-      // a drag view may be hiding layers: show them for the capture (synchronous, so the
-      // screen never sees it), then hide them again until the new overlay is ready
-      dragView?.hidden.forEach((o) => (o.visible = true));
-      rebuilding = true; // capturing must not change the selection
-      try {
-        canvas.discardActiveObject();
-        canvas.backgroundColor = '';
-        href = canvas.toDataURL({ format: 'png', multiplier });
-      } finally {
-        canvas.backgroundColor = bg;
-        dragView?.hidden.forEach((o) => (o.visible = false));
-        const sel = selectedId && objectFor(selectedId);
-        if (sel) canvas.setActiveObject(sel);
-        rebuilding = false;
-      }
+    try {
+      // Fabric's export already skips controls. Discarding selection here would end
+      // an active resize or rotation, even if we immediately reselected the object.
+      href = canvas.toDataURL({
+        format: 'png',
+        multiplier,
+        filter: except ? (object) => !except.has((object as LayerObject).layerId ?? '') : undefined,
+      });
+    } finally {
+      canvas.backgroundColor = bg;
+      hidden?.forEach((object) => (object.visible = false));
     }
     canvas.requestRenderAll();
     return filterEverything(href, multiplier, doc.canvas, doc.effects);
