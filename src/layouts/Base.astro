@@ -15,8 +15,8 @@ interface Props {
 const { title, description, noindex = false, mainClass, canonicalUrl, previewImage } = Astro.props;
 const site = Astro.site ?? new URL(SITE.url);
 const canonical = canonicalUrl ?? new URL(Astro.url.pathname, site).href;
-const image = previewImage ?? { url: new URL('/generated/og/site.png', site).href, width: 1200, height: 630, alt: `${SITE.name}: ${SITE.tagline}` };
-const fullTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
+const image = previewImage ?? { url: new URL('/generated/og/site.png?v=drawings-by-luma', site).href, width: 1200, height: 630, alt: 'Four geometric ink drawings on white above the words lumassets and Hand-drawn by Luma Montes.' };
+const fullTitle = title === SITE.name ? `${SITE.name} · ${SITE.tagline}` : `${title} · ${SITE.name}`;
 const path = Astro.url.pathname;
 ---
 
@@ -54,8 +54,8 @@ const path = Astro.url.pathname;
     <header class="site-header">
       <a class="brand" href="/">lumassets</a>
       <nav class="nav" aria-label="Main">
-        <a href="/compose/" aria-current={path.startsWith('/compose') ? 'page' : undefined}>Compose</a>
-        <a href="/wall/" aria-current={path.startsWith('/wall') ? 'page' : undefined}>Wall</a>
+        <a href="/compose/" data-analytics-action="nav_compose" aria-current={path.startsWith('/compose') ? 'page' : undefined}>Compose</a>
+        <a href="/wall/" data-analytics-action="nav_wall" aria-current={path.startsWith('/wall') ? 'page' : undefined}>Wall</a>
         <a href="/about/" aria-current={path.startsWith('/about') ? 'page' : undefined}>About</a>
         <a href={SITE.githubUrl} rel="noopener">GitHub</a>
       </nav>
@@ -65,8 +65,17 @@ const path = Astro.url.pathname;
     </main>
     <footer class="site-footer mono">
       <span>@ <a href={SITE.websiteUrl} rel="noopener">{SITE.author}</a></span>
-      <span><a href={`mailto:${SITE.contactEmail}`}>Email</a> · <a href="/about/#license">License</a></span>
+      <span><a href={`mailto:${SITE.contactEmail}`}>Email</a> · <a href="/about/#license">License</a>{!noindex && <span id="analytics-settings" hidden> · <button type="button" class="analytics-settings" aria-expanded="false" aria-controls="analytics-prompt">Analytics settings</button></span>}</span>
     </footer>
-    {!noindex && <script is:inline defer src="/web-analytics.js"></script>}
+    {!noindex && <>
+      <section class="analytics-prompt" id="analytics-prompt" aria-label="Analytics settings" hidden>
+        <p>Allow Google Analytics to help me see how people use Lumassets?</p>
+        <div class="analytics-actions">
+          <button class="btn small" type="button" data-analytics-choice="denied">No thanks</button>
+          <button class="btn small primary" type="button" data-analytics-choice="granted">Allow analytics</button>
+        </div>
+      </section>
+      <script is:inline defer src="/web-analytics.js"></script>
+    </>}
   </body>
 </html>

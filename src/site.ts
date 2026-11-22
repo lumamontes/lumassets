@@ -2,8 +2,8 @@
 // (SITE_URL in the deploy settings can override `url` without editing this file.)
 export const SITE = {
   name: 'lumassets',
-  tagline: 'Drawings @ Luma Montes',
-  description: 'Drawings to copy, download or mix in the composer. @ Luma Montes',
+  tagline: 'Drawings by Luma Montes',
+  description: "I’m Luma Montes. I drew these little monsters and geometric shapes. Take one, change its colors, or put a few together in the browser.",
   author: 'Luma Montes',
 
   /** Where this site is deployed (canonical links, sitemap, social previews). */

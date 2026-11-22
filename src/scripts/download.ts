@@ -10,6 +10,7 @@ export function downloadFile(name: string, blob: Blob, kind: DownloadKind) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 
+  window.dispatchEvent(new CustomEvent('lumassets:download', { detail: kind }));
   void fetch(`/api/downloads?kind=${kind}`, { method: 'POST', credentials: 'omit', keepalive: true })
     .catch(() => { /* A failed count must never interrupt the download. */ });
 }

@@ -10,8 +10,8 @@ const ordered = [...ASSETS.filter((a) => !isFullPage(a)), ...ASSETS.filter(isFul
 const data = JSON.stringify(ordered.map(panelData));
 ---
 
-<Base title={SITE.name} description={`${ASSETS.length} drawings to copy or download as SVG or PNG. @ Luma Montes`}>
-  <h1 class="visually-hidden">lumassets: {ASSETS.length} drawings</h1>
+<Base title={SITE.name} description={SITE.description}>
+  <h1 class="visually-hidden">{SITE.tagline}</h1>
 
   <div class="bar">
     <label class="search">
@@ -90,7 +90,7 @@ const data = JSON.stringify(ordered.map(panelData));
       <p class="hint mono muted" id="p-note" hidden></p>
 
       <p class="foot mono muted">
-        <a id="p-compose" class="with-icon">Compose with it <Fragment set:html={icon('right', 14)} /></a>
+        <a id="p-compose" class="with-icon" data-analytics-action="compose_with_drawing">Compose with it <Fragment set:html={icon('right', 14)} /></a>
         <span><a id="p-license-link" rel="license noopener"></a>, no credit needed</span>
       </p>
 

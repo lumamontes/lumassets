@@ -167,22 +167,20 @@ writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 
 // Site-wide social image: featured drawings on white.
 const siteOg = join(out, 'og', 'site.png');
-if (made || !existsSync(siteOg)) {
-  const picks = (catalog.featured ?? []).filter((id) => manifest[id]).slice(0, 4);
-  const cell = 270;
-  const tiles = await Promise.all(picks.map(async (id, i) => {
-    const m = manifest[id];
-    const input = await sharp(join(root, 'public', m.png)).resize({ width: cell, height: cell, fit: 'inside' }).toBuffer({ resolveWithObject: true });
-    return { input: input.data, left: 60 + i * (cell + 20) + Math.round((cell - input.info.width) / 2), top: 70 + Math.round((cell - input.info.height) / 2) };
-  }));
-  const label = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
-    <text x="60" y="520" font-family="Helvetica,Arial,sans-serif" font-size="64" font-weight="600" fill="#000">lumassets</text>
-    <text x="62" y="568" font-family="Menlo,monospace" font-size="24" fill="#000">${published.length} hand-drawn assets by Luma Montes</text>
-  </svg>`);
-  await sharp({ create: { width: 1200, height: 630, channels: 4, background: '#ffffff' } })
-    .composite([...tiles, { input: label, left: 0, top: 0 }])
-    .png()
-    .toFile(siteOg);
-}
+const picks = (catalog.featured ?? []).filter((id) => manifest[id]).slice(0, 4);
+const cell = 270;
+const tiles = await Promise.all(picks.map(async (id, i) => {
+  const m = manifest[id];
+  const input = await sharp(join(root, 'public', m.png)).resize({ width: cell, height: cell, fit: 'inside' }).toBuffer({ resolveWithObject: true });
+  return { input: input.data, left: 60 + i * (cell + 20) + Math.round((cell - input.info.width) / 2), top: 70 + Math.round((cell - input.info.height) / 2) };
+}));
+const label = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+  <text x="60" y="520" font-family="Helvetica,Arial,sans-serif" font-size="64" font-weight="600" fill="#000">lumassets</text>
+  <text x="62" y="568" font-family="Menlo,monospace" font-size="24" fill="#000">Hand-drawn by Luma Montes</text>
+</svg>`);
+await sharp({ create: { width: 1200, height: 630, channels: 4, background: '#ffffff' } })
+  .composite([...tiles, { input: label, left: 0, top: 0 }])
+  .png()
+  .toFile(siteOg);
 
 console.log(made ? `Prepared ${made} asset(s).` : 'Generated assets are up to date.');

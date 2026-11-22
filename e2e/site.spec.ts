@@ -10,7 +10,9 @@ const cells = 'ul#grid > li:visible';
 
 test('home is the grid, without the editor bundle', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('lumassets');
+  await expect(page).toHaveTitle('lumassets · Drawings by Luma Montes');
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /I drew these little monsters/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/generated\/og\/site\.png\?v=drawings-by-luma$/);
   await expect(page.locator(cells)).toHaveCount(published.length);
   const scripts = await page.locator('script[src]').evaluateAll((els) => els.map((e) => (e as HTMLScriptElement).src));
   expect(scripts.join(' ')).not.toMatch(/fabric|editor/i);
@@ -206,4 +208,36 @@ test('public pages fit a 320 px screen without sideways scrolling', async ({ pag
     await page.goto(path);
     await expectNoOverflow();
   }
+});
+
+test('Google Analytics waits for opt-in and records generated downloads once', async ({ page, baseURL }) => {
+  const production = 'https://lumassets.bibliotecadezines.workers.dev';
+  await page.route(`${production}/**`, async (route) => {
+    const relative = route.request().url().slice(production.length);
+    await route.fulfill({ response: await route.fetch({ url: new URL(relative, baseURL).href }) });
+  });
+  await page.route('https://static.cloudflareinsights.com/**', (route) => route.abort());
+  await page.route('https://www.googletagmanager.com/**', (route) =>
+    route.fulfill({ contentType: 'text/javascript', body: '' }));
+
+  await page.goto(production);
+  await expect(page.getByRole('button', { name: 'Allow analytics' })).toBeVisible();
+  const tag = page.locator('script[src*="googletagmanager.com"]');
+  await expect(tag).toHaveCount(0);
+  await page.getByRole('button', { name: 'No thanks' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Allow analytics' })).toBeHidden();
+  await page.getByRole('button', { name: 'Analytics settings' }).click();
+  await page.getByRole('button', { name: 'Allow analytics' }).click();
+  await expect(tag).toHaveCount(1);
+  await page.locator('#grid .cell').first().click();
+  await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Download SVG', exact: true }).click(),
+  ]);
+  const events = await page.evaluate(() => (window as unknown as { dataLayer: ArrayLike<unknown>[] }).dataLayer
+    .map((entry) => Array.from(entry)).filter(([command, name]) => command === 'event' && name === 'file_download'));
+  expect(events).toEqual([['event', 'file_download', {
+    file_name: 'library-drawing.svg', file_extension: 'svg', download_type: 'library-svg',
+  }]]);
 });

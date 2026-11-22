@@ -30,3 +30,14 @@ Download counts are available under **Download counts** on `/wall/admin/` with t
 existing admin token. Apply the D1 migrations before deploying. The report covers the last
 30 days in UTC. A download counts when the library or composer starts a file download,
 with a ZIP counted as one file.
+
+## Google Analytics
+
+The dedicated [Lumassets GA4 property](https://analytics.google.com/analytics/web/#/a245331990p565383897/reports/intelligenthome)
+uses the production web stream. Google Analytics starts after a visitor chooses **Allow
+analytics**. Visitors can change the choice through **Analytics settings** in the footer.
+
+Check **Reports → Realtime** for new activity and **Reports → Engagement → Events** for
+`file_download` and events such as `wall_remix_click`. Download events use fixed file labels, and click events use
+fixed action names. Library searches, composition names, and uploaded files stay out of
+those event parameters. Cloudflare traffic and the private download report keep their own totals.

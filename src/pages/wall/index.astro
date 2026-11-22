@@ -31,7 +31,7 @@ import { icon } from '../../lib/icons';
         <div class="viewer-links">
           <button class="btn small" type="button" id="viewer-copy">Copy link</button>
           <button class="btn small" type="button" id="viewer-share">Share</button>
-          <a class="btn small" id="viewer-remix">Remix</a>
+          <a class="btn small" id="viewer-remix" data-analytics-action="wall_remix">Remix</a>
         </div>
       </footer>
       <p class="muted" id="viewer-status" role="status"></p>
@@ -202,6 +202,7 @@ import { icon } from '../../lib/icons';
     const remix = document.createElement('a');
     remix.href = remixPath(p);
     remix.textContent = 'Remix';
+    remix.dataset.analyticsAction = 'wall_remix';
     const share = document.createElement('button');
     share.type = 'button';
     share.className = 'link';
