@@ -11,7 +11,7 @@ runs on Cloudflare, next to the static site:
 
 Nothing is public until you approve it, and deleting removes the image for good. Only PNGs exported
 by the composer are accepted; they carry the composition inside, which is what makes **Remix**
-work. Nothing else about the person is stored: no IP, no email, just the title and the optional name.
+work. Posts store the title and optional name. The rate limiter stores a keyed, per-window digest of the visitor IP and drops expired entries on the next share attempt.
 
 ## One-time setup
 
@@ -29,7 +29,7 @@ pnpm wrangler r2 bucket create lumassets-wall          # keep it private (the de
 pnpm wrangler d1 create lumassets-wall                 # save the database_id it prints
 ```
 
-Uncomment the D1 and R2 binding blocks in `wrangler.toml`, paste the real database ID, then run:
+For a new installation, update the binding names and database ID in `wrangler.toml`, then run:
 
 ```sh
 pnpm wrangler d1 migrations apply lumassets-wall --remote
@@ -50,20 +50,16 @@ pnpm wrangler pages secret put TURNSTILE_SECRET   # the Turnstile secret key
 The R2 and D1 bindings come from `wrangler.toml` (names `WALL` and `DB`). If the dashboard doesn't
 show them, add them under Settings → Bindings with those names.
 
-**Rate limit** against floods: Cloudflare dashboard → your domain → Security → WAF → Rate limiting
-rules → Create rule: *URI Path equals `/api/wall`* and *Request Method equals `POST`*, 5 requests
-per 10 minutes per IP, action Block. (The free plan includes one rule; this is the one to use it on.)
+**Rate limit**: the Pages Function allows five share attempts per visitor IP in each ten-minute window and returns `429` with `Retry-After` when the limit is reached. This works on the `pages.dev` hostname. Apply both D1 migrations before deploying.
 
 Deploy as usual (push to `main`). Then open `/wall/admin/`, paste the token, and approve.
 
 ## Trying it locally
 
-Enable both binding blocks in `wrangler.toml` before running the local migration.
-
 ```sh
 cp .dev.vars.example .dev.vars                     # test token + Cloudflare's always-pass Turnstile secret
 pnpm wrangler d1 migrations apply lumassets-wall --local
-pnpm dev:wall                                       # builds, then serves the site and /api on http://localhost:8788
+PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA pnpm dev:wall                                       # builds, then serves the site and /api on http://localhost:8788
 ```
 
 `pnpm dev` (plain Astro) has no `/api`: the wall says it isn't available, and Share says it can't

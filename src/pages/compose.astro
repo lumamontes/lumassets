@@ -182,7 +182,7 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
             <label>Height <input type="number" id="ch" min="64" max="6000" step="1" /></label>
           </div>
         </details>
-        <p class="hint">Work isn't saved automatically: use “Save file” to keep a composition. SVG export keeps traced drawings and effects live; drawings not traced yet go in as images.</p>
+        <p class="hint">Work isn't saved automatically: use “Save file” (under More) to keep a composition. SVG export keeps traced drawings and effects live; drawings not traced yet go in as images.</p>
       </section>
     </aside>
   </div>
@@ -195,7 +195,7 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
       <label>Your name <small>(optional, shown with it)</small> <input type="text" id="share-author" maxlength="40" autocomplete="nickname" /></label>
       <label class="check"><input type="checkbox" id="share-ok" /> It's OK to show this publicly on the <a href="/wall/" target="_blank">wall</a></label>
       <div id="share-turnstile"></div>
-      <p class="hint">It shows up after it's approved. Anyone can open it in the composer and remix it.</p>
+      <p class="hint">It shows up after it's approved. Anyone can open it in the composer and remix it, so the image carries the whole composition: every drawing in full (your own ones too, even parts outside the canvas) and the name above.</p>
       <p class="status mono" id="share-status" role="status" aria-live="polite"></p>
       <div class="share-actions">
         <button type="button" class="btn small" id="share-cancel">Close</button>

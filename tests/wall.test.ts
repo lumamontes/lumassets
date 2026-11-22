@@ -5,11 +5,13 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { layerFor, newDoc, pngTextFor, withProvenance, type EditorAsset } from '../src/lib/composition.ts';
 import { withPngText } from '../src/lib/png-meta.ts';
-import { checkComposerPng, cleanText, handle, type D1Like, type R2Like, type WallEnv } from '../src/lib/wall-api.ts';
+import { LIMITS, checkComposerPng, cleanText, handle, type D1Like, type R2Like, type WallEnv } from '../src/lib/wall-api.ts';
 
 function d1(): D1Like {
   const db = new DatabaseSync(':memory:');
-  db.exec(readFileSync(new URL('../migrations/0001_wall.sql', import.meta.url), 'utf8'));
+  for (const migration of ['0001_wall.sql', '0002_share_limits.sql']) {
+    db.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), 'utf8'));
+  }
   return {
     prepare: (sql) => ({
       bind: (...v) => {
@@ -41,7 +43,8 @@ function composerPng() {
   doc = withProvenance(doc, new Map([[asset.id, asset]]));
   return withPngText(PNG1, pngTextFor(doc));
 }
-const okTurnstile = (async () => new Response(JSON.stringify({ success: true }))) as unknown as typeof fetch;
+const turnstileSays = (answer: object) => (async () => new Response(JSON.stringify(answer))) as unknown as typeof fetch;
+const okTurnstile = turnstileSays({ success: true, hostname: 'lumassets.test', action: 'share' });
 const noTurnstile = (async () => new Response(JSON.stringify({ success: false }))) as unknown as typeof fetch;
 const env = (): WallEnv & { WALL: ReturnType<typeof r2> } => ({ DB: d1(), WALL: r2(), ADMIN_TOKEN: 'secret-token', TURNSTILE_SECRET: 'real-secret' });
 const base = 'https://lumassets.test';
@@ -129,4 +132,33 @@ test('answers carry nosniff, and a broken database leaves no orphan image', asyn
 
 test('without bindings the API says so instead of crashing', async () => {
   assert.equal((await handle(new Request(`${base}/api/wall`), {} as WallEnv)).status, 503);
+});
+
+test('the sixth submission attempt from one IP is rate limited', async () => {
+  const e = env();
+  const attempt = (ip: string) => {
+    const request = share(composerPng());
+    request.headers.set('cf-connecting-ip', ip);
+    return handle(request, e, okTurnstile);
+  };
+  for (let i = 0; i < 5; i++) assert.equal((await attempt('192.0.2.1')).status, 201);
+  const blocked = await attempt('192.0.2.1');
+  assert.equal(blocked.status, 429);
+  assert.ok(Number(blocked.headers.get('retry-after')) > 0);
+  assert.equal((await attempt('192.0.2.2')).status, 201);
+});
+
+test('Turnstile tokens only count when made on this site, by the share dialog', async () => {
+  const e = env();
+  assert.equal((await handle(share(composerPng()), e, turnstileSays({ success: true, hostname: 'elsewhere.example', action: 'share' }))).status, 403);
+  assert.equal((await handle(share(composerPng()), e, turnstileSays({ success: true, hostname: 'lumassets.test', action: 'login' }))).status, 403);
+  assert.equal((await handle(share(composerPng()), e, okTurnstile)).status, 201);
+});
+
+test('a full approval queue refuses new posts', async () => {
+  const e = env();
+  for (let i = 0; i < LIMITS.pending; i++)
+    await e.DB.prepare("INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, 't', NULL, 'pending', '2026-01-01', 1, 1)").bind(`p${String(i).padStart(11, '0')}`).run();
+  assert.equal((await handle(share(composerPng()), e, okTurnstile)).status, 503);
+  assert.deepEqual(e.WALL.keys(), []);
 });

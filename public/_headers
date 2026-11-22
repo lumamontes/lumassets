@@ -6,6 +6,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   Content-Security-Policy: object-src 'none'; base-uri 'self'; form-action 'self'
+  # Trial run of the full policy: the browser only reports what it would block (in the console).
+  # When a deployed site shows no reports, rename this header to Content-Security-Policy (see docs/security-setup.md).
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; frame-src https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'
 
 # the approval page: never inside another site's frame, never cached, never indexed
 /wall/admin/*

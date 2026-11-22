@@ -683,7 +683,7 @@ export function startEditor() {
       const box = $('share-turnstile');
       if (turnstileWidget !== undefined) turnstile()!.reset(turnstileWidget);
       else turnstileWidget = turnstile()!.render(box, {
-        sitekey: boot.turnstileSiteKey, size: 'flexible',
+        sitekey: boot.turnstileSiteKey, size: 'flexible', action: 'share',
         callback: (t: string) => { turnstileToken = t; syncShare(); },
         'expired-callback': () => { turnstileToken = ''; syncShare(); },
       });

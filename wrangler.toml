@@ -3,15 +3,18 @@ name = "lumassets"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-11-01"
 
-# Uncomment these bindings after creating the wall resources (docs/wall.md).
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "lumassets-wall"
-# database_id = "REPLACE-WITH-YOUR-D1-DATABASE-ID"   # from: pnpm wrangler d1 create lumassets-wall
-# migrations_dir = "migrations"
+[[d1_databases]]
+binding = "DB"
+database_name = "lumassets-wall"
+database_id = "9c4b3082-19e4-4b17-bd96-5867861133e9"
+migrations_dir = "migrations"
 
-# [[r2_buckets]]
-# binding = "WALL"
-# bucket_name = "lumassets-wall"   # private: never make it public, the API decides what's shown
+[[r2_buckets]]
+binding = "WALL"
+bucket_name = "lumassets-wall"
 
 # Secrets (not here): ADMIN_TOKEN, TURNSTILE_SECRET. See docs/wall.md.
+
+# Preview deployments have no wall bindings.
+[env.preview]
+vars = { DEPLOY = "preview" }

@@ -10,9 +10,8 @@ export const SITE = {
   url: process.env.SITE_URL ?? 'https://lumassets.pages.dev',
   /** Luma's personal website: "Luma Montes" links here. */
   websiteUrl: 'https://lumamontes.com',
-  /** Cloudflare Turnstile site key (public) for sharing to the wall. This one is Cloudflare's
-   *  always-passes test key: replace it with yours (docs/wall.md). */
-  turnstileSiteKey: '1x00000000000000000000AA',
+  /** Public Turnstile key. Use the test key with the local wall walkthrough. */
+  turnstileSiteKey: import.meta.env?.PUBLIC_TURNSTILE_SITE_KEY ?? '0x4AAAAAAGMxZ5iEwPYZjjn_',
   /** quick-editor's repository (the tool that turns photos of drawings into SVGs). */
   quickEditorUrl: 'https://github.com/lumamontes/quick-editor',
   /** The public repository of this site. */

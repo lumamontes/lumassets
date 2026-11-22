@@ -13,7 +13,9 @@
 import { readPngText } from './png-meta.ts';
 
 export const COMPOSITION_KEY = 'lumassets:composition';
-export const LIMITS = { bytes: 8 * 1024 * 1024, side: 6000, title: 80, author: 40, page: 60 };
+export const LIMITS = { bytes: 8 * 1024 * 1024, side: 6000, title: 80, author: 40, page: 60, pending: 200 };
+/** The Turnstile widget in the composer is rendered with this action. */
+export const TURNSTILE_ACTION = 'share';
 const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 /** Cloudflare's Turnstile test secrets (always pass / always fail…): only for localhost. */
 const TURNSTILE_TEST_SECRET = /^[123]x0{20,}AA$/;
@@ -102,7 +104,8 @@ export function checkComposerPng(bytes: Uint8Array): { width: number; height: nu
 
 const isLocal = (url: URL) => ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
 
-async function turnstileOk(token: string, env: WallEnv, ip: string | null, fetchImpl: typeof fetch): Promise<boolean> {
+/** Turnstile said yes, for a token made on this site by the share dialog (not one minted elsewhere). */
+async function turnstileOk(token: string, env: WallEnv, ip: string | null, url: URL, fetchImpl: typeof fetch): Promise<boolean> {
   if (!env.TURNSTILE_SECRET || !token) return false;
   const form = new FormData();
   form.append('secret', env.TURNSTILE_SECRET);
@@ -110,10 +113,34 @@ async function turnstileOk(token: string, env: WallEnv, ip: string | null, fetch
   if (ip) form.append('remoteip', ip);
   try {
     const res = await fetchImpl(TURNSTILE_VERIFY, { method: 'POST', body: form });
-    return Boolean(((await res.json()) as { success?: boolean }).success);
+    const out = (await res.json()) as { success?: boolean; hostname?: string; action?: string };
+    if (!out.success) return false;
+    // the test keys answer with a made-up hostname, and they only work on localhost anyway
+    const hostOk = isLocal(url) || out.hostname === url.hostname;
+    const actionOk = out.action === TURNSTILE_ACTION || (isLocal(url) && out.action === undefined);
+    return hostOk && actionOk;
   } catch {
     return false;
   }
+}
+
+const SHARE_WINDOW_SECONDS = 600;
+const SHARE_WINDOW_LIMIT = 5;
+
+async function reserveShareAttempt(db: D1Like, ip: string, secret: string, now: number) {
+  const windowStart = Math.floor(now / SHARE_WINDOW_SECONDS) * SHARE_WINDOW_SECONDS;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const digest = await crypto.subtle.sign('HMAC', key, encoder.encode(`wall-share:${windowStart}:${ip}`));
+  const client = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  await db.prepare('DELETE FROM share_limits WHERE window_start < ?1').bind(windowStart).run();
+  const reservation = await db.prepare(`
+    INSERT INTO share_limits (window_start, client, attempts) VALUES (?1, ?2, 1)
+    ON CONFLICT (window_start, client) DO UPDATE SET attempts = attempts + 1
+    WHERE attempts < ?3
+    RETURNING attempts
+  `).bind(windowStart, client, SHARE_WINDOW_LIMIT).first();
+  return reservation ? null : windowStart + SHARE_WINDOW_SECONDS - now;
 }
 
 const publicPost = (p: Post) => ({ id: p.id, title: p.title, author: p.author, createdAt: p.created_at, width: p.width, height: p.height, image: `/api/wall/${p.id}.png` });
@@ -142,6 +169,11 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
       return fail(503, 'Sharing is not set up yet.');
     // refuse oversized uploads before reading them (the form adds a little on top of the image)
     if (Number(req.headers.get('content-length') ?? 0) > LIMITS.bytes + 64 * 1024) return fail(413, 'The image is over 8 MB. Try a smaller canvas.');
+    const ip = req.headers.get('cf-connecting-ip');
+    if (ip && !isLocal(url)) {
+      const retryAfter = await reserveShareAttempt(env.DB, ip, env.TURNSTILE_SECRET, Math.floor(Date.now() / 1000));
+      if (retryAfter !== null) return json({ error: 'Too many attempts. Try again in a few minutes.' }, 429, { 'retry-after': String(retryAfter) });
+    }
     let form: FormData;
     try {
       form = await req.formData();
@@ -151,8 +183,10 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
     const image = form.get('image');
     if (!image || typeof image === 'string') return fail(400, 'No image.');
     if (image.size > LIMITS.bytes) return fail(413, 'The image is over 8 MB. Try a smaller canvas.');
-    if (!(await turnstileOk(String(form.get('turnstile') ?? ''), env, req.headers.get('cf-connecting-ip'), fetchImpl)))
+    if (!(await turnstileOk(String(form.get('turnstile') ?? ''), env, ip, url, fetchImpl)))
       return fail(403, "Couldn't verify you're a person. Reload and try again.");
+    const waiting = await env.DB.prepare("SELECT COUNT(*) AS n FROM posts WHERE status = 'pending'").bind().first<{ n: number }>();
+    if ((waiting?.n ?? 0) >= LIMITS.pending) return fail(503, 'Too many posts are waiting for approval. Try again in a day or two.');
     const bytes = new Uint8Array(await image.arrayBuffer());
     const check = checkComposerPng(bytes);
     if ('error' in check) return fail(400, check.error);
