@@ -15,3 +15,13 @@ For Cloudflare Workers Builds, connect `lumamontes/lumassets` and use these sett
 
 Disable non-production branch builds for this Worker to keep production wall resources separate.
 Configure the two production secrets and verify moderation using [the wall setup](wall.md).
+
+## Web analytics
+
+In the Cloudflare dashboard, open **Web Analytics** and select
+`lumassets.bibliotecadezines.workers.dev`. Use **Device type** to compare mobile, tablet,
+and desktop traffic.
+
+The shared layout loads the site’s public beacon on the production hostname and skips
+private pages. If the hostname changes, update both the Web Analytics site and the hostname
+check in `public/web-analytics.js`.

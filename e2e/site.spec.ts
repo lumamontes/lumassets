@@ -183,3 +183,27 @@ test('touch Composer can add, size and export a drawing', async ({ page, isMobil
   expect(readFileSync((await png.path())!).subarray(1, 4).toString()).toBe('PNG');
   await expect(layer).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('public pages fit a 320 px screen without sideways scrolling', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Narrow phone coverage');
+  await page.setViewportSize({ width: 320, height: 568 });
+
+  async function expectNoOverflow() {
+    const width = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      content: document.documentElement.scrollWidth,
+    }));
+    expect(width.viewport).toBe(320);
+    expect(width.content).toBe(width.viewport);
+  }
+
+  await page.goto('/');
+  await expectNoOverflow();
+  await page.locator('#grid .cell').first().tap();
+  await expect(page.locator('#panel')).toBeVisible();
+  await expectNoOverflow();
+  for (const path of ['/compose/', '/wall/', '/about/']) {
+    await page.goto(path);
+    await expectNoOverflow();
+  }
+});
