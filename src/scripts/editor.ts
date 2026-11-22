@@ -430,7 +430,7 @@ export function startEditor() {
   // drag view state (see below)
   let dragging = false;
   let dragStarting = false;
-  let dragView: { hidden: FabricObject[]; bg: Canvas['backgroundColor'] } | null = null;
+  let dragView: { hidden: FabricObject[] } | null = null;
   const globalSoon = () => { clearTimeout(globalTimer); globalTimer = setTimeout(updateGlobal, 180); };
 
   function showOverlay(on: boolean) {
@@ -446,14 +446,14 @@ export function startEditor() {
     if (doc.layers.some((layer) => layer.excludeFromEverything))
       return renderEverythingRuns(multiplier, except);
 
-    const bg = dragView ? dragView.bg : canvas.backgroundColor;
+    const bg = canvas.backgroundColor;
     let href: string;
     if (except) {
       try {
         canvas.backgroundColor = '';
         href = canvas.toDataURL({ format: 'png', multiplier, filter: (o) => !except.has((o as LayerObject).layerId ?? '') });
       } finally {
-        canvas.backgroundColor = dragView ? '' : bg;
+        canvas.backgroundColor = bg;
       }
     } else {
       // a drag view may be hiding layers: show them for the capture (synchronous, so the
@@ -465,7 +465,7 @@ export function startEditor() {
         canvas.backgroundColor = '';
         href = canvas.toDataURL({ format: 'png', multiplier });
       } finally {
-        canvas.backgroundColor = dragView ? '' : bg;
+        canvas.backgroundColor = bg;
         dragView?.hidden.forEach((o) => (o.visible = false));
         const sel = selectedId && objectFor(selectedId);
         if (sel) canvas.setActiveObject(sel);
@@ -572,7 +572,7 @@ export function startEditor() {
       if (!dragging || dragView) return;
       overlayImg.src = img.src;
       const hidden = canvas.getObjects().filter((o) => o.visible && !ids.has((o as LayerObject).layerId ?? ''));
-      dragView = { hidden, bg: canvas.backgroundColor };
+      dragView = { hidden };
       hidden.forEach((o) => (o.visible = false));
       canvas.backgroundColor = ''; // the overlay carries the background
       overlay.hidden = false;
@@ -590,7 +590,7 @@ export function startEditor() {
   function endDragView() {
     if (!dragView) return;
     dragView.hidden.forEach((o) => (o.visible = true));
-    canvas.backgroundColor = dragView.bg;
+    canvas.backgroundColor = doc.canvas.background ?? '';
     dragView = null;
     overlay.style.zIndex = '';
     Object.assign(canvas.lowerCanvasEl.style, { position: '', zIndex: '' });
@@ -1236,12 +1236,19 @@ export function startEditor() {
     refreshSoon(doc.layers.map((l) => l.id));
   });
 
-  ui.bg.addEventListener('input', () => { canvas.backgroundColor = ui.bg.value; overlay.style.background = ui.bg.value; canvas.requestRenderAll(); });
-  ui.bg.addEventListener('change', () => { doc.canvas.background = ui.bg.value; canvas.backgroundColor = ui.bg.value; canvas.requestRenderAll(); commit(); });
-  ui.transparent.addEventListener('change', () => {
-    doc.canvas.background = ui.transparent.checked ? null : ui.bg.value;
-    canvas.backgroundColor = doc.canvas.background ?? '';
+  function setBackground(color: string | null) {
+    doc.canvas.background = color;
+    overlay.style.background = color ?? 'transparent';
+    canvas.backgroundColor = dragView ? '' : color ?? '';
     canvas.requestRenderAll();
+  }
+
+  // Keep the composition current while the picker is open. Other actions may repaint
+  // the canvas before the final change event adds the color to undo history.
+  ui.bg.addEventListener('input', () => setBackground(ui.bg.value));
+  ui.bg.addEventListener('change', () => { setBackground(ui.bg.value); commit(); });
+  ui.transparent.addEventListener('change', () => {
+    setBackground(ui.transparent.checked ? null : ui.bg.value);
     commit();
     globalSoon();
   });

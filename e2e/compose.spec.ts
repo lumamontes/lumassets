@@ -354,3 +354,29 @@ test('an excluded layer keeps its own ink, closed-area fill and background in ex
   const [mixed] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PNG' }).click()]);
   expect(readFileSync((await mixed.path())!).subarray(1, 4).toString()).toBe('PNG');
 });
+
+test('adding another drawing keeps the live canvas background with Everything effects', async ({ page }) => {
+  await page.goto('/compose/?add=sq3-19');
+  await expect(layers(page)).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+
+  const background = page.getByLabel('Background', { exact: true });
+  const overlay = page.locator('.global-fx');
+  await expect(overlay).toBeVisible();
+  // A color picker can deliver a live input before its final change event.
+  await background.evaluate((input: HTMLInputElement) => {
+    input.value = '#102030';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expect(overlay).toHaveCSS('background-color', 'rgb(16, 32, 48)');
+
+  await page.locator('#picker button').first().click();
+  await expect(layers(page)).toHaveCount(2);
+  await expect(background).toHaveValue('#102030');
+  await expect(overlay).toHaveCSS('background-color', 'rgb(16, 32, 48)');
+
+  const [saved] = await Promise.all([page.waitForEvent('download'), fromMore(page, 'Save file')]);
+  const file = JSON.parse(readFileSync((await saved.path())!, 'utf8'));
+  expect(file.canvas.background).toBe('#102030');
+});
