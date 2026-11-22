@@ -156,3 +156,16 @@ test('PNG text keys from a file cannot reach the object prototype', () => {
   assert.equal(text.__proto__, 'x'); // just a key like any other
   assert.equal(({} as Record<string, unknown>).constructor, Object);
 });
+
+test('SVG keeps excluded layers in their original stacking order', () => {
+  const doc = newDoc('0.1.0');
+  doc.effects = [{ type: 'rgbsplit', params: { distance: 12 } }];
+  doc.layers = [101, 202, 303].map((x) => ({ ...layerFor(asset, doc), x }));
+  doc.layers[1].excludeFromEverything = true;
+  const svg = toSvg(doc, assets, new Map([[asset.id, 'data:image/svg+xml;base64,AA==']]));
+  const [before, between, after] = [101, 202, 303].map((x) => svg.indexOf(`translate(${x} `));
+  const filters = [...svg.matchAll(/<g filter="url\(#fx-all\)">/g)].map((match) => match.index);
+  assert.equal(filters.length, 2);
+  assert.ok(filters[0] < before && before < between && between < filters[1] && filters[1] < after);
+  assert.equal(parseDoc(JSON.stringify(doc), assets).doc?.layers[1].excludeFromEverything, true);
+});

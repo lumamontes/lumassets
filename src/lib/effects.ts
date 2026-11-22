@@ -486,7 +486,7 @@ export function filterMarkup(id: string, opts: { color: string | null; effects?:
  * A standalone SVG of one layer's drawing with its colour and effects, for the editor to
  * rasterise. `href` is a data: URL of the drawing; `px` the long side to render at.
  */
-export function layerSvg(opts: { href: string; w: number; h: number; color: string | null; effects?: Effect[]; px: number; clip?: boolean }): { svg: string; pad: number } {
+export function layerSvg(opts: { href: string; w: number; h: number; color: string | null; effects?: Effect[]; px: number; clip?: boolean; underlay?: string }): { svg: string; pad: number } {
   const { href, w, h, color, effects, px, clip = false } = opts;
   // clip: keep the result inside the image's own bounds (used for whole-composition effects)
   const pad = clip ? 0 : effectsPad(effects, Math.max(w, h));
@@ -495,7 +495,7 @@ export function layerSvg(opts: { href: string; w: number; h: number; color: stri
   const filter = filterMarkup('f', { color, effects, w, h, pad });
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W * k)}" height="${Math.round(H * k)}" viewBox="${-pad} ${-pad} ${W} ${H}">` +
-    (filter ? `<defs>${filter}</defs>` : '') +
+    (filter ? `<defs>${filter}</defs>` : '') + (opts.underlay ?? '') +
     `<image href="${esc(href)}" width="${w}" height="${h}" preserveAspectRatio="none"${filter ? ' filter="url(#f)"' : ''}/>` +
     `</svg>`;
   return { svg, pad };

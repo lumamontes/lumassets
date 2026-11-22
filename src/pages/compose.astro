@@ -121,6 +121,14 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
               <label class="check"><input type="checkbox" id="use-color" /> Ink color</label>
               <input type="color" id="color" aria-label="Ink color" value="#c9432b" />
             </div>
+            <div class="row">
+              <label class="check"><input type="checkbox" id="use-fill" /> Fill closed areas</label>
+              <input type="color" id="fill" aria-label="Fill color" value="#f4c66a" />
+            </div>
+            <div class="row">
+              <label class="check"><input type="checkbox" id="use-layer-background" /> Layer background</label>
+              <input type="color" id="layer-background" aria-label="Layer background color" value="#ffffff" />
+            </div>
             <label>Opacity <input type="range" id="opacity" min="0" max="1" step="0.01" /></label>
             <label>Blend with what's below
               <select id="blend">{BLEND_MODES.map((m) => <option value={m}>{m}</option>)}</select>
@@ -173,7 +181,11 @@ const boot = JSON.stringify({ release: RELEASE, assets: editorAssets, turnstileS
             <button class="btn small" type="button" data-cmd="global-surprise" title="Replace the composition's effects with a random combination"><Fragment set:html={icon('shuffle', 14)} />Surprise</button>
           </div>
           <ol class="fx-list" id="gfx-list"></ol>
-          <p class="hint">Applied to all layers together, after their own effects. The background stays clean.</p>
+          <p class="hint">Uses each layer’s own effects first. The canvas background stays unchanged.</p>
+        </details>
+        <details class="group">
+          <summary>Exclude layers</summary>
+          <div id="everything-exclusions"></div>
         </details>
         <details class="group" open>
           <summary>Canvas</summary>

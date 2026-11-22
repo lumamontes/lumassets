@@ -228,7 +228,7 @@ test('colors: background and ink for all from the bar, live while picking', asyn
   await page.getByRole('button', { name: 'Mirror left–right' }).click();
   await expect(page.locator('#layers > li')).toHaveCount(2); // the list is always visible
 
-  await page.getByLabel('Background').fill('#102030');
+  await page.getByLabel('Background', { exact: true }).fill('#102030');
   await page.getByLabel('Ink for all').fill('#ff0000');
   const [saved] = await Promise.all([page.waitForEvent('download'), fromMore(page, 'Save file')]);
   const file = JSON.parse(readFileSync((await saved.path())!, 'utf8'));
@@ -294,4 +294,63 @@ test('share: a dialog with a preview, sent only after consent and the spam check
   await expect(dialog.locator('#share-status')).not.toHaveText(/Sent!/);
   await dialog.getByRole('button', { name: 'Close' }).click();
   await expect(dialog).toBeHidden();
+});
+
+test('an excluded layer keeps its own ink, closed-area fill and background in exports', async ({ page }) => {
+  await page.goto('/compose/');
+  await page.locator('#own-file').setInputFiles({
+    name: 'Closed square.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect x="20" y="20" width="60" height="60" fill="none" stroke="black" stroke-width="8"/></svg>'),
+  });
+  await expect(layers(page)).toHaveCount(1);
+  await openSection(page, 'Look');
+  await page.locator('#color').fill('#0044ff');
+  await page.getByLabel('Fill color', { exact: true }).fill('#ffee11');
+  await page.getByLabel('Layer background color', { exact: true }).fill('#22cc44');
+
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await addEffect(page, '#pane-all', 'RGB split');
+  await openSection(page, 'Exclude layers');
+  await page.getByRole('checkbox', { name: /Closed square/ }).check();
+  await expect(page.getByRole('checkbox', { name: /Closed square/ })).toBeChecked();
+
+  const [png] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PNG' }).click()]);
+  const bytes = readFileSync((await png.path())!);
+  const colors = await page.evaluate(async (data) => {
+    const image = new Image();
+    image.src = 'data:image/png;base64,' + data;
+    await image.decode();
+    const surface = document.createElement('canvas');
+    surface.width = image.naturalWidth;
+    surface.height = image.naturalHeight;
+    const ctx = surface.getContext('2d')!;
+    ctx.drawImage(image, 0, 0);
+    const colors = new Set<number>();
+    const pixels = ctx.getImageData(0, 0, surface.width, surface.height).data;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i + 3] === 255) colors.add(pixels[i] * 65536 + pixels[i + 1] * 256 + pixels[i + 2]);
+    }
+    return [0x0044ff, 0xffee11, 0x22cc44].map((color) => colors.has(color));
+  }, bytes.toString('base64'));
+  expect(colors).toEqual([true, true, true]);
+
+  const [svg] = await Promise.all([page.waitForEvent('download'), fromMore(page, 'Export SVG')]);
+  const text = readFileSync((await svg.path())!, 'utf8');
+  expect(text).toContain('fill="#22cc44"');
+  expect(text).toContain('data:image/png;base64,');
+  expect(text).not.toContain('<g filter="url(#fx-all)">');
+  await page.locator('#open').setInputFiles((await svg.path())!);
+  await expect(page.locator('#status')).toHaveText('Opened the composition.');
+  await layers(page).first().getByRole('button').click();
+  await openSection(page, 'Look');
+  await expect(page.getByLabel('Fill color', { exact: true })).toHaveValue('#ffee11');
+  await page.getByRole('tab', { name: 'Everything' }).click();
+  await openSection(page, 'Exclude layers');
+  await expect(page.getByRole('checkbox', { name: /Closed square/ })).toBeChecked();
+  await page.getByRole('button', { name: 'Add quadrado-1', exact: true }).click();
+  await expect(layers(page)).toHaveCount(2);
+  await expect(page.locator('.global-fx')).toBeVisible();
+  const [mixed] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PNG' }).click()]);
+  expect(readFileSync((await mixed.path())!).subarray(1, 4).toString()).toBe('PNG');
 });

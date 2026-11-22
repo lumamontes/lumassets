@@ -99,6 +99,9 @@ export interface Layer {
   blendMode: BlendMode;
   /** Ink color (replaces the drawing's color, keeps its shape). null = original ink. */
   color: string | null;
+  fill?: string | null;
+  background?: string | null;
+  excludeFromEverything?: boolean;
   /** Effect stack, applied in order after the ink color. */
   effects?: Effect[];
 }
@@ -240,6 +243,8 @@ export function parseDoc(text: string, assets: Map<string, EditorAsset>): ParseR
       if (!isNum(l[k])) errors.push(`${where}: "${k}" must be a number.`);
     if (isNum(l.scale) && l.scale <= 0) errors.push(`${where}: scale must be positive.`);
     if (!BLEND_MODES.includes(l.blendMode)) errors.push(`${where}: unknown blend mode "${l.blendMode}".`);
+    for (const key of ['fill', 'background'] as const)
+      if (l[key] != null && !isColor(l[key])) errors.push(`${where}: "${key}" must be #rrggbb or null.`);
     if (l.color !== null && !isColor(l.color)) errors.push(`${where}: color must be #rrggbb or null.`);
   }
   if (missing.size)
@@ -262,6 +267,9 @@ export function parseDoc(text: string, assets: Map<string, EditorAsset>): ParseR
       opacity: Math.min(1, Math.max(0, l.opacity)),
       blendMode: l.blendMode,
       color: l.color,
+      ...(l.fill ? { fill: l.fill } : {}),
+      ...(l.background ? { background: l.background } : {}),
+      ...(l.excludeFromEverything === true ? { excludeFromEverything: true } : {}),
       effects: Array.isArray(l.effects) ? l.effects.map(normalizeEffect).filter((e: Effect | null): e is Effect => e !== null) : [],
     })),
     effects: Array.isArray(raw.effects) ? raw.effects.map(normalizeEffect).filter((e: Effect | null): e is Effect => e !== null) : [],
@@ -284,7 +292,23 @@ const escXml = (s: string) =>
  * (asset.embed). Each asset is embedded once and reused. Scans stay raster inside the SVG;
  * the caller must say so to the user.
  */
-export function toSvg(doc: CompositionDoc, assets: Map<string, EditorAsset>, embeds: Map<string, string>): string {
+/** Consecutive affected layers share a filter without moving excluded layers in the stack. */
+export function everythingRuns(layers: Layer[]): Layer[][] {
+  const runs: Layer[][] = [];
+  for (const layer of layers) {
+    const last = runs.at(-1);
+    if (!layer.excludeFromEverything && last && !last[0].excludeFromEverything) last.push(layer);
+    else runs.push([layer]);
+  }
+  return runs;
+}
+
+export function layerUnderlay(w: number, h: number, background?: string | null, fillImage?: string): string {
+  return (background ? `<rect width="${w}" height="${h}" fill="${background}"/>` : '') +
+    (fillImage ? `<image width="${w}" height="${h}" preserveAspectRatio="none" href="${fillImage}"/>` : '');
+}
+
+export function toSvg(doc: CompositionDoc, assets: Map<string, EditorAsset>, embeds: Map<string, string>, fills = new Map<string, string>()): string {
   const { width: W, height: H, background } = doc.canvas;
   const used = [...new Set(doc.layers.map((l) => l.assetId))];
   const defs: string[] = [];
@@ -292,7 +316,7 @@ export function toSvg(doc: CompositionDoc, assets: Map<string, EditorAsset>, emb
     const a = assets.get(id)!;
     defs.push(`<image id="asset-${id}" width="${a.width}" height="${a.height}" preserveAspectRatio="none" href="${embeds.get(id)!}"/>`);
   }
-  const body: string[] = [];
+  const body = new Map<Layer, string>();
   doc.layers.forEach((l, i) => {
     const a = assets.get(l.assetId)!;
     const sx = l.scale * (l.flipX ? -1 : 1);
@@ -304,9 +328,9 @@ export function toSvg(doc: CompositionDoc, assets: Map<string, EditorAsset>, emb
     const filter = markup ? ` filter="url(#fx-${i})"` : '';
     const style = l.blendMode !== 'normal' ? ` style="mix-blend-mode:${l.blendMode}"` : '';
     const opacity = l.opacity < 1 ? ` opacity="${round(l.opacity, 3)}"` : '';
-    body.push(
+    body.set(l,
       `<g transform="translate(${round(l.x)} ${round(l.y)}) rotate(${round(l.rotation, 3)}) scale(${round(sx, 5)} ${round(sy, 5)})"${opacity}${style}>` +
-        `<g transform="translate(${-a.width / 2} ${-a.height / 2})"><use href="#asset-${l.assetId}"${filter}/></g></g>`,
+        `<g transform="translate(${-a.width / 2} ${-a.height / 2})">${layerUnderlay(a.width, a.height, l.background, fills.get(l.id))}<use href="#asset-${l.assetId}"${filter}/></g></g>`,
     );
   });
   // whole-composition effects: one filter around all layers (the background stays out of it)
@@ -322,9 +346,10 @@ export function toSvg(doc: CompositionDoc, assets: Map<string, EditorAsset>, emb
     `<metadata id="lumassets-composition">${escXml(meta)}</metadata>`,
     `<defs>${defs.join('')}</defs>`,
     background ? `<rect width="${W}" height="${H}" fill="${background}"/>` : '',
-    global ? `<g filter="url(#fx-all)">` : '',
-    ...body,
-    global ? `</g>` : '',
+    ...everythingRuns(doc.layers).map((run) => {
+      const markup = run.map((layer) => body.get(layer)).join('');
+      return global && !run[0].excludeFromEverything ? `<g filter="url(#fx-all)">${markup}</g>` : markup;
+    }),
     `</svg>`,
   ].filter(Boolean).join('\n');
 }

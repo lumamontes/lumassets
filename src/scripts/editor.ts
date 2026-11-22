@@ -2,11 +2,12 @@
 // The CompositionDoc is the source of truth; the Fabric canvas is a view of it.
 import { ActiveSelection, Canvas, Control, FabricImage, controlsUtils, type FabricObject } from 'fabric';
 import {
-  CANVAS_LIMITS, DEFAULT_TITLE, PNG_KEYS, compositionFromSvg, layerFor, layerId, newDoc, parseDoc, pngTextFor, round, safeFilename, toSvg, withProvenance,
+  CANVAS_LIMITS, DEFAULT_TITLE, PNG_KEYS, compositionFromSvg, everythingRuns, layerUnderlay, layerFor, layerId, newDoc, parseDoc, pngTextFor, round, safeFilename, toSvg, withProvenance,
   type BlendMode, type CompositionDoc, type EditorAsset, type Layer, type OwnAsset, ownToEditorAsset,
 } from '../lib/composition';
 import { icon, type IconName } from '../lib/icons';
 import { importFile, rasterFor } from './own-drawings';
+import { enclosedFill } from './layer-fill';
 import { readPngText, withPngText } from '../lib/png-meta';
 import { EFFECTS, EFFECT_TYPES, defaultEffect, layerSvg, randomEffect, surprise, type Effect } from '../lib/effects';
 
@@ -49,6 +50,12 @@ export function startEditor() {
     search: $<HTMLInputElement>('lib-search'),
     open: $<HTMLInputElement>('open'),
   };
+
+  const layerColors = [
+    { key: 'color', checkbox: ui.useColor, picker: ui.color },
+    { key: 'fill', checkbox: $<HTMLInputElement>('use-fill'), picker: $<HTMLInputElement>('fill') },
+    { key: 'background', checkbox: $<HTMLInputElement>('use-layer-background'), picker: $<HTMLInputElement>('layer-background') },
+  ] as const;
 
   const canvas = new Canvas($<HTMLCanvasElement>('canvas'), {
     selection: false, // one layer at a time keeps the document model simple
@@ -103,19 +110,36 @@ export function startEditor() {
    *  filter markup the SVG export writes), then rasterised once into a canvas and cached. */
   const rendered = new Map<string, Promise<Source>>();
   const RENDER_PX = 1400;
+  const fillCache = new Map<string, Promise<string>>();
+  async function fillFor(layer: Layer) {
+    if (!layer.fill) return undefined;
+    const asset = assets.get(layer.assetId)!;
+    const color = layer.fill;
+    const key = JSON.stringify([asset.id, color]);
+    let fill = fillCache.get(key);
+    if (!fill) {
+      fill = loadImage(asset).then((image) => enclosedFill(image, asset.width, asset.height, color));
+      fillCache.set(key, fill);
+      fill.catch(() => fillCache.delete(key));
+      if (fillCache.size > 24) fillCache.delete(fillCache.keys().next().value!);
+    }
+    return fill;
+  }
   async function sourceFor(layer: Layer): Promise<Source> {
     const asset = assets.get(layer.assetId)!;
-    if (!layer.color && !layer.effects?.length) {
+    if (!layer.color && !layer.fill && !layer.background && !layer.effects?.length) {
       const img: Source = await loadImage(asset);
       img.unitsW = asset.width;
       return img;
     }
-    const key = JSON.stringify([layer.assetId, layer.color, layer.effects]);
+    const key = JSON.stringify([layer.assetId, layer.color, layer.fill, layer.background, layer.effects]);
     let p = rendered.get(key);
     if (!p) {
       p = (async () => {
         const href = await embedUrl(asset);
-        const { svg, pad } = layerSvg({ href, w: asset.width, h: asset.height, color: layer.color, effects: layer.effects, px: RENDER_PX });
+        const { svg, pad } = layerSvg({ href, w: asset.width, h: asset.height, color: layer.color, effects: layer.effects, px: RENDER_PX,
+          underlay: layerUnderlay(asset.width, asset.height, layer.background, await fillFor(layer)),
+        });
         const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
         try {
           const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -419,6 +443,9 @@ export function startEditor() {
    *  mid-drag, where discarding the active object would cancel the drag). */
   async function globalImage(multiplier: number, except?: Set<string>): Promise<HTMLImageElement | null> {
     if (!doc.effects?.length || !doc.layers.length) return null;
+    if (doc.layers.some((layer) => layer.excludeFromEverything))
+      return renderEverythingRuns(multiplier, except);
+
     const bg = dragView ? dragView.bg : canvas.backgroundColor;
     let href: string;
     if (except) {
@@ -446,8 +473,11 @@ export function startEditor() {
       }
     }
     canvas.requestRenderAll();
-    const { width: W, height: H } = doc.canvas;
-    const { svg } = layerSvg({ href, w: W, h: H, color: null, effects: doc.effects, px: Math.max(W, H) * multiplier * zoom, clip: true });
+    return filterEverything(href, multiplier, doc.canvas, doc.effects);
+  }
+
+  async function filterEverything(href: string, multiplier: number, { width: W, height: H }: CompositionDoc['canvas'], effects?: Effect[]) {
+    const { svg } = layerSvg({ href, w: W, h: H, color: null, effects, px: Math.max(W, H) * multiplier * zoom, clip: true });
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     try {
       return await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -461,10 +491,46 @@ export function startEditor() {
     }
   }
 
+  async function renderEverythingRuns(multiplier: number, except?: Set<string>) {
+    const runs = everythingRuns(except ? doc.layers.filter((layer) => !except.has(layer.id)) : doc.layers);
+    const { effects, canvas: dimensions } = doc;
+    const output = document.createElement('canvas');
+    output.width = Math.round(canvas.width * multiplier);
+    output.height = Math.round(canvas.height * multiplier);
+    const ctx = output.getContext('2d')!;
+    const bg = canvas.backgroundColor;
+    // Capture synchronously so all runs correspond to the same canvas state.
+    dragView?.hidden.forEach((obj) => (obj.visible = true));
+    canvas.backgroundColor = '';
+    let captures: string[];
+    try {
+      captures = runs.map((run) => {
+        const ids = new Set(run.map((layer) => layer.id));
+        return canvas.toDataURL({ format: 'png', multiplier, filter: (obj) => ids.has((obj as LayerObject).layerId ?? '') });
+      });
+    } finally {
+      canvas.backgroundColor = bg;
+      dragView?.hidden.forEach((obj) => (obj.visible = false));
+      canvas.requestRenderAll();
+    }
+    for (const [i, run] of runs.entries()) {
+      const excluded = run[0].excludeFromEverything;
+      const image = await filterEverything(captures[i], multiplier, dimensions, excluded ? undefined : effects);
+      ctx.globalCompositeOperation = excluded && run[0].blendMode !== 'normal' ? run[0].blendMode : 'source-over';
+      ctx.drawImage(image, 0, 0, output.width, output.height);
+    }
+    const image = new Image();
+    image.src = output.toDataURL();
+    await image.decode();
+    return image;
+  }
+
+  const hasEverythingEffects = () => Boolean(doc.effects?.length && doc.layers.some((layer) => !layer.excludeFromEverything));
+
   async function updateGlobal() {
     const token = ++globalToken;
     overlay.style.background = doc.canvas.background ?? 'transparent';
-    if (!doc.effects?.length) { endDragView(); showOverlay(false); return; }
+    if (!hasEverythingEffects()) { endDragView(); showOverlay(false); return; }
     try {
       const img = await globalImage(1);
       if (token !== globalToken || dragging) return;
@@ -553,12 +619,35 @@ export function startEditor() {
       ui.scale.value = String(l.scale);
       ui.rotation.value = String(Math.round(l.rotation));
       ui.blend.value = l.blendMode;
-      ui.useColor.checked = l.color !== null;
-      if (l.color) ui.color.value = l.color;
+      for (const { key, checkbox, picker } of layerColors) {
+        checkbox.checked = Boolean(l[key]);
+        if (l[key]) picker.value = l[key];
+      }
     }
 
     document.querySelectorAll<HTMLButtonElement>('[data-cmd="undo"]').forEach((b) => (b.disabled = cursor <= 0));
     document.querySelectorAll<HTMLButtonElement>('[data-cmd="redo"]').forEach((b) => (b.disabled = cursor >= snapshots.length - 1));
+
+    const exclusions = $('everything-exclusions');
+    const focused = document.activeElement instanceof HTMLInputElement && exclusions.contains(document.activeElement)
+      ? document.activeElement.dataset.layerId : undefined;
+    exclusions.replaceChildren(...doc.layers.map((layer, index) => {
+      const label = document.createElement('label');
+      label.className = 'check';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = Boolean(layer.excludeFromEverything);
+      input.dataset.layerId = layer.id;
+      input.addEventListener('change', () => {
+        layer.excludeFromEverything = input.checked;
+        commit();
+        globalSoon();
+      });
+      label.append(input, `${index + 1}. ${assets.get(layer.assetId)!.name}`);
+      return label;
+    }));
+    if (!doc.layers.length) exclusions.textContent = 'Add a drawing to choose which layers to exclude.';
+    if (focused) Array.from(exclusions.querySelectorAll('input')).find((input) => input.dataset.layerId === focused)?.focus();
 
     ui.layers.replaceChildren(...doc.layers.map((layer, i) => {
       const a = assets.get(layer.assetId)!;
@@ -682,8 +771,10 @@ export function startEditor() {
 
   /** The composition as a PNG at full size, tagged with where it came from and the composition itself. */
   async function compositionPng(maxSide = 0): Promise<Blob> {
+    clearTimeout(renderTimer);
+    await render();
     let blob: Blob;
-    if (doc.effects?.length) {
+    if (hasEverythingEffects()) {
       // background first, then the layers with the composition's effects, at full size
       say('Applying effects to everything…');
       const fx = await globalImage(1 / zoom);
@@ -806,13 +897,17 @@ export function startEditor() {
     say('Preparing SVG…');
     const ids = [...new Set(doc.layers.map((l) => l.assetId))];
     const embeds = new Map<string, string>();
+    const fills = new Map<string, string>();
     try {
-      await Promise.all(ids.map(async (id) => embeds.set(id, await embedUrl(assets.get(id)!))));
+      await Promise.all([
+        ...ids.map(async (id) => embeds.set(id, await embedUrl(assets.get(id)!))),
+        ...doc.layers.filter((layer) => layer.fill).map(async (layer) => fills.set(layer.id, (await fillFor(layer))!)),
+      ]);
     } catch (e) {
       say((e as Error).message);
       return;
     }
-    const svg = toSvg(finalDoc(), assets, embeds);
+    const svg = toSvg(finalDoc(), assets, embeds, fills);
     download(`${baseName()}.svg`, new Blob([svg], { type: 'image/svg+xml' }));
     const raster = ids.some((id) => !assets.get(id)!.vector);
     say(raster ? 'Exported SVG. The drawings inside stay scanned images, not vector paths.' : 'Exported SVG.');
@@ -870,7 +965,7 @@ export function startEditor() {
       const l = selected();
       if (!l) return;
       const fresh = layerFor(assets.get(l.assetId)!, doc);
-      Object.assign(l, { scale: fresh.scale, rotation: 0, flipX: false, flipY: false, opacity: 1, blendMode: 'normal', color: null, effects: [] });
+      Object.assign(l, { scale: fresh.scale, rotation: 0, flipX: false, flipY: false, opacity: 1, blendMode: 'normal', color: null, fill: null, background: null, excludeFromEverything: false, effects: [] });
       commit('Layer reset: effects, colour, size and rotation. Undo brings them back.');
       render();
     },
@@ -1072,7 +1167,7 @@ export function startEditor() {
   });
   // while a layer moves, the others keep the composition's effects (drag view above)
   const onTransform = (e: { target: FabricObject }) => {
-    if (!doc.effects?.length || dragView || dragStarting) return;
+    if (!hasEverythingEffects() || dragView || dragStarting) return;
     dragging = true;
     startDragView(e.target);
   };
@@ -1097,23 +1192,24 @@ export function startEditor() {
   live(ui.scale, () => ({ scale: Number(ui.scale.value) }));
   live(ui.rotation, () => ({ rotation: Number(ui.rotation.value) }));
   live(ui.blend, () => ({ blendMode: ui.blend.value as BlendMode }));
-  ui.useColor.addEventListener('change', () => {
-    updateSelected({ color: ui.useColor.checked ? ui.color.value : null }, true);
-    commit();
-  });
-  // live: the canvas follows the picker while you drag in it
-  ui.color.addEventListener('input', () => {
-    const l = selected();
-    if (!l) return;
-    ui.useColor.checked = true;
-    l.color = ui.color.value;
-    refreshSoon([l.id]);
-  });
-  ui.color.addEventListener('change', () => {
-    if (!ui.useColor.checked) ui.useColor.checked = true;
-    updateSelected({ color: ui.color.value }, true);
-    commit();
-  });
+  for (const { key, checkbox, picker } of layerColors) {
+    checkbox.addEventListener('change', () => {
+      updateSelected({ [key]: checkbox.checked ? picker.value : null }, true);
+      commit();
+    });
+    picker.addEventListener('input', () => {
+      const l = selected();
+      if (!l) return;
+      checkbox.checked = true;
+      l[key] = picker.value;
+      refreshSoon([l.id]);
+    });
+    picker.addEventListener('change', () => {
+      checkbox.checked = true;
+      updateSelected({ [key]: picker.value }, true);
+      commit();
+    });
+  }
 
   const setCanvasSize = () => {
     const clamp = (v: number) => Math.min(CANVAS_LIMITS.max, Math.max(CANVAS_LIMITS.min, Math.round(v) || CANVAS_LIMITS.min));
