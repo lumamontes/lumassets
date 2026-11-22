@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { layerFor, newDoc, pngTextFor, withProvenance, type EditorAsset } from '../src/lib/composition.ts';
 import { serveWallEntry, wallEntryPath, wallEntrySlots as slots } from '../src/lib/wall-entry.ts';
 import { withPngText } from '../src/lib/png-meta.ts';
-import { LIMITS, checkComposerPng, cleanText, handle, type D1Like, type R2Like, type WallEnv } from '../src/lib/wall-api.ts';
+import { checkComposerPng, cleanText, handle, type D1Like, type R2Like, type WallEnv } from '../src/lib/wall-api.ts';
 
 function d1(): D1Like {
   const db = new DatabaseSync(':memory:');
@@ -59,31 +59,36 @@ function share(png: Uint8Array<ArrayBuffer>, fields: Record<string, string> = {}
 const admin = (path: string, init: RequestInit = {}) =>
   new Request(`${base}${path}`, { ...init, headers: { authorization: 'Bearer secret-token', 'content-type': 'application/json' } });
 
-test('share → pending (not public) → approve → on the wall', async () => {
+test('shares publish immediately and can be moved to Waiting, restored, or archived', async () => {
   const e = env();
   const res = await handle(share(composerPng()), e, okTurnstile);
   assert.equal(res.status, 201);
-  const { id } = (await res.json()) as { id: string };
+  const { id, status } = (await res.json()) as { id: string; status: string };
+  assert.equal(status, 'approved');
   assert.deepEqual(e.WALL.keys(), [`wall/${id}.png`]);
 
-  // not public yet: not listed, and its image is a 404
-  assert.deepEqual(((await (await handle(new Request(`${base}/api/wall`), e)).json()) as { posts: unknown[] }).posts, []);
-  assert.equal((await handle(new Request(`${base}/api/wall/${id}.png`), e)).status, 404);
-  // the admin sees it, image included
-  const queue = (await (await handle(admin('/api/admin/wall?status=pending'), e)).json()) as { posts: { id: string; title: string }[] };
-  assert.deepEqual(queue.posts.map((p) => [p.id, p.title]), [[id, 'Weird one']]);
-  assert.equal((await handle(admin(`/api/wall/${id}.png`), e)).status, 200);
-
-  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'approve' }) }), e);
   const wall = (await (await handle(new Request(`${base}/api/wall`), e)).json()) as { posts: { id: string; author: string; width: number }[] };
   assert.deepEqual(wall.posts.map((p) => [p.id, p.author, p.width]), [[id, 'ana', 1]]);
   const img = await handle(new Request(`${base}/api/wall/${id}.png`), e);
   assert.equal(img.status, 200);
   assert.equal(img.headers.get('content-type'), 'image/png');
 
-  // hide: off the wall again, kept for the admin
-  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'hide' }) }), e);
-  assert.equal((await handle(new Request(`${base}/api/wall/${id}.png`), e)).status, 404);
+  const moderate = (action: string) => handle(admin(`/api/admin/wall/${id}`, {
+    method: 'POST', body: JSON.stringify({ action }),
+  }), e);
+  const publicImage = () => handle(new Request(`${base}/api/wall/${id}.png`), e);
+  assert.deepEqual(await (await moderate('wait')).json(), { id, status: 'pending' });
+  assert.deepEqual(((await (await handle(new Request(`${base}/api/wall`), e)).json()) as { posts: unknown[] }).posts, []);
+  assert.equal((await publicImage()).status, 404);
+  const queue = await (await handle(admin('/api/admin/wall?status=pending'), e)).json() as { posts: { id: string; title: string }[] };
+  assert.deepEqual(queue.posts.map((p) => [p.id, p.title]), [[id, 'Weird one']]);
+  assert.equal((await handle(admin(`/api/wall/${id}.png`), e)).status, 200);
+
+  assert.deepEqual(await (await moderate('approve')).json(), { id, status: 'approved' });
+  assert.equal((await publicImage()).status, 200);
+  assert.deepEqual(await (await moderate('hide')).json(), { id, status: 'hidden' });
+  assert.equal((await publicImage()).status, 404);
+  assert.deepEqual(e.WALL.keys(), [`wall/${id}.png`]);
 });
 
 test('reject deletes the image and the entry', async () => {
@@ -135,7 +140,7 @@ test('answers carry nosniff, and a broken database leaves no orphan image', asyn
         return {
           bind: (...values) => ({
             ...statement.bind(...values),
-            first: async () => { throw new Error('db down'); },
+            run: async () => { throw new Error('db down'); },
           }),
         };
       },
@@ -170,37 +175,6 @@ test('Turnstile tokens only count when made on this site, by the share dialog', 
   assert.equal((await handle(share(composerPng()), e, okTurnstile)).status, 201);
 });
 
-test('a full approval queue refuses new posts', async () => {
-  const e = env();
-  for (let i = 0; i < LIMITS.pending; i++)
-    await e.DB.prepare("INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, 't', NULL, 'pending', '2026-01-01', 1, 1)").bind(`p${String(i).padStart(11, '0')}`).run();
-  assert.equal((await handle(share(composerPng()), e, okTurnstile)).status, 503);
-  assert.deepEqual(e.WALL.keys(), []);
-});
-
-test('concurrent shares cannot both take the last approval slot', async () => {
-  const e = env();
-  for (let i = 0; i < LIMITS.pending - 1; i++)
-    await e.DB.prepare("INSERT INTO posts (id, title, author, status, created_at, width, height) VALUES (?1, 't', NULL, 'pending', '2026-01-01', 1, 1)").bind(`p${String(i).padStart(11, '0')}`).run();
-
-  const put = e.WALL.put;
-  let uploads = 0;
-  let releaseUploads!: () => void;
-  const bothUploading = new Promise<void>((resolve) => { releaseUploads = resolve; });
-  e.WALL.put = async (...args) => {
-    await put(...args);
-    if (++uploads === 2) releaseUploads();
-    await bothUploading;
-  };
-
-  const shares = await Promise.all([
-    handle(share(composerPng()), e, okTurnstile),
-    handle(share(composerPng()), e, okTurnstile),
-  ]);
-  assert.deepEqual(shares.map(({ status }) => status).sort(), [201, 503]);
-  assert.equal(e.WALL.keys().length, 1);
-});
-
 test('wall permalinks expose escaped social metadata only for approved posts', async () => {
   const e = env();
   const title = '<A drawing> & "friends"';
@@ -208,8 +182,6 @@ test('wall permalinks expose escaped social metadata only for approved posts', a
   const html = `<title>${slots.title}</title><meta property="og:url" content="${slots.canonical}"><meta property="og:image" content="${slots.image}"><p>${slots.byline}</p>`;
   const assets = { fetch: async () => new Response(html, { headers: { 'content-type': 'text/html' } }) };
   const entry = new Request(base + wallEntryPath(id));
-  assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
-  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'approve' }) }), e);
   const response = await serveWallEntry(entry, e.DB, assets);
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('cache-control'), 'no-store');
@@ -218,6 +190,8 @@ test('wall permalinks expose escaped social metadata only for approved posts', a
   assert.ok(page.includes(base + wallEntryPath(id)));
   assert.ok(page.includes(`${base}/wall/image/${id}.png`));
   assert.ok(page.includes('by Luma'));
+  await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'wait' }) }), e);
+  assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
   await handle(admin(`/api/admin/wall/${id}`, { method: 'POST', body: JSON.stringify({ action: 'hide' }) }), e);
   assert.equal((await serveWallEntry(entry, e.DB, assets)).status, 404);
 });

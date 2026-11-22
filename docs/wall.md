@@ -1,15 +1,15 @@
 # The wall: setup
 
-The wall shows compositions people share from the composer, **after you approve them**. All of it
+The wall shows compositions people share from the composer, as soon as they’re submitted. All of it
 runs on Cloudflare, next to the static site:
 
 - `src/worker.ts`: the Worker entry point for `/api/*` request (code in `src/lib/wall-api.ts`)
 - **R2** bucket `lumassets-wall`, **private**: the images (`wall/<id>.png`)
 - **D1** database `lumassets-wall`: the list of posts (`migrations/0001_wall.sql`)
 - **Turnstile**: Cloudflare's spam check on the Share form
-- `/wall/admin/`: where you approve, hide or delete posts, with a secret token
+- `/wall/admin/`: where you review, archive, move to Waiting or delete posts, with a secret token
 
-Nothing is public until you approve it, and deleting removes the image for good. Only PNGs exported
+Deleting removes the image for good. Only PNGs exported
 by the composer are accepted; they carry the composition inside, which is what makes **Remix**
 work. Posts store the title and optional name. The rate limiter stores a keyed, per-window digest of the visitor IP and drops expired entries on the next share attempt.
 
@@ -51,7 +51,7 @@ show them, add them under Settings → Bindings with those names.
 
 **Rate limit**: the Worker allows five share attempts per visitor IP in each ten-minute window and returns `429` with `Retry-After` when the limit is reached. This works on the `workers.dev` hostname. Apply both D1 migrations before deploying.
 
-Deploy as usual (push to `main`). Then open `/wall/admin/`, paste the token, and approve.
+Deploy as usual (push to `main`). Then open `/wall/admin/`, paste the token, and review posts in On the wall.
 
 ## Trying it locally
 
@@ -66,12 +66,12 @@ send. That's expected.
 
 ## Moderation
 
-- **Waiting**: new posts. Not public, not even their image.
+- **Move to Waiting**: removes the post from public view while you review it.
 - **Approve**: shows it on the wall.
-- **Hide**: takes it off the wall but keeps it.
+- **Archive**: takes it off the wall but keeps it.
 - **Delete**: removes the image and the entry for good.
 
 Shared images are scaled down to 1600 px on the long side. Limits: 8 MB, 80 characters of title,
 40 of name.
 
-The approval queue holds up to 200 pending posts. Workers preview URLs are disabled.
+The Share button gives visitors a direct link to the post. Workers preview URLs are disabled.

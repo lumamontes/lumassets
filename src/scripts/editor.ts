@@ -1,3 +1,4 @@
+import { wallEntryPath } from '../lib/wall-entry';
 import { downloadFile } from './download';
 // Composition editor. Loaded only on /compose.
 // The CompositionDoc is the source of truth; the Fabric canvas is a view of it.
@@ -881,9 +882,12 @@ export function startEditor() {
       if (!res.ok) throw new Error(body.error || `The wall answered ${res.status}.`);
       const shared = $<HTMLInputElement>('share-title').value.trim();
       if (shared) { doc.title = shared.slice(0, 120); commit(); }  // its name from now on (file names too)
-      status.textContent = 'Sent! It shows up on the wall once it’s approved.';
+      const link = document.createElement('a');
+      link.href = wallEntryPath(body.id);
+      link.textContent = 'Open your wall post';
+      status.replaceChildren('Published! ', link);
       turnstileToken = '';
-      say('Shared. It shows up on the wall once it’s approved.');
+      say('Published on the wall.');
     } catch (err) {
       status.textContent = (err as Error).message === 'Failed to fetch' ? "Couldn't reach the wall. Try again later." : (err as Error).message;
       turnstileToken = '';

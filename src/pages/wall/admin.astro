@@ -2,9 +2,9 @@
 import Base from '../../layouts/Base.astro';
 ---
 
-<Base title="Wall: approve" description="Approve what shows on the wall." noindex>
+<Base title="Wall moderation" description="Review and moderate wall posts." noindex>
   <div class="adm">
-    <h1>Wall: approve</h1>
+    <h1>Wall moderation</h1>
     <form id="login" class="row">
       <label>Token <input type="password" id="token" autocomplete="current-password" required /></label>
       <button class="btn small" type="submit">Load</button>
@@ -22,9 +22,9 @@ import Base from '../../layouts/Base.astro';
       <p class="muted metrics-note">Each ZIP counts as one download. Counts start when tracking was enabled.</p>
     </details>
     <div class="tabs" role="group" aria-label="Show">
-      <button type="button" class="chip" data-status="pending" aria-pressed="true">Waiting</button>
-      <button type="button" class="chip" data-status="approved" aria-pressed="false">On the wall</button>
-      <button type="button" class="chip" data-status="hidden" aria-pressed="false">Hidden</button>
+      <button type="button" class="chip" data-status="pending" aria-pressed="false">Waiting</button>
+      <button type="button" class="chip" data-status="approved" aria-pressed="true">On the wall</button>
+      <button type="button" class="chip" data-status="hidden" aria-pressed="false">Archived</button>
     </div>
     <p class="muted" id="state" aria-live="polite">Enter the token (ADMIN_TOKEN) to load.</p>
     <ul class="queue" id="queue"></ul>
@@ -62,7 +62,7 @@ import Base from '../../layouts/Base.astro';
   const $ = (id: string) => document.getElementById(id)!;
   const KEY = 'lumassets-wall-token';
   let token = sessionStorage.getItem(KEY) ?? '';
-  let status = 'pending';
+  let status = 'approved';
   const auth = () => ({ authorization: `Bearer ${token}` });
 
   let loading = 0;
@@ -158,7 +158,8 @@ import Base from '../../layouts/Base.astro';
       return b;
     };
     if (p.status !== 'approved') acts.append(btn('Approve', 'approve', true));
-    if (p.status !== 'hidden') acts.append(btn('Hide', 'hide'));
+    if (p.status !== 'pending') acts.append(btn('Move to Waiting', 'wait'));
+    if (p.status !== 'hidden') acts.append(btn('Archive', 'hide'));
     acts.append(btn('Delete', 'reject'));
     li.append(img, info, acts);
     return li;

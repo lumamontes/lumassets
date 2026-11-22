@@ -1,7 +1,7 @@
 import { DOWNLOAD_LABELS, type DownloadKind } from './download-metrics.ts';
-// The wall: compositions people share from the composer, shown after Luma approves them.
+// The wall: compositions people share from the composer, published immediately.
 // Runs on Cloudflare Workers (src/worker.ts) with a private R2 bucket for the
-// images and a D1 database for the list. Nothing is public until it's approved, and a rejected
+// images and a D1 database for the list. Moderators can take posts off the wall, and a rejected
 // post is deleted for good. No framework; only the storage methods it uses are typed below, so
 // it's unit-tested in Node against real SQLite (D1 is SQLite) and an in-memory R2.
 //
@@ -10,11 +10,11 @@ import { DOWNLOAD_LABELS, type DownloadKind } from './download-metrics.ts';
 //   POST /api/wall                         multipart: image (PNG from the composer), title, author, turnstile
 //   GET  /api/wall/<id>.png                an approved post's image (any status with the admin token)
 //   GET  /api/admin/wall?status=pending     admin: list (Authorization: Bearer <ADMIN_TOKEN>)
-//   POST /api/admin/wall/<id>              admin: {"action": "approve" | "hide" | "reject"}
+//   POST /api/admin/wall/<id>              admin: {"action": "approve" | "wait" | "hide" | "reject"}
 import { readPngText } from './png-meta.ts';
 
 export const COMPOSITION_KEY = 'lumassets:composition';
-export const LIMITS = { bytes: 8 * 1024 * 1024, side: 6000, title: 80, author: 40, page: 60, pending: 200 };
+export const LIMITS = { bytes: 8 * 1024 * 1024, side: 6000, title: 80, author: 40, page: 60 };
 /** The Turnstile widget in the composer is rendered with this action. */
 export const TURNSTILE_ACTION = 'share';
 const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -201,8 +201,6 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
     if (image.size > LIMITS.bytes) return fail(413, 'The image is over 8 MB. Try a smaller canvas.');
     if (!(await turnstileOk(String(form.get('turnstile') ?? ''), env, ip, url, fetchImpl)))
       return fail(403, "Couldn't verify you're a person. Reload and try again.");
-    const waiting = await env.DB.prepare("SELECT COUNT(*) AS n FROM posts WHERE status = 'pending'").bind().first<{ n: number }>();
-    if ((waiting?.n ?? 0) >= LIMITS.pending) return fail(503, 'Too many posts are waiting for approval. Try again in a day or two.');
     const bytes = new Uint8Array(await image.arrayBuffer());
     const check = checkComposerPng(bytes);
     if ('error' in check) return fail(400, check.error);
@@ -210,29 +208,21 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
       id: newId(),
       title: cleanText(form.get('title'), LIMITS.title) || 'Untitled',
       author: cleanText(form.get('author'), LIMITS.author) || null,
-      status: 'pending',
+      status: 'approved',
       created_at: new Date().toISOString(),
       ...check,
     };
     await env.WALL.put(`wall/${post.id}.png`, bytes, { httpMetadata: { contentType: 'image/png' } });
-    let inserted: { id: string } | null;
     try {
-      inserted = await env.DB.prepare(`
+      await env.DB.prepare(`
         INSERT INTO posts (id, title, author, status, created_at, width, height)
-        SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7
-        WHERE (SELECT COUNT(*) FROM posts WHERE status = 'pending') < ?8
-        RETURNING id
-      `).bind(post.id, post.title, post.author, post.status, post.created_at, post.width, post.height, LIMITS.pending)
-        .first<{ id: string }>();
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+      `).bind(post.id, post.title, post.author, post.status, post.created_at, post.width, post.height).run();
     } catch (e) {
       await env.WALL.delete(`wall/${post.id}.png`); // no image without its entry
       throw e;
     }
-    if (!inserted) {
-      await env.WALL.delete(`wall/${post.id}.png`);
-      return fail(503, 'Too many posts are waiting for approval. Try again in a day or two.');
-    }
-    return json({ id: post.id, status: 'pending' }, 201);
+    return json({ id: post.id, status: post.status }, 201);
   }
 
   // an image
@@ -246,8 +236,7 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
     return new Response(req.method === 'HEAD' ? null : obj.body ?? (await obj.arrayBuffer()), {
       headers: {
         'content-type': 'image/png',
-        // an hour, so a post you hide disappears from browsers soon after
-        'cache-control': post.status === 'approved' && !admin ? 'public, max-age=3600' : 'private, no-store',
+        'cache-control': 'private, no-store',
         ...SAFE,
         'content-disposition': `inline; filename="lumassets-wall-${post.id}.png"`,
       },
@@ -276,10 +265,11 @@ export async function handle(req: Request, env: WallEnv, fetchImpl: typeof fetch
       try { action = String(((await req.json()) as { action?: string }).action); } catch { /* handled below */ }
       const post = await env.DB.prepare('SELECT * FROM posts WHERE id = ?1').bind(one[1]).first<Post>();
       if (!post) return fail(404, 'Not found.');
-      if (action === 'approve' || action === 'hide') {
-        const status = action === 'approve' ? 'approved' : 'hidden';
-        await env.DB.prepare('UPDATE posts SET status = ?1 WHERE id = ?2').bind(status, post.id).run();
-        return json({ id: post.id, status });
+      const status = { approve: 'approved', wait: 'pending', hide: 'hidden' } as const;
+      if (action === 'approve' || action === 'wait' || action === 'hide') {
+        const nextStatus = status[action];
+        await env.DB.prepare('UPDATE posts SET status = ?1 WHERE id = ?2').bind(nextStatus, post.id).run();
+        return json({ id: post.id, status: nextStatus });
       }
       if (action === 'reject') {
         await env.WALL.delete(`wall/${post.id}.png`);
