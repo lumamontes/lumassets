@@ -3,7 +3,7 @@
 The wall shows compositions people share from the composer, **after you approve them**. All of it
 runs on Cloudflare, next to the static site:
 
-- `functions/api/[[path]].ts`: a Pages Function for every `/api/*` request (code in `src/lib/wall-api.ts`)
+- `src/worker.ts`: the Worker entry point for `/api/*` request (code in `src/lib/wall-api.ts`)
 - **R2** bucket `lumassets-wall`, **private**: the images (`wall/<id>.png`)
 - **D1** database `lumassets-wall`: the list of posts (`migrations/0001_wall.sql`)
 - **Turnstile**: Cloudflare's spam check on the Share form
@@ -39,17 +39,17 @@ pnpm wrangler d1 migrations apply lumassets-wall --remote
 Cloudflare's test key, which the API refuses outside localhost, so sharing stays off until you
 replace it). Keep the **secret key** for the next step.
 
-**Secrets** of the Pages project (Workers & Pages → lumassets → Settings → Variables and Secrets, or):
+**Secrets** of the Worker (Workers & Pages → lumassets → Settings → Variables and Secrets, or):
 
 ```sh
-pnpm wrangler pages secret put ADMIN_TOKEN        # a long random password: openssl rand -base64 32
-pnpm wrangler pages secret put TURNSTILE_SECRET   # the Turnstile secret key
+pnpm wrangler secret put ADMIN_TOKEN        # a long random password: openssl rand -base64 32
+pnpm wrangler secret put TURNSTILE_SECRET   # the Turnstile secret key
 ```
 
 The R2 and D1 bindings come from `wrangler.toml` (names `WALL` and `DB`). If the dashboard doesn't
 show them, add them under Settings → Bindings with those names.
 
-**Rate limit**: the Pages Function allows five share attempts per visitor IP in each ten-minute window and returns `429` with `Retry-After` when the limit is reached. This works on the `pages.dev` hostname. Apply both D1 migrations before deploying.
+**Rate limit**: the Worker allows five share attempts per visitor IP in each ten-minute window and returns `429` with `Retry-After` when the limit is reached. This works on the `workers.dev` hostname. Apply both D1 migrations before deploying.
 
 Deploy as usual (push to `main`). Then open `/wall/admin/`, paste the token, and approve.
 
@@ -74,4 +74,4 @@ send. That's expected.
 Shared images are scaled down to 1600 px on the long side. Limits: 8 MB, 80 characters of title,
 40 of name.
 
-The approval queue holds up to 200 pending posts. Preview deployments have no wall storage.
+The approval queue holds up to 200 pending posts. Workers preview URLs are disabled.

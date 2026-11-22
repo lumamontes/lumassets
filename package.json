@@ -22,7 +22,8 @@
     "verify": "pnpm check:catalog && pnpm test && pnpm check && pnpm build && pnpm check:links && pnpm test:e2e",
     "preview": "astro preview",
     "astro": "astro",
-    "dev:wall": "pnpm build && wrangler pages dev"
+    "deploy": "pnpm build && wrangler deploy",
+    "dev:wall": "pnpm build && wrangler dev"
   },
   "dependencies": {
     "astro": "^7.4.13",

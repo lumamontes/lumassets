@@ -81,7 +81,7 @@ remain static assets. See the [Astro content collections guide](https://docs.ast
 
 Cloudflare's official Pages guide uses `main`, a build command, and `dist`,
 and rebuilds on pushed commits. The repository already documents `pnpm build`
-and `dist` in [`docs/cloudflare-pages.md`](../cloudflare-pages.md). For a
+and `dist` in [`docs/cloudflare-workers.md`](../cloudflare-workers.md). For a
 static catalog, avoid adding SSR or a database until search scale or user-saved
 compositions genuinely requires it. Astro now recommends Workers for new
 Cloudflare projects, but Pages remains documented for existing static projects:

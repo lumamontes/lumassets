@@ -1,5 +1,5 @@
 // The wall: compositions people share from the composer, shown after Luma approves them.
-// Runs as a Cloudflare Pages Function (functions/api/[[path]].ts) with a private R2 bucket for the
+// Runs on Cloudflare Workers (src/worker.ts) with a private R2 bucket for the
 // images and a D1 database for the list. Nothing is public until it's approved, and a rejected
 // post is deleted for good. No framework; only the storage methods it uses are typed below, so
 // it's unit-tested in Node against real SQLite (D1 is SQLite) and an in-memory R2.

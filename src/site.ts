@@ -7,7 +7,7 @@ export const SITE = {
   author: 'Luma Montes',
 
   /** Where this site is deployed (canonical links, sitemap, social previews). */
-  url: process.env.SITE_URL ?? 'https://lumassets.pages.dev',
+  url: process.env.SITE_URL ?? 'https://lumassets.bibliotecadezines.workers.dev',
   /** Luma's personal website: "Luma Montes" links here. */
   websiteUrl: 'https://lumamontes.com',
   /** Public Turnstile key. Use the test key with the local wall walkthrough. */

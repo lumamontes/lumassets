@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SITE_URL: https://lumassets.pages.dev
+      SITE_URL: https://lumassets.bibliotecadezines.workers.dev
     steps:
       - uses: actions/checkout@v4
 

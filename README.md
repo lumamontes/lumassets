@@ -4,7 +4,7 @@ A free, static library of Luma Montes's hand-drawn assets, plus a small in-brows
 
 - **Grid**: every drawing in the same square, on one page. Search and filter; click one to open a panel (`/#slug` links straight to it) with license, a link to compose, and an **export** box: SVG or transparent PNG (512 to 4096 px), any colour (or `currentColor` for websites), download or copy (SVG code, or the image itself for pasting into Canva, Slides, Notion…). Exports are made in the browser.
 - **Compose**: arrange drawings on a canvas, stack effects (distort, glitch, texture, focus, color, repeat) per layer or on everything, and export PNG, SVG, or a reusable composition file. Bring your own drawings too: SVGs stay vectors, photos get their paper and shadows removed, and they're saved inside the composition file. No account, no server: files never leave the browser.
-- **Static**: Astro, no SSR, no database, no trackers. Deploys to Cloudflare Pages on the free tier.
+- **Static**: Astro, no SSR, no trackers. The wall API uses D1 and R2. Deploys to Cloudflare Workers on the free tier.
 
 Product spec: [`docs/product/asset-library-spec.md`](docs/product/asset-library-spec.md) · Research: [`docs/research/open-source-asset-library-patterns.md`](docs/research/open-source-asset-library-patterns.md)
 
@@ -43,8 +43,7 @@ Not in CI, because scores vary between runs. Run it by hand:
 
 ```sh
 pnpm build && pnpm lighthouse                                  # local production build
-pnpm lighthouse https://<branch>.lumassets.pages.dev           # a Cloudflare PR preview
-pnpm lighthouse https://lumassets.pages.dev --desktop          # production, desktop profile
+pnpm lighthouse https://lumassets.bibliotecadezines.workers.dev --desktop          # production, desktop profile
 ```
 
 It checks the grid, About and Compose, prints a score table, and saves HTML reports to `lighthouse-reports/`. It exits non-zero if accessibility, best practices or SEO drop below 90 (the spec's target). Performance is reported but not enforced.
@@ -79,7 +78,7 @@ It finds each drawing in the photos even when they're rotated or taken at an ang
 
 ## The wall
 
-`/wall/` shows compositions people share from the composer, after you approve them at `/wall/admin/`. It runs on Cloudflare (a Pages Function, a private R2 bucket, D1, Turnstile) next to the static site. Setup, local testing and moderation: [`docs/wall.md`](docs/wall.md).
+`/wall/` shows compositions people share from the composer, after you approve them at `/wall/admin/`. It runs on Cloudflare (a Worker, a private R2 bucket, D1, Turnstile) next to the static site. Setup, local testing and moderation: [`docs/wall.md`](docs/wall.md).
 
 ## How it fits together
 
@@ -123,5 +122,4 @@ Free and open source:
 
 ## Before the first public deploy
 
-- [ ] Set up the wall: [`docs/wall.md`](docs/wall.md) (R2, D1, a Turnstile key, two secrets, one rate-limit rule).
-- [ ] Replace the placeholder links in **`src/site.ts`** (the site's address, your website, GitHub, contact). That file is the only place they live.
+- [ ] Deploy the Worker and set the two production wall secrets using [the wall setup](docs/wall.md).
