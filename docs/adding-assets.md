@@ -287,7 +287,7 @@ git commit -m "Add monstrinho-7 and monstrinho-8"
 git push
 ```
 
-Cloudflare Pages builds and deploys the site from the push, usually in a few minutes. Check the deploy in the Cloudflare dashboard (Workers & Pages → lumassets → Deployments), then open the live site and find the new drawing.
+Pushing to `main` triggers a [Cloudflare Workers build](cloudflare-workers.md). Check the deployment in the Cloudflare dashboard, then open the live library and find the new drawing.
 
 ---
 
