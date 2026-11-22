@@ -2661,5 +2661,215 @@
       "pixels": 401
     },
     "qualityException": "Traced from only 401 px: needs a sharper scan or a closer photo. Put it in the inbox and run `quick-editor refit` again."
+  },
+  {
+    "id": "mon-07",
+    "name": "monstrinho-7",
+    "slug": "monstrinho-7",
+    "description": "A solemn face in profile with a small curl of hair.",
+    "aliases": [],
+    "tags": [
+      "head",
+      "profile"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-07.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-07.png",
+    "format": "svg",
+    "width": 1408,
+    "height": 2216,
+    "viewBox": "0 0 1408 2216",
+    "fileSize": 60908,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 273
+    },
+    "qualityException": "Traced from a 273 px crop of the available Monstrinhos page scan."
+  },
+  {
+    "id": "mon-08",
+    "name": "monstrinho-8",
+    "slug": "monstrinho-8",
+    "description": "A cube-shaped monster with slanted eyes, zigzag teeth and little feet.",
+    "aliases": [],
+    "tags": [
+      "box",
+      "teeth"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-08.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-08.png",
+    "format": "svg",
+    "width": 2416,
+    "height": 2094,
+    "viewBox": "0 0 2416 2094",
+    "fileSize": 141362,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 604
+    }
+  },
+  {
+    "id": "mon-09",
+    "name": "monstrinho-9",
+    "slug": "monstrinho-9",
+    "description": "A little robot with a crossed antenna, striped teeth and two wheels.",
+    "aliases": [],
+    "tags": [
+      "robot",
+      "antenna",
+      "teeth"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-09.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-09.png",
+    "format": "svg",
+    "width": 806,
+    "height": 2415,
+    "viewBox": "0 0 806 2415",
+    "fileSize": 69115,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 628
+    }
+  },
+  {
+    "id": "mon-10",
+    "name": "monstrinho-10",
+    "slug": "monstrinho-10",
+    "description": "A tilted capsule with two faces peeking out from inside.",
+    "aliases": [],
+    "tags": [
+      "capsule",
+      "faces"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-10.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-10.png",
+    "format": "svg",
+    "width": 1686,
+    "height": 2430,
+    "viewBox": "0 0 1686 2430",
+    "fileSize": 84148,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 316
+    },
+    "qualityException": "Traced from a 316 px crop of the available Monstrinhos page scan."
+  },
+  {
+    "id": "mon-11",
+    "name": "monstrinho-11",
+    "slug": "monstrinho-11",
+    "description": "A tall rectangular creature with a hooked top and curling limbs.",
+    "aliases": [],
+    "tags": [
+      "bust",
+      "rectangular"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-11.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-11.png",
+    "format": "svg",
+    "width": 1208,
+    "height": 2421,
+    "viewBox": "0 0 1208 2421",
+    "fileSize": 54472,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 449
+    },
+    "qualityException": "Traced from a 449 px crop of the available Monstrinhos page scan."
+  },
+  {
+    "id": "mon-12",
+    "name": "monstrinho-12",
+    "slug": "monstrinho-12",
+    "description": "A face in rectangular glasses framed by a wavy mane, above a round collar.",
+    "aliases": [],
+    "tags": [
+      "bust",
+      "glasses",
+      "wavy"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-12.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-12.png",
+    "format": "svg",
+    "width": 1870,
+    "height": 2415,
+    "viewBox": "0 0 1870 2415",
+    "fileSize": 135588,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 630
+    }
+  },
+  {
+    "id": "mon-13",
+    "name": "monstrinho-13",
+    "slug": "monstrinho-13",
+    "description": "A little bust with oversized curved horns, a narrow grin and a puffy collar.",
+    "aliases": [],
+    "tags": [
+      "bust",
+      "horns",
+      "grin"
+    ],
+    "collection": "monstrinhos",
+    "sourcePath": "assets/vector/mon-13.svg",
+    "originalPath": "assets/originals/monstrinhos/mon-13.png",
+    "format": "svg",
+    "width": 1656,
+    "height": 2422,
+    "viewBox": "0 0 1656 2422",
+    "fileSize": 93623,
+    "containsRaster": false,
+    "license": "inherit",
+    "version": "1.0.0",
+    "status": "published",
+    "provenance": {
+      "method": "crop",
+      "sourceAsset": "mon-00",
+      "from": "assets/originals/monstrinhos/mon-00.png",
+      "pixels": 432
+    },
+    "qualityException": "Traced from a 432 px crop of the available Monstrinhos page scan."
   }
 ]
